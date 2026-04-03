@@ -30,6 +30,9 @@ $user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
             <li><a href="leaderboard.php" class="<?= isActive('leaderboard.php') ?>">Leaderboard</a></li>
             <?php if ($user): ?>
                 <li><a href="dashboard.php" class="<?= isActive('dashboard.php') ?>">Dashboard</a></li>
+                <?php if ($user['role'] === 'coordinator'): ?>
+                    <li><a href="coordinator.php" class="neon-text-purple <?= isActive('coordinator.php') ?>">Coordinator</a></li>
+                <?php endif; ?>
                 <?php if ($user['role'] === 'admin'): ?>
                     <li><a href="admin.php" class="neon-text-pink <?= isActive('admin.php') ?>">Admin</a></li>
                 <?php endif; ?>

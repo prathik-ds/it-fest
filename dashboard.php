@@ -97,11 +97,29 @@ $announcements = $stmt->fetchAll();
             </table>
         <?php endif; ?>
 
+        <div class="glass neon-border-blue" style="padding: 20px; text-align: center; margin-top: 40px; border-color: var(--neon-pink);">
+            <h3 class="orbitron neon-text-pink" style="font-size: 0.9rem; margin-bottom: 20px;">Digital Entry Pass</h3>
+            <div id="qrcode" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px; margin-bottom: 15px;"></div>
+            <p style="font-size: 0.7rem; color: #777; line-height: 1.5;">Show this QR code at the event venue for instant attendance check-in.</p>
+        </div>
+
         <div style="margin-top: 40px; padding: 20px; background: rgba(0, 243, 255, 0.03); border: 1px dashed rgba(0, 243, 255, 0.2); border-radius: 8px;">
             <h4 class="orbitron" style="font-size: 0.8rem; margin-bottom: 10px; color: #777;">💡 Quick Note</h4>
             <p style="font-size: 0.8rem; color: #666; line-height: 1.5;">Remember to bring your valid college ID and the unique code <span class="neon-text-blue"><?= $user_id ?></span> for check-in at the venue. Good luck!</p>
         </div>
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    new QRCode(document.getElementById("qrcode"), {
+        text: "<?= $user_id ?>",
+        width: 150,
+        height: 150,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+</script>
 
 <?php include 'includes/footer.php'; ?>

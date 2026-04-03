@@ -1,0 +1,50 @@
+<?php
+session_start();
+require_once 'config/db.php';
+
+header('Content-Type: application/json');
+
+if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'coordinator') {
+    echo json_encode(['success' => false, 'message' => 'Unauthorized Access']);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['action'] == 'qr_attendance') {
+    $scanned_user_id = $_POST['user_id'];
+    $event_id = $_POST['event_id'];
+    $c_id = $_SESSION['user']['user_id'];
+
+    try {
+        // 1. Verify Coordinator owns the event
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM events WHERE id = ? AND coordinator_id = ?");
+        $stmt->execute([$event_id, $c_id]);
+        if ($stmt->fetchColumn() == 0) {
+            echo json_encode(['success' => false, 'message' => 'You are not assigned to this event.']);
+            exit;
+        }
+
+        // 2. Check if student is registered for this event
+        $stmt = $pdo->prepare("SELECT r.id, u.name FROM registrations r JOIN users u ON r.user_id = u.user_id WHERE r.user_id = ? AND r.event_id = ?");
+        $stmt->execute([$scanned_user_id, $event_id]);
+        $registration = $stmt->fetch();
+
+        if ($registration) {
+            // 3. Mark Attendance
+            $stmt = $pdo->prepare("UPDATE registrations SET attendance = 'present' WHERE id = ?");
+            $stmt->execute([$registration['id']]);
+            
+            echo json_encode([
+                'success' => true, 
+                'student_name' => $registration['name'], 
+                'message' => 'Attendance Marked Successfully'
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Student is not registered for this specific event.']);
+        }
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    }
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid Request']);
+}
+?>

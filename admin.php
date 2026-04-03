@@ -13,8 +13,17 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = $_POST['action'] ?? '';
     
-    // Manage Registrations (Score/Status)
-    if ($action === 'update_score') {
+    // Role update (Promote/Demote)
+    if ($action === 'update_role') {
+        $u_id = $_POST['user_id'];
+        $new_role = $_POST['role'];
+        $stmt = $pdo->prepare("UPDATE users SET role = ? WHERE user_id = ?");
+        $stmt->execute([$new_role, $u_id]);
+        $msg = "USER ROLE UPDATED SUCCESSFULLY.";
+    }
+
+    // Registrations update (Score/Status)
+    elseif ($action === 'update_score') {
         $reg_id = $_POST['reg_id'];
         $score = $_POST['score'];
         $status = $_POST['status'];
@@ -23,16 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $msg = "REGISTRATION UPDATED SUCCESSFULLY.";
     } 
     
-    // Announcements
-    elseif ($action === 'add_announcement') {
-        $title = $_POST['title'];
-        $content = $_POST['content'];
-        $stmt = $pdo->prepare("INSERT INTO announcements (title, content) VALUES (?, ?)");
-        $stmt->execute([$title, $content]);
-        $msg = "ANNOUNCEMENT POSTED SUCCESSFULLY.";
-    }
-
-    // CREATE EVENT
+    // Create Event
     elseif ($action === 'create_event') {
         $name = $_POST['name'];
         $category = $_POST['category'];
@@ -43,14 +43,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $venue = $_POST['venue'];
         $coord_name = $_POST['coordinator_name'];
         $coord_phone = $_POST['coordinator_phone'];
+        $coord_id = $_POST['coordinator_id'] ?: null; // The User ID of the coordinator
         $max_p = $_POST['max_participants'];
 
-        $stmt = $pdo->prepare("INSERT INTO events (name, category, description, rules, date, time, venue, coordinator_name, coordinator_phone, max_participants) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $coord_name, $coord_phone, $max_p]);
+        $stmt = $pdo->prepare("INSERT INTO events (name, category, description, rules, date, time, venue, coordinator_name, coordinator_phone, coordinator_id, max_participants) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $coord_name, $coord_phone, $coord_id, $max_p]);
         $msg = "EVENT CREATED SUCCESSFULLY.";
     }
 
-    // UPDATE EVENT
+    // Update Event
     elseif ($action === 'update_event') {
         $id = $_POST['event_id'];
         $name = $_POST['name'];
@@ -62,17 +63,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $venue = $_POST['venue'];
         $coord_name = $_POST['coordinator_name'];
         $coord_phone = $_POST['coordinator_phone'];
+        $coord_id = $_POST['coordinator_id'] ?: null;
         $max_p = $_POST['max_participants'];
 
-        $stmt = $pdo->prepare("UPDATE events SET name=?, category=?, description=?, rules=?, date=?, time=?, venue=?, coordinator_name=?, coordinator_phone=?, max_participants=? WHERE id=?");
-        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $coord_name, $coord_phone, $max_p, $id]);
+        $stmt = $pdo->prepare("UPDATE events SET name=?, category=?, description=?, rules=?, date=?, time=?, venue=?, coordinator_name=?, coordinator_phone=?, coordinator_id=?, max_participants=? WHERE id=?");
+        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $coord_name, $coord_phone, $coord_id, $max_p, $id]);
         $msg = "EVENT UPDATED SUCCESSFULLY.";
     }
 
-    // DELETE EVENT
+    // Delete Event
     elseif ($action === 'delete_event') {
         $id = $_POST['event_id'];
-        // Note: registrations have ON DELETE CASCADE so this will clean up automatically if foreign keys are set
         $stmt = $pdo->prepare("DELETE FROM events WHERE id = ?");
         $stmt->execute([$id]);
         $msg = "EVENT DELETED SUCCESSFULLY.";
@@ -86,6 +87,10 @@ $events_count = $pdo->query("SELECT COUNT(*) FROM events")->fetchColumn();
 
 // Fetch Events
 $events = $pdo->query("SELECT * FROM events ORDER BY category, name")->fetchAll();
+
+// Fetch User List (General Users and Coordinators)
+$all_users = $pdo->query("SELECT * FROM users ORDER BY role DESC, created_at DESC")->fetchAll();
+$coordinators = $pdo->query("SELECT user_id, name FROM users WHERE role = 'coordinator'")->fetchAll();
 
 // Fetch Registrations
 $registrations = $pdo->query("SELECT r.id, u.name as user_name, e.name as event_name, r.score, r.status, r.created_at FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id ORDER BY r.created_at DESC")->fetchAll();
@@ -132,13 +137,14 @@ if ($view_event_id) {
     </div>
 </div>
 
-<div style="display: flex; gap: 20px; margin-bottom: 30px;">
+<div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 30px;">
     <a href="admin.php" class="btn-neon" style="font-size: 0.7rem;">Overview</a>
     <a href="#manage-events" class="btn-neon" style="font-size: 0.7rem; border-color: var(--neon-purple); color: var(--neon-purple);">Manage Events</a>
+    <a href="#user-management" class="btn-neon" style="font-size: 0.7rem; border-color: var(--neon-blue); color: var(--neon-blue);">User Management</a>
     <a href="#announcements" class="btn-neon" style="font-size: 0.7rem; border-color: var(--neon-pink); color: var(--neon-pink);">Announcements</a>
 </div>
 
-<!-- Participant Details Modal-like Section -->
+<!-- Special Participant Table (Modal) -->
 <?php if($view_event_id): ?>
 <div class="glass neon-border-blue" style="padding: 30px; margin-bottom: 50px; border-color: var(--neon-purple);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
@@ -167,82 +173,16 @@ if ($view_event_id) {
                 </td>
             </tr>
             <?php endforeach; ?>
-            <?php if(empty($participants)): ?>
-                <tr><td colspan="4" style="padding: 30px; text-align: center; color: #555;">No participants yet.</td></tr>
-            <?php endif; ?>
         </tbody>
     </table>
 </div>
 <?php endif; ?>
 
-<div id="overview" style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px; margin-bottom: 80px;">
-    <!-- Registration Manager -->
-    <div class="glass neon-border-blue" style="padding: 30px; overflow-x: auto;">
-        <h2 class="orbitron neon-text-blue" style="font-size: 1.2rem; margin-bottom: 30px;">Registration Updates</h2>
-        <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
-            <thead>
-                <tr style="border-bottom: 2px solid rgba(0, 243, 255, 0.1);">
-                    <th style="padding: 15px; font-size: 0.8rem; color: #777; font-family: 'Orbitron'; text-align: left;">USER / EVENT</th>
-                    <th style="padding: 15px; font-size: 0.8rem; color: #777; font-family: 'Orbitron';">SCORE</th>
-                    <th style="padding: 15px; font-size: 0.8rem; color: #777; font-family: 'Orbitron';">STATUS</th>
-                    <th style="padding: 15px; font-size: 0.8rem; color: #777; font-family: 'Orbitron';">ACTION</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach($registrations as $reg): ?>
-                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                        <td style="padding: 15px;">
-                            <span style="color: #fff; font-weight: 700;"><?= htmlspecialchars($reg['user_name']) ?></span><br>
-                            <span style="font-size: 0.7rem; color: var(--neon-blue); letter-spacing: 1px;"><?= htmlspecialchars($reg['event_name']) ?></span>
-                        </td>
-                        <form method="POST">
-                            <input type="hidden" name="action" value="update_score">
-                            <input type="hidden" name="reg_id" value="<?= $reg['id'] ?>">
-                            <td style="padding: 15px;">
-                                <input type="number" name="score" value="<?= $reg['score'] ?>" style="width: 70px; padding: 5px; background: rgba(0,0,0,0.3); border: 1px solid #444; border-radius: 4px;">
-                            </td>
-                            <td style="padding: 15px;">
-                                <select name="status" style="padding: 5px; font-size: 0.8rem; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #444; border-radius: 4px;">
-                                    <option value="registered" <?= $reg['status'] == 'registered' ? 'selected' : '' ?>>Registered</option>
-                                    <option value="participated" <?= $reg['status'] == 'participated' ? 'selected' : '' ?>>Participated</option>
-                                    <option value="winner" <?= $reg['status'] == 'winner' ? 'selected' : '' ?>>Winner</option>
-                                    <option value="runner" <?= $reg['status'] == 'runner' ? 'selected' : '' ?>>Runner Up</option>
-                                </select>
-                            </td>
-                            <td style="padding: 15px;">
-                                <button type="submit" class="btn-neon" style="padding: 5px 15px; font-size: 0.7rem; border-width: 1px;">UPDATE</button>
-                            </td>
-                        </form>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Announcement Tool -->
-    <div id="announcements" class="glass neon-border-blue" style="padding: 30px; height: fit-content;">
-        <h2 class="orbitron neon-text-purple" style="font-size: 1.2rem; margin-bottom: 25px;">Post Notice</h2>
-        <form method="POST">
-            <input type="hidden" name="action" value="add_announcement">
-            <div class="form-group">
-                <label>Title</label>
-                <input type="text" name="title" placeholder="Event Update / Result Out" required>
-            </div>
-            <div class="form-group">
-                <label>Content</label>
-                <textarea name="content" placeholder="Type announcement details here..." style="height: 150px;" required></textarea>
-            </div>
-            <button type="submit" class="btn-neon" style="width: 100%; border-color: var(--neon-purple); color: var(--neon-purple);">POST NOTICE</button>
-        </form>
-    </div>
-</div>
-
 <!-- Event Management Section -->
 <div id="manage-events" class="glass neon-border-blue" style="padding: 30px; margin-bottom: 80px; border-color: var(--neon-purple);">
-    <h2 class="orbitron neon-text-purple" style="font-size: 1.5rem; margin-bottom: 40px; text-align: center;">Event Management</h2>
+    <h2 class="orbitron neon-text-purple" style="font-size: 1.5rem; margin-bottom: 40px; text-align: center;">Event Management & Coordinator Assignment</h2>
     
     <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px;">
-        <!-- Event List -->
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
@@ -261,7 +201,7 @@ if ($view_event_id) {
                         </td>
                         <td style="padding: 15px;">
                             <span style="font-size: 0.85rem; color: #aaa;"><?= htmlspecialchars($ev['coordinator_name'] ?: 'None') ?></span><br>
-                            <span style="font-size: 0.7rem; color: #666;"><?= htmlspecialchars($ev['coordinator_phone'] ?: '-') ?></span>
+                            <span style="font-size: 0.7rem; color: var(--neon-pink);"><?= htmlspecialchars($ev['coordinator_id'] ?: 'System Assigned') ?></span>
                         </td>
                         <td style="padding: 15px; text-align: center;">
                             <div style="display: flex; gap: 10px; justify-content: center;">
@@ -282,60 +222,36 @@ if ($view_event_id) {
 
         <!-- Add/Edit Event Form -->
         <div class="glass" style="padding: 30px; border: 1px solid rgba(188, 19, 254, 0.3);">
-            <h3 id="form-title" class="orbitron neon-text-blue" style="font-size: 1rem; margin-bottom: 25px;">Create New Event</h3>
+            <h3 id="form-title" class="orbitron neon-text-blue" style="font-size: 1rem; margin-bottom: 25px;">Create/Edit Event</h3>
             <form id="event-form" method="POST">
                 <input type="hidden" name="action" id="form-action" value="create_event">
                 <input type="hidden" name="event_id" id="form-event-id">
                 
-                <div class="form-group">
-                    <label>Event Name</label>
-                    <input type="text" name="name" id="field-name" required>
+                <div class="form-group"><label>Event Name</label><input type="text" name="name" id="field-name" required></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group"><label>Category</label><select name="category" id="field-category"><option value="IT">IT (BCA)</option><option value="Commerce">Commerce (BCom)</option></select></div>
+                    <div class="form-group"><label>Max Slots</label><input type="number" name="max_participants" id="field-max-p" value="50"></div>
+                </div>
+                <div class="form-group"><label>Assign Coordinator Portal Access</label>
+                    <select name="coordinator_id" id="field-coord-id">
+                        <option value="">-- Select Trained Coordinator --</option>
+                        <?php foreach($coordinators as $c): ?>
+                            <option value="<?= $c['user_id'] ?>"><?= htmlspecialchars($c['name']) ?> (<?= $c['user_id'] ?>)</option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label>Category</label>
-                        <select name="category" id="field-category">
-                            <option value="IT">IT (BCA)</option>
-                            <option value="Commerce">Commerce (BCom)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Max Slots</label>
-                        <input type="number" name="max_participants" id="field-max-p" value="50">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea name="description" id="field-desc" style="height: 60px;"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Rules</label>
-                    <textarea name="rules" id="field-rules" style="height: 60px;"></textarea>
+                    <div class="form-group"><label>Disp. Coord. Name</label><input type="text" name="coordinator_name" id="field-coord-n"></div>
+                    <div class="form-group"><label>Disp. Coord. Phone</label><input type="text" name="coordinator_phone" id="field-coord-p"></div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label>Date</label>
-                        <input type="date" name="date" id="field-date">
-                    </div>
-                    <div class="form-group">
-                        <label>Time</label>
-                        <input type="time" name="time" id="field-time">
-                    </div>
+                    <div class="form-group"><label>Date</label><input type="date" name="date" id="field-date"></div>
+                    <div class="form-group"><label>Time</label><input type="time" name="time" id="field-time"></div>
                 </div>
-                <div class="form-group">
-                    <label>Venue</label>
-                    <input type="text" name="venue" id="field-venue">
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label>Coordinator Name</label>
-                        <input type="text" name="coordinator_name" id="field-coord-n">
-                    </div>
-                    <div class="form-group">
-                        <label>Coordinator Phone</label>
-                        <input type="text" name="coordinator_phone" id="field-coord-p">
-                    </div>
-                </div>
+                <div class="form-group"><label>Venue</label><input type="text" name="venue" id="field-venue"></div>
+                <div class="form-group"><label>Rules & Description</label><textarea name="rules" id="field-rules" style="height: 100px;"></textarea></div>
+                <input type="hidden" name="description" id="field-desc">
+                
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" id="submit-btn" class="btn-neon" style="flex: 2;">SAVE EVENT</button>
                     <button type="button" onclick="resetForm()" class="btn-neon" style="flex: 1; border-color: #555; color: #555;">CANCEL</button>
@@ -345,25 +261,109 @@ if ($view_event_id) {
     </div>
 </div>
 
+<!-- User Management Section -->
+<div id="user-management" class="glass neon-border-blue" style="padding: 30px; margin-bottom: 80px; border-color: var(--neon-blue);">
+    <h2 class="orbitron neon-text-blue" style="font-size: 1.5rem; margin-bottom: 40px; text-align: center;">User Role Management (Promote Coordinators)</h2>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid rgba(0, 243, 255, 0.2);">
+                    <th style="padding: 15px; text-align: left; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">USER</th>
+                    <th style="padding: 15px; text-align: left; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">CONTACT</th>
+                    <th style="padding: 15px; text-align: center; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">ROLE</th>
+                    <th style="padding: 15px; text-align: center; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach($all_users as $u): ?>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 15px;">
+                        <span style="color: #fff; font-weight: 700;"><?= htmlspecialchars($u['name']) ?></span><br>
+                        <span style="font-size: 0.7rem; color: var(--neon-blue);"><?= $u['user_id'] ?></span>
+                    </td>
+                    <td style="padding: 15px; color: #aaa; font-size: 0.85rem;">
+                        <?= htmlspecialchars($u['email']) ?><br><?= htmlspecialchars($u['phone']) ?>
+                    </td>
+                    <td style="padding: 15px; text-align: center;">
+                        <span style="font-size: 0.7rem; padding: 4px 10px; border: 1px solid currentColor; color: <?= $u['role'] == 'admin' ? 'var(--neon-pink)' : ($u['role'] == 'coordinator' ? 'var(--neon-purple)' : '#777') ?>;">
+                            <?= strtoupper($u['role']) ?>
+                        </span>
+                    </td>
+                    <form method="POST">
+                        <input type="hidden" name="action" value="update_role">
+                        <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
+                        <td style="padding: 15px; text-align: center;">
+                            <select name="role" onchange="this.form.submit()" style="padding: 5px; font-size: 0.75rem; background: #000; color: #fff; border: 1px solid #333;">
+                                <option value="user" <?= $u['role'] == 'user' ? 'selected' : '' ?>>User</option>
+                                <option value="coordinator" <?= $u['role'] == 'coordinator' ? 'selected' : '' ?>>Coordinator</option>
+                                <option value="admin" <?= $u['role'] == 'admin' ? 'selected' : '' ?>>Admin</option>
+                            </select>
+                        </td>
+                    </form>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="overview" class="glass neon-border-blue" style="padding: 30px; margin-bottom: 80px;">
+    <h2 class="orbitron neon-text-blue" style="font-size: 1.2rem; margin-bottom: 30px;">Quick Participant Overview</h2>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid rgba(0, 243, 255, 0.1);">
+                <th style="padding: 15px; font-size: 0.8rem; color: #777; font-family: 'Orbitron'; text-align: left;">PARTICIPANT</th>
+                <th style="padding: 15px; font-size: 0.8rem; color: #777; font-family: 'Orbitron';">EVENT</th>
+                <th style="padding: 15px; font-size: 0.8rem; color: #777; font-family: 'Orbitron';">SCORE</th>
+                <th style="padding: 15px; font-size: 0.8rem; color: #777; font-family: 'Orbitron';">STATUS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach($registrations as $reg): ?>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 15px; color: #fff;"><?= htmlspecialchars($reg['user_name']) ?></td>
+                    <td style="padding: 15px; color: var(--neon-blue);"><?= htmlspecialchars($reg['event_name']) ?></td>
+                    <td style="padding: 15px; color: var(--neon-pink);"><?= $reg['score'] ?></td>
+                    <td style="padding: 15px;">
+                        <span style="color: <?= $reg['status'] == 'winner' ? 'var(--neon-blue)' : '#777' ?>; font-size: 0.7rem; border: 1px solid currentColor; padding: 2px 6px;">
+                            <?= strtoupper($reg['status']) ?>
+                        </span>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
+<!-- Announcements Section -->
+<div id="announcements" class="glass neon-border-blue" style="padding: 30px; margin-bottom: 80px; border-color: var(--neon-pink);">
+    <h2 class="orbitron neon-text-pink" style="font-size: 1.2rem; margin-bottom: 25px;">Post New Notice</h2>
+    <form method="POST">
+        <input type="hidden" name="action" value="add_announcement">
+        <div class="form-group"><label>Title</label><input type="text" name="title" required></div>
+        <div class="form-group"><label>Content</label><textarea name="content" style="height: 150px;" required></textarea></div>
+        <button type="submit" class="btn-neon" style="border-color: var(--neon-pink); color: var(--neon-pink);">BROADCAST TO DASHBOARDS</button>
+    </form>
+</div>
+
 <script>
 function fillEditForm(event) {
-    document.getElementById('form-title').innerText = 'Edit Event: ' + event.name;
+    document.getElementById('form-title').innerText = 'Edit Event Portal';
     document.getElementById('form-action').value = 'update_event';
     document.getElementById('form-event-id').value = event.id;
     document.getElementById('field-name').value = event.name;
     document.getElementById('field-category').value = event.category;
     document.getElementById('field-max-p').value = event.max_participants;
-    document.getElementById('field-desc').value = event.description;
     document.getElementById('field-rules').value = event.rules;
+    document.getElementById('field-desc').value = event.description;
     document.getElementById('field-date').value = event.date;
     document.getElementById('field-time').value = event.time;
     document.getElementById('field-venue').value = event.venue;
     document.getElementById('field-coord-n').value = event.coordinator_name;
     document.getElementById('field-coord-p').value = event.coordinator_phone;
-    document.getElementById('submit-btn').innerText = 'UPDATE EVENT';
-    
-    // Smooth scroll to form
-    document.getElementById('event-form').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('field-coord-id').value = event.coordinator_id || '';
+    document.getElementById('submit-btn').innerText = 'UPDATE PORTAL';
+    document.getElementById('manage-events').scrollIntoView({ behavior: 'smooth' });
 }
 
 function resetForm() {
