@@ -19,93 +19,127 @@ $stmt = $pdo->query("SELECT * FROM announcements ORDER BY created_at DESC");
 $announcements = $stmt->fetchAll();
 ?>
 
-<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px;">
+<div class="page-header">
+    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 10px;">
+        <div class="glass" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--accent-blue);">
+            <i class="fas fa-th-large"></i>
+        </div>
+        <div>
+            <h1 class="page-title">Student Control Center</h1>
+            <p class="page-subtitle">Welcome back, <?= htmlspecialchars($userinfo['name']) ?>. Track your performance and events here.</p>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
     <!-- Profile & Stats -->
-    <div>
-        <div class="glass neon-border-blue" style="padding: 30px; text-align: center; margin-bottom: 30px;">
-            <div style="width: 80px; height: 80px; background: rgba(0, 243, 255, 0.1); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 1px solid var(--neon-blue);">
-                👤
+    <div style="display: flex; flex-direction: column; gap: 30px;">
+        <div class="glass" style="padding: 30px; text-align: center;">
+            <div style="width: 100px; height: 100px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; border: 2px solid var(--accent-blue);">
+                <i class="fas fa-user-graduate" style="color: var(--accent-blue);"></i>
             </div>
-            <h2 class="orbitron neon-text-blue" style="font-size: 1.2rem; margin-bottom: 5px;"><?= htmlspecialchars($userinfo['name']) ?></h2>
-            <p style="color: #666; font-size: 0.8rem; letter-spacing: 2px;"><?= $user_id ?></p>
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 5px;"><?= htmlspecialchars($userinfo['name']) ?></h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; letter-spacing: 1px;"><?= $user_id ?></p>
             
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.05); text-align: left;">
-                <p style="margin-bottom: 10px; font-size: 0.85rem; color: #888;">EMAIL: <span style="color: #fff;"><?= htmlspecialchars($userinfo['email']) ?></span></p>
-                <p style="margin-bottom: 10px; font-size: 0.85rem; color: #888;">COLLEGE: <span style="color: #fff;"><?= htmlspecialchars($userinfo['college']) ?></span></p>
-                <p style="margin-bottom: 10px; font-size: 0.85rem; color: #888;">COURSE: <span style="color: #fff;"><?= htmlspecialchars($userinfo['course']) ?></span></p>
+            <div style="margin-top: 30px; padding-top: 25px; border-top: 1px solid var(--glass-border); text-align: left; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-envelope" style="color: var(--text-secondary); width: 20px;"></i>
+                    <span style="font-size: 0.9rem;"><?= htmlspecialchars($userinfo['email']) ?></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-university" style="color: var(--text-secondary); width: 20px;"></i>
+                    <span style="font-size: 0.9rem;"><?= htmlspecialchars($userinfo['college']) ?></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-book-reader" style="color: var(--text-secondary); width: 20px;"></i>
+                    <span style="font-size: 0.9rem;"><?= htmlspecialchars($userinfo['course']) ?></span>
+                </div>
             </div>
         </div>
 
+        <!-- Digital Entry Pass -->
+        <div class="glass" style="padding: 30px; text-align: center; border-color: var(--accent-purple);">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; color: var(--accent-purple);">Digital Entry Pass</h3>
+            <div id="qrcode" style="background: #fff; padding: 15px; display: inline-block; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.5);"></div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">Show this QR code at the event venue for instant attendance check-in.</p>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div style="display: flex; flex-direction: column; gap: 30px;">
         <!-- Announcement Board -->
-        <div class="glass neon-border-blue" style="padding: 30px; border-color: var(--neon-purple);">
-            <h3 class="orbitron neon-text-purple" style="font-size: 1rem; margin-bottom: 20px;">Notice Board</h3>
-            <div style="max-height: 400px; overflow-y: auto;" class="scrollbar-hide">
+        <div class="glass" style="padding: 30px; border-color: var(--accent-blue);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
+                <i class="fas fa-bullhorn" style="color: var(--accent-blue);"></i>
+                <h3 style="font-size: 1.1rem; font-weight: 700; text-transform: uppercase;">Latest Announcements</h3>
+            </div>
+            <div style="max-height: 250px; overflow-y: auto; padding-right: 15px;">
                 <?php if(empty($announcements)): ?>
-                    <p style="color: #555; text-align: center;">No updates yet.</p>
+                    <p style="color: var(--text-secondary); text-align: center; padding: 20px;">No updates yet.</p>
                 <?php endif; ?>
                 <?php foreach($announcements as $notice): ?>
-                    <div style="padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                        <p style="font-size: 0.7rem; color: var(--neon-blue); margin-bottom: 5px;"><?= date('D, d M', strtotime($notice['created_at'])) ?></p>
-                        <h4 style="font-size: 0.9rem; margin-bottom: 5px; color: #fff;"><?= htmlspecialchars($notice['title']) ?></h4>
-                        <p style="font-size: 0.8rem; color: #777; line-height: 1.4;"><?= htmlspecialchars($notice['content']) ?></p>
+                    <div class="glass" style="padding: 20px; margin-bottom: 15px;">
+                        <span style="font-size: 0.75rem; color: var(--accent-blue); font-weight: 600; text-transform: uppercase;"><?= date('D, d M Y', strtotime($notice['created_at'])) ?></span>
+                        <h4 style="font-size: 1.1rem; margin: 8px 0;"><?= htmlspecialchars($notice['title']) ?></h4>
+                        <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5;"><?= htmlspecialchars($notice['content']) ?></p>
                     </div>
                 <?php endforeach; ?>
             </div>
         </div>
-    </div>
 
-    <!-- Registered Events Table -->
-    <div class="glass neon-border-blue" style="padding: 30px;">
-        <h2 class="orbitron neon-text-blue" style="font-size: 1.5rem; margin-bottom: 30px;">My Registrations</h2>
-        
-        <?php if(empty($myEvents)): ?>
-            <div style="text-align: center; padding: 60px 0;">
-                <p style="color: #555; font-size: 1.1rem; margin-bottom: 20px;">You haven't registered for any events yet.</p>
-                <a href="events.php" class="btn-neon">EXPLORE COMPETITIONS</a>
+        <!-- Registered Events -->
+        <div class="glass" style="padding: 30px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 30px;">
+                <i class="fas fa-list-check" style="color: var(--accent-blue);"></i>
+                <h3 style="font-size: 1.1rem; font-weight: 700; text-transform: uppercase;">My Registrations</h3>
             </div>
-        <?php else: ?>
-            <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                <thead>
-                    <tr style="border-bottom: 2px solid rgba(0, 243, 255, 0.2);">
-                        <th style="padding: 15px; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">EVENT</th>
-                        <th style="padding: 15px; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">DATE/TIME</th>
-                        <th style="padding: 15px; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">STATUS</th>
-                        <th style="padding: 15px; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">SCORE</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach($myEvents as $ev): ?>
-                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
-                            <td style="padding: 15px;">
-                                <span style="font-weight: 700; color: #fff;"><?= htmlspecialchars($ev['name']) ?></span><br>
-                                <span style="font-size: 0.7rem; color: #555;"><?= $ev['category'] ?></span>
-                            </td>
-                            <td style="padding: 15px; font-size: 0.85rem; color: #999;">
-                                <?= date('d M', strtotime($ev['date'])) ?><br><?= date('H:i', strtotime($ev['time'])) ?>
-                            </td>
-                            <td style="padding: 15px;">
-                                <span style="padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 900; background: rgba(50, 200, 50, 0.1); color: #0f0;">
-                                    <?= strtoupper($ev['reg_status']) ?>
-                                </span>
-                            </td>
-                            <td style="padding: 15px; font-weight: 600; color: var(--neon-pink);">
-                                <?= $ev['score'] > 0 ? $ev['score'] : '--' ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-
-        <div class="glass neon-border-blue" style="padding: 20px; text-align: center; margin-top: 40px; border-color: var(--neon-pink);">
-            <h3 class="orbitron neon-text-pink" style="font-size: 0.9rem; margin-bottom: 20px;">Digital Entry Pass</h3>
-            <div id="qrcode" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px; margin-bottom: 15px;"></div>
-            <p style="font-size: 0.7rem; color: #777; line-height: 1.5;">Show this QR code at the event venue for instant attendance check-in.</p>
-        </div>
-
-        <div style="margin-top: 40px; padding: 20px; background: rgba(0, 243, 255, 0.03); border: 1px dashed rgba(0, 243, 255, 0.2); border-radius: 8px;">
-            <h4 class="orbitron" style="font-size: 0.8rem; margin-bottom: 10px; color: #777;">💡 Quick Note</h4>
-            <p style="font-size: 0.8rem; color: #666; line-height: 1.5;">Remember to bring your valid college ID and the unique code <span class="neon-text-blue"><?= $user_id ?></span> for check-in at the venue. Good luck!</p>
+            
+            <?php if(empty($myEvents)): ?>
+                <div style="text-align: center; padding: 60px 0;">
+                    <i class="fas fa-calendar-xmark" style="font-size: 3rem; color: var(--text-secondary); opacity: 0.3; margin-bottom: 20px;"></i>
+                    <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 30px;">You haven't registered for any events yet.</p>
+                    <a href="events.php" class="btn-primary">EXPLORE COMPETITIONS</a>
+                </div>
+            <?php else: ?>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--glass-border);">
+                                <th style="padding: 15px; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Event</th>
+                                <th style="padding: 15px; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Date/Time</th>
+                                <th style="padding: 15px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Status</th>
+                                <th style="padding: 15px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach($myEvents as $ev): ?>
+                                <tr style="border-bottom: 1px solid var(--glass-border); transition: 0.2s;">
+                                    <td style="padding: 20px;">
+                                        <div style="font-weight: 700; font-size: 1.1rem;"><?= htmlspecialchars($ev['name']) ?></div>
+                                        <div style="font-size: 0.8rem; color: var(--text-secondary);"><?= $ev['category'] ?></div>
+                                    </td>
+                                    <td style="padding: 20px; font-size: 0.9rem; color: var(--text-secondary);">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="far fa-calendar"></i> <?= date('d M', strtotime($ev['date'])) ?>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                            <i class="far fa-clock"></i> <?= date('H:i', strtotime($ev['time'])) ?>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 20px; text-align: center;">
+                                        <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
+                                            <?= strtoupper($ev['reg_status']) ?>
+                                        </span>
+                                    </td>
+                                    <td style="padding: 20px; text-align: center; font-weight: 800; color: var(--accent-blue); font-size: 1.2rem;">
+                                        <?= $ev['score'] > 0 ? $ev['score'] : '--' ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

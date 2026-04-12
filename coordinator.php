@@ -15,7 +15,7 @@ $stmt->execute([$c_id]);
 $assignedEvents = $stmt->fetchAll();
 
 // Handle active event selection
-$active_event_id = $_GET['manage_event'] ?? (count($assignedEvents) > 0 ? $assignedEvents[0]['id'] : null);
+$active_event_id = $_GET['manage_event'] ?? null;
 $active_event = null;
 $participants = [];
 
@@ -31,151 +31,235 @@ if ($active_event_id) {
         $participants = $stmt->fetchAll();
     }
 }
-
-// CSV Export Logic (Hidden in simple implementation, triggered by link)
-if (isset($_GET['export']) && $active_event) {
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="Participants_' . str_replace(' ', '_', $active_event['name']) . '.csv"');
-    $output = fopen('php://output', 'w');
-    fputcsv($output, ['User ID', 'Name', 'Email', 'Phone', 'College', 'Attendance', 'Score', 'Status']);
-    foreach ($participants as $p) {
-        fputcsv($output, [$p['user_id'], $p['name'], $p['email'], $p['phone'], $p['college'], $p['attendance'], $p['score'], $p['status']]);
-    }
-    fclose($output);
-    exit;
-}
 ?>
 
-<div style="margin-bottom: 50px;">
-    <h1 class="orbitron neon-text-purple" style="font-size: 2.5rem; text-align: center;">COORDINATOR PORTAL</h1>
-    <p style="color: #666; text-align: center; font-size: 0.9rem; letter-spacing: 3px;">SYNERGY EVENT MANAGEMENT INTERFACE</p>
+<div class="page-header">
+    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 10px;">
+        <div class="glass" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--accent-blue);">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <div>
+            <h1 class="page-title">My Assigned Events</h1>
+            <p class="page-subtitle">Manage check-ins, status updates, and results for your events.</p>
+        </div>
+    </div>
 </div>
 
 <?php if($msg): ?>
-    <div style="padding: 15px; border: 1px solid var(--neon-purple); background: rgba(188, 19, 254, 0.1); color: #fff; margin-bottom: 30px; border-radius: 8px;">
-        ✅ <?= htmlspecialchars($msg) ?>
+    <div class="glass" style="padding: 15px 25px; border-color: var(--accent-blue); color: #fff; margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
+        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+        <?= htmlspecialchars($msg) ?>
     </div>
 <?php endif; ?>
 
-<?php if(empty($assignedEvents)): ?>
-    <div class="glass neon-border-blue" style="padding: 100px; text-align: center;">
-        <h2 class="orbitron neon-text-pink">Access Denied / No Events Assigned</h2>
-        <p style="color: #555; margin-top: 20px;">You haven't been assigned to any events yet. Contact the Admin to get events assigned to your profile.</p>
-        <a href="index.php" class="btn-neon" style="margin-top: 30px;">RETURN HOME</a>
-    </div>
-<?php else: ?>
-
-<div style="display: grid; grid-template-columns: 300px 1fr; gap: 30px;">
-    <!-- Sidebar: Assigned Events -->
-    <div class="glass neon-border-blue" style="padding: 25px; height: fit-content;">
-        <h3 class="orbitron neon-text-blue" style="font-size: 0.8rem; margin-bottom: 20px;">MY ASSIGNED EVENTS</h3>
+<?php if(!$active_event_id): ?>
+    <!-- Grid View of All Assigned Events -->
+    <div class="event-grid">
         <?php foreach($assignedEvents as $ev): ?>
-            <a href="coordinator.php?manage_event=<?= $ev['id'] ?>" 
-               style="display: block; padding: 15px; text-decoration: none; border-radius: 6px; margin-bottom: 10px; transition: 0.3s; border: 1px solid <?= $active_event_id == $ev['id'] ? 'var(--neon-purple)' : 'rgba(255,255,255,0.05)' ?>; background: <?= $active_event_id == $ev['id'] ? 'rgba(188, 19, 254, 0.1)' : 'transparent' ?>;">
-                <p style="color: #fff; font-weight: 700; font-size: 0.9rem;"><?= htmlspecialchars($ev['name']) ?></p>
-                <span style="font-size: 0.7rem; color: #555;"><?= $ev['category'] ?> | <?= date('H:i', strtotime($ev['time'])) ?></span>
-            </a>
+            <?php
+            // Get participant count for each event
+            $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM registrations WHERE event_id = ?");
+            $stmtCount->execute([$ev['id']]);
+            $pCount = $stmtCount->fetchColumn();
+            ?>
+            <div class="glass event-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="badge badge-published">Published</span>
+                    <div class="event-time">
+                        <i class="far fa-clock"></i>
+                        <?= date('h:i A', strtotime($ev['time'])) ?>
+                    </div>
+                </div>
+
+                <h3 class="event-name"><?= htmlspecialchars($ev['name']) ?></h3>
+                
+                <div class="event-venue">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <?= htmlspecialchars($ev['venue'] ?: 'No Venue Set') ?>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <i class="fas fa-users" style="color: var(--text-secondary); margin-bottom: 5px;"></i>
+                        <span class="stat-value"><?= $pCount ?></span>
+                        <span class="stat-label">Participants</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fas fa-qrcode" style="color: var(--text-secondary); margin-bottom: 5px;"></i>
+                        <span class="stat-value">Scanner</span>
+                        <span class="stat-label">Attendance</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="coordinator.php?manage_event=<?= $ev['id'] ?>" class="btn-primary">
+                        START EVENT
+                    </a>
+                    <a href="coordinator.php?manage_event=<?= $ev['id'] ?>&tab=results" class="btn-secondary" style="font-size: 0.8rem;">
+                        <i class="fas fa-trophy" style="margin-right: 8px; color: var(--accent-purple);"></i>
+                        Enter Final Results
+                    </a>
+                </div>
+            </div>
         <?php endforeach; ?>
-    </div>
 
-    <!-- Main Workspace -->
-    <div class="glass neon-border-blue" style="padding: 35px; min-height: 600px; border-color: var(--neon-purple);">
-        <?php if($active_event): ?>
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; padding-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <div>
-                    <h2 class="orbitron neon-text-purple" style="font-size: 1.8rem;"><?= htmlspecialchars($active_event['name']) ?></h2>
-                    <p style="color: #666; margin-top: 5px;">
-                        Venue: <span style="color: var(--neon-blue);"><?= htmlspecialchars($active_event['venue']) ?></span> | 
-                        Participants: <span style="color: var(--neon-pink);"><?= count($participants) ?> / <?= $active_event['max_participants'] ?></span>
-                    </p>
-                </div>
-                <div style="display: flex; gap: 15px;">
-                    <button onclick="startScanner()" class="btn-neon" style="font-size: 0.7rem; border-color: var(--neon-blue); color: var(--neon-blue);">QR SCANNER</button>
-                    <a href="coordinator.php?manage_event=<?= $active_event_id ?>&export=1" class="btn-neon" style="font-size: 0.7rem; border-color: #fff; color: #fff;">DOWNLOAD LIST (.CSV)</a>
-                </div>
-            </div>
-
-            <!-- QR Scanner Modal -->
-            <div id="scanner-container" class="glass neon-border-blue" style="display: none; padding: 20px; margin-bottom: 30px; text-align: center; border-color: var(--neon-blue);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 class="orbitron neon-text-blue" style="font-size: 0.9rem;">Attendance Scanner Active</h3>
-                    <button onclick="stopScanner()" style="background: none; border: none; color: var(--neon-pink); cursor: pointer; font-size: 0.8rem;">[ CLOSE ]</button>
-                </div>
-                <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto; background: #000; border-radius: 8px; overflow: hidden;"></div>
-                <div id="scanner-msg" style="margin-top: 15px; font-size: 0.8rem; color: #aaa;">Position the student's entry pass within the frame.</div>
-            </div>
-
-            <!-- Participant List -->
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="border-bottom: 2px solid rgba(188, 19, 254, 0.2);">
-                        <th style="padding: 15px; text-align: left; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">PARTICIPANT</th>
-                        <th style="padding: 15px; text-align: center; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">ATTENDANCE</th>
-                        <th style="padding: 15px; text-align: center; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">SCORE</th>
-                        <th style="padding: 15px; text-align: center; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">STATUS</th>
-                        <th style="padding: 15px; text-align: right; font-family: 'Orbitron'; font-size: 0.8rem; color: #777;">SAVE</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach($participants as $p): ?>
-                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                            <form action="coordinator_actions.php" method="POST">
-                                <input type="hidden" name="reg_id" value="<?= $p['reg_id'] ?>">
-                                <input type="hidden" name="event_id" value="<?= $active_event_id ?>">
-                                <td style="padding: 15px;">
-                                    <span style="color: #fff; font-weight: 700;"><?= htmlspecialchars($p['name']) ?></span><br>
-                                    <span style="font-size: 0.7rem; color: var(--neon-blue);"><?= $p['user_id'] ?> | <?= htmlspecialchars($p['college']) ?></span><br>
-                                    <span style="font-size: 0.65rem; color: #555;"><?= htmlspecialchars($p['phone']) ?></span>
-                                </td>
-                                <td style="padding: 15px; text-align: center;">
-                                    <select name="attendance" style="padding: 5px; font-size: 0.8rem; background: #000; color: <?= $p['attendance'] == 'present' ? 'var(--neon-blue)' : '#777' ?>; border: 1px solid #333;">
-                                        <option value="absent" <?= $p['attendance'] == 'absent' ? 'selected' : '' ?>>Absent</option>
-                                        <option value="present" <?= $p['attendance'] == 'present' ? 'selected' : '' ?>>Present</option>
-                                    </select>
-                                </td>
-                                <td style="padding: 15px; text-align: center;">
-                                    <input type="number" name="score" value="<?= $p['score'] ?>" style="width: 60px; padding: 5px; background: rgba(0,0,0,0.3); border: 1px solid #444; color: #fff; text-align: center;">
-                                </td>
-                                <td style="padding: 15px; text-align: center;">
-                                    <select name="status" style="padding: 5px; font-size: 0.8rem; background: #000; color: #fff; border: 1px solid #333;">
-                                        <option value="registered" <?= $p['status'] == 'registered' ? 'selected' : '' ?>>Registered</option>
-                                        <option value="participated" <?= $p['status'] == 'participated' ? 'selected' : '' ?>>Participated</option>
-                                        <option value="winner" <?= $p['status'] == 'winner' ? 'selected' : '' ?>>Winner</option>
-                                        <option value="runner" <?= $p['status'] == 'runner' ? 'selected' : '' ?>>Runner Up</option>
-                                    </select>
-                                </td>
-                                <td style="padding: 15px; text-align: right;">
-                                    <button type="submit" class="btn-neon" style="padding: 6px 12px; font-size: 0.65rem; border-radius: 4px;">UPDATE</button>
-                                </td>
-                            </form>
-                        </tr>
-                    <?php endforeach; ?>
-                    <?php if(empty($participants)): ?>
-                        <tr><td colspan="5" style="padding: 40px; text-align: center; color: #555;">No participants have registered for this event yet.</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-
-            <!-- Quick Bulk Actions or Overview Info -->
-            <div style="margin-top: 50px; padding: 25px; background: rgba(0, 243, 255, 0.02); border: 1px solid rgba(0, 243, 255, 0.1); border-radius: 8px;">
-                <h4 class="orbitron" style="font-size: 0.8rem; color: #aaa; margin-bottom: 15px;">Coordinator Dashboard Tips</h4>
-                <ul style="color: #666; font-size: 0.8rem; line-height: 1.6;">
-                    <li>Mark <b>Attendance</b> as soon as the participant arrives at the venue.</li>
-                    <li>Download the <b>CSV list</b> for offline record keeping or manual scoring.</li>
-                    <li>Update <b>Scores</b> in real-time to reflect live competition standings.</li>
-                    <li>Selecting <b>Winner</b> or <b>Runner Up</b> will automatically push them to the public Leaderboard.</li>
-                </ul>
-            </div>
-
-        <?php else: ?>
-            <div style="text-align: center; padding: 100px;">
-                <p style="color: #555; font-size: 1.1rem;">Select an event from the sidebar to manage participants and attendance.</p>
+        <?php if(empty($assignedEvents)): ?>
+            <div class="glass" style="grid-column: 1/-1; padding: 100px; text-align: center;">
+                <i class="fas fa-calendar-times" style="font-size: 4rem; color: var(--text-secondary); margin-bottom: 20px;"></i>
+                <h3 style="color: var(--text-secondary);">No events assigned to you yet.</h3>
+                <p style="color: var(--text-secondary); opacity: 0.6; margin-top: 10px;">Check back later or contact the administrator.</p>
             </div>
         <?php endif; ?>
     </div>
-</div>
 
+<?php else: ?>
+    <!-- Management View for Specific Event -->
+    <div style="margin-bottom: 30px;">
+        <a href="coordinator.php" class="btn-secondary" style="margin-bottom: 20px;">
+            <i class="fas fa-arrow-left" style="margin-right: 10px;"></i> Back to all events
+        </a>
+
+        <div class="glass" style="padding: 30px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2 style="font-size: 2rem; font-weight: 800;"><?= htmlspecialchars($active_event['name']) ?></h2>
+                <div style="display: flex; gap: 20px; margin-top: 10px; color: var(--text-secondary);">
+                    <span><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($active_event['venue']) ?></span>
+                    <span><i class="fas fa-users"></i> <?= count($participants) ?> Participants</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button onclick="startScanner()" class="btn-primary">
+                    <i class="fas fa-qrcode" style="margin-right: 10px;"></i> OPEN SCANNER
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Modal -->
+    <div id="scanner-container" class="glass" style="display: none; padding: 30px; margin-bottom: 30px; text-align: center; border-color: var(--accent-blue);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="font-size: 1.2rem; font-weight: 700;">Attendance Scanner</h3>
+            <button onclick="stopScanner()" class="btn-secondary" style="padding: 8px 15px;">CLOSE</button>
+        </div>
+        <div id="reader" style="width: 100%; max-width: 500px; margin: 0 auto; border-radius: 16px; overflow: hidden; border: 2px solid var(--accent-blue);"></div>
+        <p id="scanner-msg" style="margin-top: 20px; color: var(--text-secondary);">Position the QR code within the frame.</p>
+    </div>
+
+    <div class="glass" style="overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--glass-border);">
+                    <th style="padding: 20px; text-align: left; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Participant</th>
+                    <th style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Attendance</th>
+                    <th style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Score</th>
+                    <th style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Status</th>
+                    <th style="padding: 20px; text-align: right; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach($participants as $p): ?>
+                    <tr style="border-bottom: 1px solid var(--glass-border);">
+                        <form action="coordinator_actions.php" method="POST">
+                            <input type="hidden" name="reg_id" value="<?= $p['reg_id'] ?>">
+                            <input type="hidden" name="event_id" value="<?= $active_event_id ?>">
+                            <td style="padding: 20px;">
+                                <div style="font-weight: 700; font-size: 1.1rem;"><?= htmlspecialchars($p['name']) ?></div>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary);"><?= htmlspecialchars($p['college']) ?></div>
+                            </td>
+                            <td style="padding: 20px; text-align: center;">
+                                <select name="attendance" class="glass" style="padding: 8px; border-radius: 8px; width: 120px;">
+                                    <option value="absent" <?= $p['attendance'] == 'absent' ? 'selected' : '' ?>>Absent</option>
+                                    <option value="present" <?= $p['attendance'] == 'present' ? 'selected' : '' ?>>Present</option>
+                                </select>
+                            </td>
+                            <td style="padding: 20px; text-align: center;">
+                                <input type="number" name="score" value="<?= $p['score'] ?>" class="glass" style="width: 80px; padding: 8px; text-align: center; border-radius: 8px;">
+                            </td>
+                            <td style="padding: 20px; text-align: center;">
+                                <select name="status" class="glass" style="padding: 8px; border-radius: 8px; width: 140px;">
+                                    <option value="registered" <?= $p['status'] == 'registered' ? 'selected' : '' ?>>Registered</option>
+                                    <option value="participated" <?= $p['status'] == 'participated' ? 'selected' : '' ?>>Participated</option>
+                                    <option value="winner" <?= $p['status'] == 'winner' ? 'selected' : '' ?>>Winner</option>
+                                    <option value="runner" <?= $p['status'] == 'runner' ? 'selected' : '' ?>>Runner Up</option>
+                                </select>
+                            </td>
+                            <td style="padding: 20px; text-align: right;">
+                                <button type="submit" class="btn-primary" style="padding: 8px 16px; font-size: 0.8rem;">UPDATE</button>
+                            </td>
+                        </form>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if(empty($participants)): ?>
+                    <tr><td colspan="5" style="padding: 60px; text-align: center; color: var(--text-secondary); opacity: 0.5;">No participants yet.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 <?php endif; ?>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+    let html5QrcodeScanner = null;
+
+    function startScanner() {
+        document.getElementById('scanner-container').style.display = 'block';
+        document.getElementById('scanner-msg').innerText = "Starting Camera...";
+        
+        html5QrcodeScanner = new Html5Qrcode("reader");
+        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+            document.getElementById('scanner-msg').innerHTML = "<b>SCANNED:</b> " + decodedText + ". Please wait...";
+            markAttendance(decodedText);
+            stopScanner();
+        };
+        const config = { fps: 10, qrbox: 250 };
+
+        html5QrcodeScanner.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+            .then(() => {
+                document.getElementById('scanner-msg').innerText = "Scanner Ready. Scan Student Entry Pass.";
+            })
+            .catch(err => {
+                document.getElementById('scanner-msg').innerText = "Error starting scanner: " + err;
+            });
+    }
+
+    function stopScanner() {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.stop().then(() => {
+                document.getElementById('scanner-container').style.display = 'none';
+                html5QrcodeScanner.clear();
+            }).catch(error => {
+                console.warn("Failed to stop scanner", error);
+                document.getElementById('scanner-container').style.display = 'none';
+            });
+        } else {
+            document.getElementById('scanner-container').style.display = 'none';
+        }
+    }
+
+    function markAttendance(userId) {
+        const eventId = "<?= $active_event_id ?>";
+        fetch('coordinator_actions_ajax.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `user_id=${userId}&event_id=${eventId}&action=qr_attendance`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert("Attendance Marked for: " + data.student_name);
+                location.reload();
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Network error occurred.");
+        });
+    }
+</script>
+
+<?php include 'includes/footer.php'; ?>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
