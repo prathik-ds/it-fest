@@ -1,10 +1,10 @@
 <?php 
-include 'includes/header.php'; 
-
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 if (!isset($_SESSION['user'])) {
     header('Location: login.php');
     exit;
 }
+include 'includes/header.php'; 
 
 $userinfo = $_SESSION['user'];
 $user_id = $userinfo['user_id'];
@@ -15,124 +15,74 @@ $stmt->execute([$user_id]);
 $myEvents = $stmt->fetchAll();
 
 // Fetch public announcements
-$stmt = $pdo->query("SELECT * FROM announcements ORDER BY created_at DESC");
+$stmt = $pdo->query("SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5");
 $announcements = $stmt->fetchAll();
 ?>
 
-<div class="page-header">
-    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 10px;">
-        <div class="glass" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--accent-blue);">
-            <i class="fas fa-th-large"></i>
+<div style="padding: 40px;">
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1>Welcome back, <?= htmlspecialchars($userinfo['name']) ?>!</h1>
+            <p>Track your registrations, scores, and get your digital entry pass.</p>
         </div>
-        <div>
-            <h1 class="page-title">Student Control Center</h1>
-            <p class="page-subtitle">Welcome back, <?= htmlspecialchars($userinfo['name']) ?>. Track your performance and events here.</p>
-        </div>
-    </div>
-</div>
-
-<div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
-    <!-- Profile & Stats -->
-    <div style="display: flex; flex-direction: column; gap: 30px;">
-        <div class="glass" style="padding: 30px; text-align: center;">
-            <div style="width: 100px; height: 100px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; border: 2px solid var(--accent-blue);">
-                <i class="fas fa-user-graduate" style="color: var(--accent-blue);"></i>
-            </div>
-            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 5px;"><?= htmlspecialchars($userinfo['name']) ?></h2>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; letter-spacing: 1px;"><?= $user_id ?></p>
-            
-            <div style="margin-top: 30px; padding-top: 25px; border-top: 1px solid var(--glass-border); text-align: left; display: flex; flex-direction: column; gap: 12px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-envelope" style="color: var(--text-secondary); width: 20px;"></i>
-                    <span style="font-size: 0.9rem;"><?= htmlspecialchars($userinfo['email']) ?></span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-university" style="color: var(--text-secondary); width: 20px;"></i>
-                    <span style="font-size: 0.9rem;"><?= htmlspecialchars($userinfo['college']) ?></span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-book-reader" style="color: var(--text-secondary); width: 20px;"></i>
-                    <span style="font-size: 0.9rem;"><?= htmlspecialchars($userinfo['course']) ?></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Digital Entry Pass -->
-        <div class="glass" style="padding: 30px; text-align: center; border-color: var(--accent-purple);">
-            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; color: var(--accent-purple);">Digital Entry Pass</h3>
-            <div id="qrcode" style="background: #fff; padding: 15px; display: inline-block; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.5);"></div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">Show this QR code at the event venue for instant attendance check-in.</p>
+        <div class="header-actions">
+            <span class="status-tag" style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 8px 16px; font-size: 0.8rem;">
+                STUDENT ID: <?= $user_id ?>
+            </span>
         </div>
     </div>
 
-    <!-- Main Content Area -->
-    <div style="display: flex; flex-direction: column; gap: 30px;">
-        <!-- Announcement Board -->
-        <div class="glass" style="padding: 30px; border-color: var(--accent-blue);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
-                <i class="fas fa-bullhorn" style="color: var(--accent-blue);"></i>
-                <h3 style="font-size: 1.1rem; font-weight: 700; text-transform: uppercase;">Latest Announcements</h3>
+    <div style="display: grid; grid-template-columns: 1fr 350px; gap: 30px; margin-top: 30px;">
+        <!-- Registrations Table -->
+        <div class="glass-panel" style="padding: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2 style="font-family: 'Outfit'; font-size: 1.5rem;">My Registrations</h2>
+                <a href="events.php" class="btn-coord" style="text-decoration: none;">BROWSE MORE EVENTS</a>
             </div>
-            <div style="max-height: 250px; overflow-y: auto; padding-right: 15px;">
-                <?php if(empty($announcements)): ?>
-                    <p style="color: var(--text-secondary); text-align: center; padding: 20px;">No updates yet.</p>
-                <?php endif; ?>
-                <?php foreach($announcements as $notice): ?>
-                    <div class="glass" style="padding: 20px; margin-bottom: 15px;">
-                        <span style="font-size: 0.75rem; color: var(--accent-blue); font-weight: 600; text-transform: uppercase;"><?= date('D, d M Y', strtotime($notice['created_at'])) ?></span>
-                        <h4 style="font-size: 1.1rem; margin: 8px 0;"><?= htmlspecialchars($notice['title']) ?></h4>
-                        <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5;"><?= htmlspecialchars($notice['content']) ?></p>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
 
-        <!-- Registered Events -->
-        <div class="glass" style="padding: 30px;">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 30px;">
-                <i class="fas fa-list-check" style="color: var(--accent-blue);"></i>
-                <h3 style="font-size: 1.1rem; font-weight: 700; text-transform: uppercase;">My Registrations</h3>
-            </div>
-            
             <?php if(empty($myEvents)): ?>
                 <div style="text-align: center; padding: 60px 0;">
-                    <i class="fas fa-calendar-xmark" style="font-size: 3rem; color: var(--text-secondary); opacity: 0.3; margin-bottom: 20px;"></i>
-                    <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 30px;">You haven't registered for any events yet.</p>
-                    <a href="events.php" class="btn-primary">EXPLORE COMPETITIONS</a>
+                    <i class="fa-solid fa-calendar-plus" style="font-size: 3rem; color: var(--text-dim); margin-bottom: 20px;"></i>
+                    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px;">You haven't registered for any events yet.</p>
+                    <a href="events.php" class="btn-start" style="width: auto; padding: 12px 30px; text-decoration: none; display: inline-block;">EXPLORE COMPETITIONS</a>
                 </div>
             <?php else: ?>
                 <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <table style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr style="border-bottom: 1px solid var(--glass-border);">
-                                <th style="padding: 15px; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Event</th>
-                                <th style="padding: 15px; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Date/Time</th>
-                                <th style="padding: 15px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Status</th>
-                                <th style="padding: 15px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Score</th>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <th style="padding: 16px; text-align: left; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Event</th>
+                                <th style="padding: 16px; text-align: left; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Schedule</th>
+                                <th style="padding: 16px; text-align: center; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Status</th>
+                                <th style="padding: 16px; text-align: right; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Entry Pass</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach($myEvents as $ev): ?>
-                                <tr style="border-bottom: 1px solid var(--glass-border); transition: 0.2s;">
-                                    <td style="padding: 20px;">
-                                        <div style="font-weight: 700; font-size: 1.1rem;"><?= htmlspecialchars($ev['name']) ?></div>
-                                        <div style="font-size: 0.8rem; color: var(--text-secondary);"><?= $ev['category'] ?></div>
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 16px;">
+                                        <div style="font-weight: 600;"><?= htmlspecialchars($ev['name']) ?></div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);"><?= $ev['category'] ?></div>
                                     </td>
-                                    <td style="padding: 20px; font-size: 0.9rem; color: var(--text-secondary);">
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            <i class="far fa-calendar"></i> <?= date('d M', strtotime($ev['date'])) ?>
-                                        </div>
-                                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                                            <i class="far fa-clock"></i> <?= date('H:i', strtotime($ev['time'])) ?>
-                                        </div>
+                                    <td style="padding: 16px;">
+                                        <div style="font-size: 0.9rem;"><?= date('d M, Y', strtotime($ev['date'])) ?></div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);"><?= date('h:i A', strtotime($ev['time'])) ?></div>
                                     </td>
-                                    <td style="padding: 20px; text-align: center;">
-                                        <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
+                                    <td style="padding: 16px; text-align: center;">
+                                        <span style="padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; background: rgba(16, 185, 129, 0.1); color: var(--success); text-transform: uppercase;">
                                             <?= strtoupper($ev['reg_status']) ?>
                                         </span>
                                     </td>
-                                    <td style="padding: 20px; text-align: center; font-weight: 800; color: var(--accent-blue); font-size: 1.2rem;">
-                                        <?= $ev['score'] > 0 ? $ev['score'] : '--' ?>
+                                    <td style="padding: 16px; text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
+                                        <button onclick="showTicket('<?= $ev['id'] ?>', '<?= htmlspecialchars(addslashes($ev['name'])) ?>')" class="btn-coord" style="padding: 6px 12px; font-size: 0.7rem; background: rgba(168, 85, 247, 0.1); color: var(--secondary); border: 1px solid var(--secondary);">
+                                            <i class="fa-solid fa-qrcode"></i> TICKET
+                                        </button>
+                                        
+                                        <?php if($ev['reg_status'] !== 'registered'): ?>
+                                            <a href="certificate.php?event_id=<?= $ev['id'] ?>" target="_blank" class="btn-coord" style="padding: 6px 12px; font-size: 0.7rem; background: rgba(212, 175, 55, 0.1); color: #D4AF37; border: 1px solid #D4AF37; text-decoration: none;">
+                                                <i class="fa-solid fa-file-award"></i> CERTIFICATE
+                                            </a>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -141,19 +91,89 @@ $announcements = $stmt->fetchAll();
                 </div>
             <?php endif; ?>
         </div>
+
+        <!-- Sidebar Info -->
+        <div style="display: flex; flex-direction: column; gap: 30px;">
+            <!-- Ticket Information -->
+            <div class="glass-panel" style="padding: 30px; text-align: center; border-color: var(--primary);">
+                <i class="fa-solid fa-ticket" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;"></i>
+                <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: white;">Event Entry System</h3>
+                <p style="font-size: 0.85rem; color: var(--text-dim); line-height: 1.6;">Attendance is strict! You must present the specific QR Ticket for each event to the coordinator. Global passes are not accepted.</p>
+            </div>
+
+            <!-- Profile Info -->
+            <div class="glass-panel" style="padding: 30px;">
+                <h3 style="font-size: 1rem; margin-bottom: 20px;">Profile Details</h3>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">College</div>
+                        <div style="font-size: 0.9rem;"><?= htmlspecialchars($userinfo['college']) ?></div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Course</div>
+                        <div style="font-size: 0.9rem;"><?= htmlspecialchars($userinfo['course']) ?></div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Email</div>
+                        <div style="font-size: 0.9rem;"><?= htmlspecialchars($userinfo['email']) ?></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Modal -->
+<div id="qrModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div class="glass-panel" style="background: rgba(17, 24, 39, 0.95); padding: 40px; text-align: center; border-radius: 20px; border: 1px solid var(--primary); max-width: 350px; width: 90%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 id="modal-event-name" style="font-family: 'Outfit'; font-size: 1.2rem; color: var(--primary); margin: 0;">Event Ticket</h3>
+            <button onclick="closeModal()" style="background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div id="qrcode" style="background: white; padding: 15px; display: inline-block; border-radius: 12px; margin-bottom: 20px; min-width: 200px; min-height: 200px;"></div>
+        
+        <div style="font-size: 0.8rem; color: var(--text-dim); line-height: 1.5;">
+            Present this unique QR code to the event coordinator to mark your attendance.
+        </div>
+        <div style="margin-top: 15px; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">
+            ID: <?= $user_id ?>
+        </div>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-    new QRCode(document.getElementById("qrcode"), {
-        text: "<?= $user_id ?>",
-        width: 150,
-        height: 150,
-        colorDark : "#000000",
-        colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.H
-    });
+    let qrObj = null;
+
+    function showTicket(eventId, eventName) {
+        document.getElementById('modal-event-name').innerText = eventName;
+        
+        const qrContainer = document.getElementById("qrcode");
+        qrContainer.innerHTML = ''; // Clear previous QR
+        
+        // Generate Event-Specific QR Format: EVENT_QR|USER_ID|EVENT_ID
+        const qrData = "EVENT_QR|<?= $user_id ?>|" + eventId;
+        
+        qrObj = new QRCode(qrContainer, {
+            text: qrData,
+            width: 200,
+            height: 200,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+        
+        document.getElementById('qrModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('qrModal').style.display = 'none';
+        if(qrObj) {
+            qrObj.clear();
+        }
+    }
 </script>
 
 <?php include 'includes/footer.php'; ?>
+
