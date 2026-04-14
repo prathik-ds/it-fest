@@ -152,6 +152,23 @@ if ($data['status'] === 'runner') $certificate_type = "RUNNER UP";
             .certificate-container { box-shadow: none; border-width: 15px; }
             .print-btn { display: none; }
         }
+        @media (max-width: 768px) {
+            body { height: auto; padding: 10px; align-items: flex-start; }
+            .certificate-container {
+                width: 100%;
+                height: auto;
+                border-width: 8px;
+                padding: 15px;
+            }
+            .inner-content { padding: 20px 10px; }
+            .logo { font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 10px; }
+            .certificate-title { font-size: 0.8rem; letter-spacing: 4px; margin-bottom: 20px; }
+            .student-name { font-size: 2rem; margin: 5px 0 15px 0; }
+            .description { font-size: 0.85rem; line-height: 1.6; margin-bottom: 20px; }
+            .footer { flex-direction: column; gap: 20px; align-items: center; margin-top: 25px; }
+            .sig-block { width: 160px; }
+            .presented-to { font-size: 0.8rem; }
+        }
         .print-btn {
             position: fixed;
             top: 20px;

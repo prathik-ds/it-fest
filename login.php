@@ -24,31 +24,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
-<div style="max-width: 400px; margin: 100px auto;">
-    <div class="glass neon-border-blue" style="padding: 40px;">
-        <h2 class="orbitron neon-text-blue" style="margin-bottom: 30px; text-align: center;">LOG IN</h2>
-        
-        <?php if($error): ?>
-            <div style="padding: 10px; border-bottom: 2px solid var(--neon-pink); background: rgba(255, 0, 85, 0.1); color: var(--neon-pink); margin-bottom: 20px;">
-                <?= $error ?>
+<div style="min-height: 70vh; display: flex; align-items: center; justify-content: center;">
+    <div style="max-width: 420px; width: 100%;">
+        <!-- Login Card -->
+        <div class="glass" style="padding: 44px 36px; border-color: rgba(124, 58, 237, 0.15);">
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: 36px;">
+                <div style="width: 56px; height: 56px; background: var(--grad-primary); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 18px; box-shadow: 0 8px 30px rgba(124, 58, 237, 0.25);">
+                    <i class="fa-solid fa-fingerprint" style="color: white;"></i>
+                </div>
+                <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Welcome Back</h2>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Sign in to your NEXUS account</p>
             </div>
-        <?php endif; ?>
+            
+            <?php if($error): ?>
+                <div style="padding: 12px 16px; border-radius: 12px; background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--danger); margin-bottom: 24px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <?= $error ?>
+                </div>
+            <?php endif; ?>
 
-        <form method="POST">
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" name="email" placeholder="john@example.com" required>
+            <form method="POST">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-envelope" style="margin-right: 6px; color: var(--accent-1);"></i>Email Address</label>
+                    <input type="email" name="email" placeholder="you@college.edu" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-lock" style="margin-right: 6px; color: var(--accent-2);"></i>Password</label>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-neon" style="width: 100%; margin-top: 10px; padding: 14px; background: rgba(124, 58, 237, 0.08); border-color: var(--accent-2); color: var(--accent-2);">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+                </button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 28px;">
+                <p style="font-size: 0.85rem; color: var(--text-muted);">
+                    New to NEXUS? 
+                    <a href="register.php" style="color: var(--accent-1); text-decoration: none; font-weight: 700;">Create Account →</a>
+                </p>
             </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" placeholder="********" required>
-            </div>
-            <button type="submit" class="btn-neon" style="width: 100%; margin-top: 20px;">ACCESS PORTAL</button>
-        </form>
-        
-        <p style="text-align: center; margin-top: 30px; font-size: 0.9rem; color: #777;">
-            New to SYNERGY? <a href="register.php" class="neon-text-purple" style="text-decoration: none;">Join Free</a>
-        </p>
+        </div>
     </div>
 </div>
 
