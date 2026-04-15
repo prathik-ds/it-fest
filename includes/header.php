@@ -24,17 +24,38 @@ $is_dashboard_page = in_array($current_page, ['dashboard.php', 'coordinator.php'
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS 2026 | BCA IT Fest</title>
-    <meta name="description" content="NEXUS 2026 — The premier BCA IT Fest celebrating innovation, code, and technology. Register today!">
+    <title>FUSIONVERSE 2026 | BCA IT Fest</title>
+    <meta name="description" content="FUSIONVERSE 2026 — The premier BCA IT Fest celebrating innovation, code, and technology. Register today!">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/splash.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" href="favicon.ico">
+    <script src="assets/js/splash.js" defer></script>
 </head>
 <body>
 
+    <!-- ═══════════════════════════════════════════
+         FUSIONVERSE SPLASH SCREEN
+         ═══════════════════════════════════════════ -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo-container">
+                <div class="splash-glow"></div>
+                <img src="assets/img/fusionverse_logo.png" alt="FusionVerse Logo" class="splash-logo">
+            </div>
+            <div class="splash-text">
+                <h1 class="splash-title">FUSIONVERSE</h1>
+                <p class="splash-subtitle">BCA | BCOM | BA • IT FEST 2026</p>
+            </div>
+            <div class="loader-bar">
+                <div class="loader-progress"></div>
+            </div>
+        </div>
+    </div>
+
     <?php if ($is_dashboard_page): ?>
         <!-- ═══════════════════════════════════════════
-             DASHBOARD LAYOUT — BCA NEXUS COMMAND CENTER
+             DASHBOARD LAYOUT — BCA FUSIONVERSE COMMAND CENTER
              ═══════════════════════════════════════════ -->
         <div class="bg-gradient-dash"></div>
         
@@ -69,7 +90,7 @@ $is_dashboard_page = in_array($current_page, ['dashboard.php', 'coordinator.php'
         <div class="mobile-top-bar">
             <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px;">
                 <div class="brand-icon-dash" style="width: 30px; height: 30px; font-size: 0.75rem; border-radius: 8px;">N</div>
-                NEXUS
+                FUSIONVERSE
             </div>
             <a href="logout.php" style="color: var(--danger); font-size: 1.1rem;"><i class="fa-solid fa-right-from-bracket"></i></a>
         </div>
@@ -80,7 +101,7 @@ $is_dashboard_page = in_array($current_page, ['dashboard.php', 'coordinator.php'
                 <div class="sidebar-brand">
                     <div class="brand-icon-dash">N</div>
                     <div class="brand-name" style="font-family: 'Space Grotesk', sans-serif;">
-                        <h2 style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; text-transform: none;">NEXUS</h2>
+                        <h2 style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; text-transform: none;">FUSIONVERSE</h2>
                         <p style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px;">BCA IT FEST</p>
                     </div>
                 </div>
@@ -198,14 +219,14 @@ $is_dashboard_page = in_array($current_page, ['dashboard.php', 'coordinator.php'
                 <div class="content-body" style="flex: 1;">
     <?php else: ?>
         <!-- ═══════════════════════════════════════════
-             PUBLIC PAGES — BCA NEXUS THEME
+             PUBLIC PAGES — BCA FUSIONVERSE THEME
              ═══════════════════════════════════════════ -->
         <div class="cyber-grid"></div>
         <div class="glow-bg"></div>
         <div class="scanline"></div>
 
         <nav>
-            <a href="index.php" class="logo neon-text-blue">NEXUS</a>
+            <a href="index.php" class="logo neon-text-blue">FUSIONVERSE</a>
             <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">
                 <i class="fa-solid fa-bars"></i>
             </button>
