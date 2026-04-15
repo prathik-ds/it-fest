@@ -18,9 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         $rules = $_POST['rules']; $date = $_POST['date']; $time = $_POST['time']; $venue = $_POST['venue'];
         $coord_name = $_POST['coordinator_name']; $coord_phone = $_POST['coordinator_phone'];
         $coord_id = $_POST['coordinator_id'] ?: null; $max_p = $_POST['max_participants'];
+        $is_team = isset($_POST['is_team_event']) ? 1 : 0;
+        $min_ts  = (int)($_POST['min_team_size'] ?? 2);
+        $max_ts  = (int)($_POST['max_team_size'] ?? 4);
 
-        $stmt = $pdo->prepare("INSERT INTO events (name, category, description, rules, date, time, venue, coordinator_name, coordinator_phone, coordinator_id, max_participants) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $coord_name, $coord_phone, $coord_id, $max_p]);
+        $stmt = $pdo->prepare("INSERT INTO events (name, category, description, rules, date, time, venue, coordinator_name, coordinator_phone, coordinator_id, max_participants, is_team_event, min_team_size, max_team_size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $coord_name, $coord_phone, $coord_id, $max_p, $is_team, $min_ts, $max_ts]);
         $msg = "EVENT CREATED SUCCESSFULLY.";
     }
 
@@ -30,9 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         $rules = $_POST['rules']; $date = $_POST['date']; $time = $_POST['time']; $venue = $_POST['venue'];
         $coord_name = $_POST['coordinator_name']; $coord_phone = $_POST['coordinator_phone'];
         $coord_id = $_POST['coordinator_id'] ?: null; $max_p = $_POST['max_participants'];
+        $is_team = isset($_POST['is_team_event']) ? 1 : 0;
+        $min_ts  = (int)($_POST['min_team_size'] ?? 2);
+        $max_ts  = (int)($_POST['max_team_size'] ?? 4);
 
-        $stmt = $pdo->prepare("UPDATE events SET name=?, category=?, description=?, rules=?, date=?, time=?, venue=?, coordinator_name=?, coordinator_phone=?, coordinator_id=?, max_participants=? WHERE id=?");
-        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $coord_name, $coord_phone, $coord_id, $max_p, $id]);
+        $stmt = $pdo->prepare("UPDATE events SET name=?, category=?, description=?, rules=?, date=?, time=?, venue=?, coordinator_name=?, coordinator_phone=?, coordinator_id=?, max_participants=?, is_team_event=?, min_team_size=?, max_team_size=? WHERE id=?");
+        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $coord_name, $coord_phone, $coord_id, $max_p, $is_team, $min_ts, $max_ts, $id]);
         $msg = "EVENT UPDATED SUCCESSFULLY.";
     }
 
@@ -85,8 +91,18 @@ $coordinators = $pdo->query("SELECT user_id, name FROM users WHERE role = 'coord
                         <?php foreach($events as $ev): ?>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td style="padding: 16px;">
-                                <div style="font-weight: 600;"><?= htmlspecialchars($ev['name']) ?></div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);"><?= $ev['category'] ?> Track</div>
+                                <div style="font-weight: 600; display:flex; align-items:center; gap:8px;">
+                                    <?= htmlspecialchars($ev['name']) ?>
+                                    <?php if (!empty($ev['is_team_event'])): ?>
+                                        <span style="font-size:0.6rem; font-weight:800; background:rgba(124,58,237,0.15); color:#a855f7; border:1px solid rgba(124,58,237,0.3); padding:2px 8px; border-radius:50px; letter-spacing:1px;">TEAM</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">
+                                    <?= $ev['category'] ?> Track
+                                    <?php if (!empty($ev['is_team_event'])): ?>
+                                        · <?= $ev['min_team_size'] ?>–<?= $ev['max_team_size'] ?> members
+                                    <?php endif; ?>
+                                </div>
                             </td>
                             <td style="padding: 16px;">
                                 <div style="font-size: 0.85rem; color: var(--text-main);"><?= htmlspecialchars($ev['coordinator_name'] ?: 'System') ?></div>
@@ -164,6 +180,24 @@ $coordinators = $pdo->query("SELECT user_id, name FROM users WHERE role = 'coord
                     <label style="color: var(--text-dim); font-size: 0.7rem;">Rules & Instructions</label>
                     <textarea name="rules" id="field-rules" style="height: 80px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px;"></textarea>
                 </div>
+
+                <!-- Team Event Toggle -->
+                <div style="margin-bottom: 18px; padding: 18px; background: rgba(124,58,237,0.05); border: 1px solid rgba(124,58,237,0.15); border-radius: 12px;">
+                    <label style="display:flex; align-items:center; gap:12px; cursor:pointer; margin-bottom:14px;">
+                        <input type="checkbox" name="is_team_event" id="field-is-team" style="width:18px;height:18px;accent-color:#a855f7;" onchange="toggleTeamFields()">
+                        <span style="color:#c4b5fd; font-size:0.82rem; font-weight:700;"><i class="fa-solid fa-users"></i> &nbsp;Team Event</span>
+                    </label>
+                    <div id="team-size-fields" style="display:none; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div class="form-group">
+                            <label style="color: var(--text-dim); font-size: 0.7rem;">Min Team Size</label>
+                            <input type="number" name="min_team_size" id="field-min-ts" value="2" min="1" max="20" style="background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px;">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: var(--text-dim); font-size: 0.7rem;">Max Team Size</label>
+                            <input type="number" name="max_team_size" id="field-max-ts" value="4" min="1" max="20" style="background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px;">
+                        </div>
+                    </div>
+                </div>
                 
                 <button type="submit" id="submit-btn" class="btn-start-dash">DEPLOY TRACK</button>
             </form>
@@ -187,7 +221,16 @@ $coordinators = $pdo->query("SELECT user_id, name FROM users WHERE role = 'coord
         document.getElementById('field-coord-p').value = event.coordinator_phone;
         document.getElementById('field-coord-id').value = event.coordinator_id || '';
         document.getElementById('field-rules').value = event.rules;
+        document.getElementById('field-is-team').checked = event.is_team_event == 1;
+        document.getElementById('field-min-ts').value = event.min_team_size || 2;
+        document.getElementById('field-max-ts').value = event.max_team_size || 4;
+        toggleTeamFields();
         document.getElementById('submit-btn').innerText = 'UPDATE TRACK';
+    }
+
+    function toggleTeamFields() {
+        const isTeam = document.getElementById('field-is-team').checked;
+        document.getElementById('team-size-fields').style.display = isTeam ? 'grid' : 'none';
     }
 
     function resetForm() {

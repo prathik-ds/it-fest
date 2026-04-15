@@ -10,7 +10,14 @@ $userinfo = $_SESSION['user'];
 $user_id = $userinfo['user_id'];
 
 // Fetch user's registered events with scores
-$stmt = $pdo->prepare("SELECT e.*, r.status as reg_status, r.score FROM events e JOIN registrations r ON e.id = r.event_id WHERE r.user_id = ? ORDER BY e.date");
+$stmt = $pdo->prepare("
+    SELECT e.*, r.status as reg_status, r.score, r.team_id,
+           t.name as team_name, t.invite_code as team_code, t.leader_user_id as team_leader
+    FROM events e 
+    JOIN registrations r ON e.id = r.event_id 
+    LEFT JOIN teams t ON r.team_id = t.id
+    WHERE r.user_id = ? ORDER BY e.date
+");
 $stmt->execute([$user_id]);
 $myEvents = $stmt->fetchAll();
 
@@ -65,6 +72,7 @@ $announcements = $stmt->fetchAll();
                             <tr style="border-bottom: 1px solid var(--border);">
                                 <th style="padding: 16px; text-align: left; color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Space Grotesk', sans-serif;">Event</th>
                                 <th style="padding: 16px; text-align: left; color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Space Grotesk', sans-serif;">Schedule</th>
+                                <th style="padding: 16px; text-align: left; color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Space Grotesk', sans-serif;">Team</th>
                                 <th style="padding: 16px; text-align: center; color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Space Grotesk', sans-serif;">Status</th>
                                 <th style="padding: 16px; text-align: right; color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Space Grotesk', sans-serif;">Actions</th>
                             </tr>
@@ -82,6 +90,20 @@ $announcements = $stmt->fetchAll();
                                     <td style="padding: 16px;" data-label="Schedule">
                                         <div style="font-size: 0.9rem; color: var(--text-primary);"><?= date('d M, Y', strtotime($ev['date'])) ?></div>
                                         <div style="font-size: 0.72rem; color: var(--text-dim);"><?= date('h:i A', strtotime($ev['time'])) ?></div>
+                                    </td>
+                                    <!-- Team info -->
+                                    <td style="padding: 16px;" data-label="Team">
+                                        <?php if (!empty($ev['team_id'])): ?>
+                                            <div style="font-size:0.8rem; font-weight:700; color:#c4b5fd;"><?= htmlspecialchars($ev['team_name']) ?></div>
+                                            <div style="font-size:0.65rem; color:#5b6a8a; font-family:'JetBrains Mono',monospace; letter-spacing:2px; margin-top:2px;">
+                                                <?= htmlspecialchars($ev['team_code']) ?>
+                                                <?php if($ev['team_leader'] === $user_id): ?>
+                                                    &nbsp;<span style="color:#fbbf24; font-size:0.6rem;">LEADER</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <span style="color:#5b6a8a; font-size:0.75rem;">—</span>
+                                        <?php endif; ?>
                                     </td>
                                     <td style="padding: 16px; text-align: center;" data-label="Status">
                                         <?php

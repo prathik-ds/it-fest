@@ -72,8 +72,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $c_phone = $c_data['phone'];
         }
 
-        $stmt = $pdo->prepare("INSERT INTO events (name, category, description, rules, date, time, venue, coordinator_name, coordinator_phone, coordinator_id, max_participants, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $c_name, $c_phone, $coord_id, $max_p, $image_path]);
+        $stmt = $pdo->prepare("INSERT INTO events (name, category, description, rules, date, time, venue, coordinator_name, coordinator_phone, coordinator_id, max_participants, image, is_team_event, min_team_size, max_team_size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $is_team = isset($_POST['is_team_event']) ? 1 : 0;
+        $min_ts  = (int)($_POST['min_team_size'] ?? 2);
+        $max_ts  = (int)($_POST['max_team_size'] ?? 4);
+        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $c_name, $c_phone, $coord_id, $max_p, $image_path, $is_team, $min_ts, $max_ts]);
         $msg = "EVENT TRACK DEPLOYED.";
     } elseif ($action === 'update_event') {
         $id = $_POST['event_id'];
@@ -98,8 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        $stmt = $pdo->prepare("UPDATE events SET name=?, category=?, description=?, rules=?, date=?, time=?, venue=?, coordinator_name=?, coordinator_phone=?, coordinator_id=?, max_participants=?, image=? WHERE id=?");
-        $stmt->execute([$_POST['name'], $_POST['category'], $description, $_POST['rules'], $_POST['date'], $_POST['time'], $_POST['venue'], $c_name, $c_phone, $coord_id, $_POST['max_participants'], $image_path, $id]);
+        $stmt = $pdo->prepare("UPDATE events SET name=?, category=?, description=?, rules=?, date=?, time=?, venue=?, coordinator_name=?, coordinator_phone=?, coordinator_id=?, max_participants=?, image=?, is_team_event=?, min_team_size=?, max_team_size=? WHERE id=?");
+        $is_team = isset($_POST['is_team_event']) ? 1 : 0;
+        $min_ts  = (int)($_POST['min_team_size'] ?? 2);
+        $max_ts  = (int)($_POST['max_team_size'] ?? 4);
+        $stmt->execute([$_POST['name'], $_POST['category'], $description, $_POST['rules'], $_POST['date'], $_POST['time'], $_POST['venue'], $c_name, $c_phone, $coord_id, $_POST['max_participants'], $image_path, $is_team, $min_ts, $max_ts, $id]);
         $msg = "EVENT TRACK UPDATED.";
     }
 
@@ -364,6 +370,27 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                         </div>
                         <div class="form-group" style="margin-bottom: 15px;"><label class="modern-label">Venue</label><input type="text" name="venue" id="ev-venue" class="modern-input" placeholder="e.g. Main Auditorium"></div>
                         <div class="form-group" style="margin-bottom: 25px;"><label class="modern-label">Full Rules (Modal)</label><textarea name="rules" id="ev-rules" class="modern-textarea" style="height: 100px; resize: vertical;" placeholder="Detailed rules..."></textarea></div>
+                    </div>
+
+                    <!-- Section 4: Team Event Settings -->
+                    <div style="margin-bottom: 25px; padding: 18px; background: rgba(124,58,237,0.05); border: 1px solid rgba(124,58,237,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.65rem; color: #a855f7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-weight: 700;">
+                            <i class="fa-solid fa-users"></i> Team Event Settings
+                        </div>
+                        <label style="display:flex; align-items:center; gap:12px; cursor:pointer; margin-bottom:14px;">
+                            <input type="checkbox" name="is_team_event" id="ev-is-team" style="width:18px;height:18px;accent-color:#a855f7;" onchange="toggleEvTeamFields()">
+                            <span style="color:#c4b5fd; font-size:0.82rem; font-weight:700;">Enable Team Registration</span>
+                        </label>
+                        <div id="ev-team-size-fields" style="display:none; grid-template-columns:1fr 1fr; gap:15px;">
+                            <div>
+                                <label class="modern-label">Min Team Size</label>
+                                <input type="number" name="min_team_size" id="ev-min-ts" value="2" min="1" max="20" class="modern-input">
+                            </div>
+                            <div>
+                                <label class="modern-label">Max Team Size</label>
+                                <input type="number" name="max_team_size" id="ev-max-ts" value="4" min="1" max="20" class="modern-input">
+                            </div>
+                        </div>
                     </div>
 
                     <button type="submit" id="ev-submit" class="btn-start-dash">DEPLOY EVENT TRACK</button>
@@ -700,6 +727,13 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
         document.getElementById('ev-submit').style.background = 'linear-gradient(135deg, var(--secondary), var(--primary))';
         document.getElementById('ev-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
         
+        // Populate team fields
+        const isTeam = ev.is_team_event == 1;
+        document.getElementById('ev-is-team').checked = isTeam;
+        document.getElementById('ev-min-ts').value = ev.min_team_size || 2;
+        document.getElementById('ev-max-ts').value = ev.max_team_size || 4;
+        toggleEvTeamFields();
+        
         // Highlight form momentarily
         const formPanel = document.getElementById('ev-form').closest('.glass-panel-dash');
         formPanel.style.boxShadow = '0 0 20px rgba(99, 102, 241, 0.4)';
@@ -725,6 +759,13 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
         document.getElementById('logo-preview-container').style.display = 'none';
         document.getElementById('ev-submit').innerText = 'DEPLOY TRACK';
         document.getElementById('ev-submit').style.background = 'linear-gradient(135deg, var(--primary), var(--secondary))';
+        document.getElementById('ev-is-team').checked = false;
+        document.getElementById('ev-team-size-fields').style.display = 'none';
+    }
+
+    function toggleEvTeamFields() {
+        const isTeam = document.getElementById('ev-is-team').checked;
+        document.getElementById('ev-team-size-fields').style.display = isTeam ? 'grid' : 'none';
     }
 
     // Interactive Charts Optimization
