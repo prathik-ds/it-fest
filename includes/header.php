@@ -1,4 +1,11 @@
 <?php
+// Performance Optimization: Gzip compression via output buffering
+if (!in_array('ob_gzhandler', ob_list_handlers()) && !ini_get('zlib.output_compression')) {
+    ob_start('ob_gzhandler');
+} else {
+    ob_start();
+}
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

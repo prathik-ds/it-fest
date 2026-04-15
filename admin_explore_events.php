@@ -57,44 +57,55 @@ $events = $stmt->fetchAll();
     <?php endif; ?>
 
     <!-- Events Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 28px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 32px; padding: 20px 0 60px;">
         <?php foreach ($events as $index => $event): ?>
-            <div class="glass"
-                style="padding: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; transition: 0.3s; border-color: rgba(0, 212, 255, 0.08);">
-                <!-- Card Inner -->
-                <div style="padding: 28px 28px 20px;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-                        <span
-                            style="font-size: 0.62rem; font-weight: 800; color: <?= $event['category'] == 'IT' ? 'var(--accent-1)' : 'var(--accent-2)' ?>; text-transform: uppercase; letter-spacing: 2px; padding: 4px 12px; background: rgba(0,0,0,0.2); border-radius: 50px; border: 1px solid rgba(255,255,255,0.05);">
-                            <?= $event['category'] ?> TRACK
-                        </span>
-
-                        <!-- Admin Actions Mini -->
-                        <div style="display: flex; gap: 8px;">
-                            <a href="admin.php?tab=events&edit=<?= $event['id'] ?>" class="btn-coord"
-                                style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border-radius: 8px;"
-                                title="Edit Event">
-                                <i class="fa-solid fa-pen"></i>
-                            </a>
-                            <form method="POST"
-                                onsubmit="return confirm('Truly delete this track? This cannot be undone.')">
-                                <input type="hidden" name="action" value="delete_event">
-                                <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
-                                <button type="submit" class="btn-coord"
-                                    style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border-radius: 8px; color: var(--danger); border-color: rgba(244, 63, 94, 0.2);"
-                                    title="Delete Event">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </form>
+            <div class="glass event-card-premium"
+                style="padding: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; transition: 0.3s; border-color: rgba(0, 212, 255, 0.08); margin-bottom: 20px;">
+                
+                <!-- Card Image / Header -->
+                <div style="height: 160px; position: relative; overflow: hidden; background: var(--bg-card);">
+                    <?php if ($event['image']): ?>
+                        <img src="<?= $event['image'] ?>" alt="<?= htmlspecialchars($event['name']) ?>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" class="card-img-top">
+                    <?php else: ?>
+                        <div style="width: 100%; height: 100%; background: var(--grad-primary); opacity: 0.15; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-microchip" style="font-size: 2.5rem; color: var(--accent-1); opacity: 0.4;"></i>
                         </div>
+                    <?php endif; ?>
+                    
+                    <!-- Overlay Gradient -->
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 100%; background: linear-gradient(to bottom, transparent 0%, rgba(10, 15, 30, 0.9) 100%);"></div>
+
+                    <!-- Category Badge -->
+                    <div style="position: absolute; top: 12px; left: 12px; display: inline-flex; align-items: center; gap: 6px; background: rgba(10, 15, 30, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 5px 14px; border-radius: 50px; z-index: 2;">
+                        <span style="font-size: 0.55rem; font-weight: 800; color: white; text-transform: uppercase; letter-spacing: 1.5px;"><?= $event['category'] ?></span>
                     </div>
 
+                    <!-- Admin Actions Overlay -->
+                    <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 3;">
+                        <a href="admin.php?tab=events&edit=<?= $event['id'] ?>" class="btn-coord"
+                            style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border-radius: 8px; background: rgba(124, 58, 237, 0.2);"
+                            title="Edit Event">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <form method="POST"
+                            onsubmit="return confirm('Truly delete this track? This cannot be undone.')">
+                            <input type="hidden" name="action" value="delete_event">
+                            <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
+                            <button type="submit" class="btn-coord"
+                                style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border-radius: 8px; color: var(--danger); border-color: rgba(244, 63, 94, 0.2); background: rgba(244, 63, 94, 0.1);"
+                                title="Delete Event">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div style="padding: 24px;">
                     <h3
-                        style="font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; margin-bottom: 12px; color: var(--text-primary); font-weight: 700;">
-                        <?= $event['name'] ?></h3>
-                    <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; min-height: 60px;">
-                        <?= $event['description'] ?: 'No description available for this tournament track.' ?>
+                        style="font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; margin-bottom: 10px; color: var(--text-primary); font-weight: 700;">
+                        <?= htmlspecialchars($event['name']) ?></h3>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.6; min-height: 48px;">
+                        <?= htmlspecialchars($event['description'] ?: 'No description available for this tournament track.') ?>
                     </p>
                 </div>
 

@@ -144,6 +144,43 @@ h1, h2, h3, h4 {
     100% { transform: translateY(100vh); }
 }
 
+/* Event Card Enhancements */
+.event-card-premium {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease !important;
+    margin-bottom: 24px; /* Defensive spacing */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card-premium:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: rgba(0, 212, 255, 0.4) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+.event-card-premium:hover .card-img-top {
+    transform: scale(1.1);
+}
+
+.event-card-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transform: skewX(-25deg);
+    transition: 0.75s;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.event-card-premium:hover::before {
+    left: 125%;
+}
+
 /* ── Floating Particles (CSS-only) ── */
 body::before {
     content: '';
@@ -176,8 +213,8 @@ body::before {
 
 .glass {
     background: var(--bg-glass);
-    backdrop-filter: blur(20px) saturate(1.3);
     -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    backdrop-filter: blur(20px) saturate(1.3);
     border: 1px solid var(--border-bright);
     border-radius: 20px;
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -336,8 +373,8 @@ nav {
     top: 0; width: 100%;
     z-index: 100;
     background: rgba(4, 6, 14, 0.75);
-    backdrop-filter: blur(20px) saturate(1.2);
     -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    backdrop-filter: blur(20px) saturate(1.2);
     border-bottom: 1px solid var(--border);
     transition: all 0.3s;
 }
@@ -481,8 +518,8 @@ nav {
 .sidebar {
     width: var(--sidebar-width);
     background: rgba(8, 12, 26, 0.95);
-    backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     border-right: 1px solid var(--border);
     height: 100vh;
     position: fixed;
@@ -606,8 +643,8 @@ nav {
 .top-header-dash {
     height: var(--header-height);
     background: rgba(8, 12, 26, 0.8);
-    backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
     padding: 0 32px;
     display: flex;
@@ -674,8 +711,8 @@ nav {
 /* Glass Panels */
 .glass-panel, .glass-panel-dash {
     background: var(--bg-card);
-    backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     border: 1px solid var(--border);
     border-radius: 20px;
     transition: all 0.35s ease;
@@ -814,6 +851,7 @@ nav {
     gap: 6px;
     white-space: nowrap;
     text-decoration: none;
+    min-height: 42px; /* Touch-friendly */
 }
 
 .btn-coord:hover {
@@ -1015,8 +1053,8 @@ nav {
         top: 60px; left: 0; right: 0;
         flex-direction: column;
         background: rgba(4, 6, 14, 0.97);
-        backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
         padding: 20px;
         gap: 4px;
         border-bottom: 1px solid var(--border);

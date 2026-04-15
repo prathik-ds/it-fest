@@ -44,12 +44,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     elseif ($action === 'create_event') {
         $name = $_POST['name'];
         $category = $_POST['category'];
+        $description = $_POST['description'] ?? '';
         $rules = $_POST['rules'];
         $date = $_POST['date'];
         $time = $_POST['time'];
         $venue = $_POST['venue'];
         $max_p = $_POST['max_participants'];
         $coord_id = $_POST['coordinator_id'] ?: null;
+
+        $image_path = null;
+        if (isset($_FILES['logo']) && $_FILES['logo']['error'] == 0) {
+            $ext = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
+            $filename = 'logo_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+            if (move_uploaded_file($_FILES['logo']['tmp_name'], 'assets/img/events/' . $filename)) {
+                $image_path = 'assets/img/events/' . $filename;
+            }
+        }
 
         // Fetch coord details if assigned
         $c_name = '';
@@ -62,11 +72,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $c_phone = $c_data['phone'];
         }
 
-        $stmt = $pdo->prepare("INSERT INTO events (name, category, rules, date, time, venue, coordinator_name, coordinator_phone, coordinator_id, max_participants) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$name, $category, $rules, $date, $time, $venue, $c_name, $c_phone, $coord_id, $max_p]);
+        $stmt = $pdo->prepare("INSERT INTO events (name, category, description, rules, date, time, venue, coordinator_name, coordinator_phone, coordinator_id, max_participants, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $c_name, $c_phone, $coord_id, $max_p, $image_path]);
         $msg = "EVENT TRACK DEPLOYED.";
     } elseif ($action === 'update_event') {
         $id = $_POST['event_id'];
+        $description = $_POST['description'] ?? '';
         $coord_id = $_POST['coordinator_id'] ?: null;
         $c_name = '';
         $c_phone = '';
@@ -78,8 +89,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $c_phone = $c_data['phone'];
         }
 
-        $stmt = $pdo->prepare("UPDATE events SET name=?, category=?, rules=?, date=?, time=?, venue=?, coordinator_name=?, coordinator_phone=?, coordinator_id=?, max_participants=? WHERE id=?");
-        $stmt->execute([$_POST['name'], $_POST['category'], $_POST['rules'], $_POST['date'], $_POST['time'], $_POST['venue'], $c_name, $c_phone, $coord_id, $_POST['max_participants'], $id]);
+        $image_path = $_POST['existing_logo'] ?? null;
+        if (isset($_FILES['logo']) && $_FILES['logo']['error'] == 0) {
+            $ext = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
+            $filename = 'logo_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+            if (move_uploaded_file($_FILES['logo']['tmp_name'], 'assets/img/events/' . $filename)) {
+                $image_path = 'assets/img/events/' . $filename;
+            }
+        }
+
+        $stmt = $pdo->prepare("UPDATE events SET name=?, category=?, description=?, rules=?, date=?, time=?, venue=?, coordinator_name=?, coordinator_phone=?, coordinator_id=?, max_participants=?, image=? WHERE id=?");
+        $stmt->execute([$_POST['name'], $_POST['category'], $description, $_POST['rules'], $_POST['date'], $_POST['time'], $_POST['venue'], $c_name, $c_phone, $coord_id, $_POST['max_participants'], $image_path, $id]);
         $msg = "EVENT TRACK UPDATED.";
     }
 
@@ -285,47 +305,69 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                 <h3 id="ev-form-title"
                     style="font-family: 'Outfit'; font-size: 1.1rem; color: var(--primary); margin-bottom: 20px;">Deploy
                     New Event</h3>
-                <form id="ev-form" method="POST">
+                <form id="ev-form" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="action" id="ev-action" value="create_event">
                     <input type="hidden" name="event_id" id="ev-id">
-                    <div class="form-group" style="margin-bottom: 15px;"><label class="modern-label">Track
-                            Title</label><input type="text" name="name" id="ev-name" class="modern-input" required
-                            placeholder="e.g. Code Rush"></div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <div><label class="modern-label">Track Type</label><select name="category" id="ev-cat"
-                                class="modern-select">
-                                <option value="IT">IT Track</option>
-                                <option value="Commerce">Commerce</option>
-                            </select></div>
-                        <div><label class="modern-label">Max Cap</label><input type="number" name="max_participants"
-                                id="ev-max" value="50" class="modern-input"></div>
+                    <input type="hidden" name="existing_logo" id="ev-existing-logo">
+                    
+                    <!-- Section 1: Basic Information -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-info-circle"></i> Basic Track Info
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;"><label class="modern-label">Track Title</label><input type="text" name="name" id="ev-name" class="modern-input" required placeholder="e.g. Code Rush"></div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                            <div><label class="modern-label">Track Type</label><select name="category" id="ev-cat" class="modern-select"><option value="IT">IT Track</option><option value="Commerce">Commerce</option></select></div>
+                            <div><label class="modern-label">Max Capacity</label><input type="number" name="max_participants" id="ev-max" value="50" class="modern-input"></div>
+                        </div>
                     </div>
-                    <div class="form-group" style="margin-bottom: 15px;">
-                        <label class="modern-label">Assign Coordinator</label>
-                        <select name="coordinator_id" id="ev-coord" class="modern-select">
-                            <option value="">-- Let System Auto-Assign / None --</option>
-                            <?php foreach ($coordinators as $c): ?>
-                                <option value="<?= $c['user_id'] ?>"><?= htmlspecialchars($c['name']) ?>
-                                    (<?= $c['user_id'] ?>)</option>
-                            <?php endforeach; ?>
-                        </select>
+
+                    <!-- Section 2: Branding (The Requested Logo Section) -->
+                    <div style="margin-bottom: 25px; padding: 20px; background: rgba(0, 212, 255, 0.03); border: 1px dashed rgba(0, 212, 255, 0.2); border-radius: 12px;">
+                        <div style="font-size: 0.65rem; color: var(--accent-1); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-weight: 700;">
+                            <i class="fa-solid fa-palette"></i> Event Branding Section
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label class="modern-label">Event Logo / Header Image</label>
+                            <input type="file" name="logo" id="ev-logo" class="modern-input" accept="image/*" onchange="previewLogo(this)">
+                            <div id="logo-preview-container" style="margin-top: 12px; display: none; text-align: center;">
+                                <div style="font-size: 0.6rem; color: var(--text-dim); margin-bottom: 6px;">LIVE PREVIEW</div>
+                                <img id="logo-preview" src="#" alt="Preview" style="max-width: 100%; height: 100px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border);">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="modern-label">Short Tagline / Description</label>
+                            <textarea name="description" id="ev-desc" class="modern-textarea" style="height: 60px;" placeholder="Brief overview for the event card..."></textarea>
+                        </div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <div><label class="modern-label">Date</label><input type="date" name="date" id="ev-date"
-                                class="modern-input"></div>
-                        <div><label class="modern-label">Time</label><input type="time" name="time" id="ev-time"
-                                class="modern-input"></div>
+
+                    <!-- Section 3: Logistics -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-clock"></i> Schedule & Logistics
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label class="modern-label">Assign Coordinator</label>
+                            <select name="coordinator_id" id="ev-coord" class="modern-select">
+                                <option value="">-- Let System Auto-Assign / None --</option>
+                                <?php foreach ($coordinators as $c): ?>
+                                    <option value="<?= $c['user_id'] ?>"><?= htmlspecialchars($c['name']) ?> (<?= $c['user_id'] ?>)</option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                            <div><label class="modern-label">Date</label><input type="date" name="date" id="ev-date" class="modern-input"></div>
+                            <div><label class="modern-label">Time</label><input type="time" name="time" id="ev-time" class="modern-input"></div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;"><label class="modern-label">Venue</label><input type="text" name="venue" id="ev-venue" class="modern-input" placeholder="e.g. Main Auditorium"></div>
+                        <div class="form-group" style="margin-bottom: 25px;"><label class="modern-label">Full Rules (Modal)</label><textarea name="rules" id="ev-rules" class="modern-textarea" style="height: 100px; resize: vertical;" placeholder="Detailed rules..."></textarea></div>
                     </div>
-                    <div class="form-group" style="margin-bottom: 15px;"><label class="modern-label">Venue</label><input
-                            type="text" name="venue" id="ev-venue" class="modern-input"
-                            placeholder="e.g. Main Auditorium"></div>
-                    <div class="form-group" style="margin-bottom: 25px;"><label class="modern-label">Instructions /
-                            Rules (Markdown Supported)</label><textarea name="rules" id="ev-rules"
-                            class="modern-textarea" style="height: 100px; resize: vertical;"
-                            placeholder="1. Individual participation.\n2. Bring your own laptop."></textarea></div>
-                    <button type="submit" id="ev-submit" class="btn-start-dash">DEPLOY EVENT</button>
-                    <button type="button" onclick="resetEvForm()" class="btn-coord"
-                        style="width: 100%; border: none; margin-top: 10px; opacity: 0.7;">CLEAR FORM</button>
+
+                    <button type="submit" id="ev-submit" class="btn-start-dash">DEPLOY EVENT TRACK</button>
+                    <button type="button" onclick="resetEvForm()" class="btn-coord" style="width: 100%; border: none; margin-top: 10px; opacity: 0.7;">CLEAR FORM</button>
                 </form>
             </div>
         </div>
@@ -636,6 +678,7 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
         document.getElementById('ev-action').value = 'update_event';
         document.getElementById('ev-id').value = ev.id;
         document.getElementById('ev-name').value = ev.name;
+        document.getElementById('ev-desc').value = ev.description || '';
         document.getElementById('ev-cat').value = ev.category;
         document.getElementById('ev-max').value = ev.max_participants;
         document.getElementById('ev-coord').value = ev.coordinator_id || '';
@@ -643,20 +686,43 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
         document.getElementById('ev-time').value = ev.time;
         document.getElementById('ev-venue').value = ev.venue;
         document.getElementById('ev-rules').value = ev.rules;
+        document.getElementById('ev-existing-logo').value = ev.image || '';
+        
+        const preview = document.getElementById('logo-preview');
+        if (ev.image) {
+            preview.src = ev.image;
+            document.getElementById('logo-preview-container').style.display = 'block';
+        } else {
+            document.getElementById('logo-preview-container').style.display = 'none';
+        }
+
         document.getElementById('ev-submit').innerText = 'SAVE CHANGES';
         document.getElementById('ev-submit').style.background = 'linear-gradient(135deg, var(--secondary), var(--primary))';
         document.getElementById('ev-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
-
+        
         // Highlight form momentarily
         const formPanel = document.getElementById('ev-form').closest('.glass-panel-dash');
         formPanel.style.boxShadow = '0 0 20px rgba(99, 102, 241, 0.4)';
         setTimeout(() => { formPanel.style.boxShadow = ''; }, 1500);
     }
 
+    function previewLogo(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logo-preview').src = e.target.result;
+                document.getElementById('logo-preview-container').style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
     function resetEvForm() {
         document.getElementById('ev-form-title').innerText = 'Deploy New Event Track';
         document.getElementById('ev-action').value = 'create_event';
         document.getElementById('ev-form').reset();
+        document.getElementById('ev-existing-logo').value = '';
+        document.getElementById('logo-preview-container').style.display = 'none';
         document.getElementById('ev-submit').innerText = 'DEPLOY TRACK';
         document.getElementById('ev-submit').style.background = 'linear-gradient(135deg, var(--primary), var(--secondary))';
     }
