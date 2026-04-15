@@ -152,12 +152,15 @@ if ($user) {
 }
 
 @media (max-width: 900px) {
-    .events-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
-    .container { padding: 0 20px !important; }
+    .events-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .container { padding: 0 16px !important; }
 }
 @media (max-width: 600px) {
-    .events-grid { grid-template-columns: 1fr; gap: 20px; }
-    .container { padding: 0 14px !important; }
+    .events-grid { grid-template-columns: 1fr; gap: 14px; }
+    .container { padding: 0 12px !important; margin-top: 0 !important; }
+    .ev-card-title { font-size: 1.1rem; }
+    .ev-card-body { padding: 14px 16px 10px; }
+    .ev-card-footer { padding: 0 16px 16px; }
 }
 
 /* ── Team Badge ── */

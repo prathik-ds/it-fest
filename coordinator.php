@@ -129,7 +129,7 @@ if ($active_event_id) {
                     <button onclick="startScanner()" class="btn-results" style="background: var(--bg-card); border-color: var(--primary); color: var(--primary);">
                         <i class="fa-solid fa-camera"></i> SCAN ATTENDANCE
                     </button>
-                    <a href="coordinator.php?manage_event=<?= $active_event_id ?>&export=1" class="btn-results">
+                    <a href="export_data.php?type=participation&event_id=<?= $active_event_id ?>" class="btn-results">
                         <i class="fa-solid fa-file-csv"></i> EXPORT CSV
                     </a>
                 </div>

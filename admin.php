@@ -194,7 +194,12 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
     <div id="content-users" class="admin-tab-content" style="display: none;">
         <div style="display: grid; grid-template-columns: 1fr 350px; gap: 30px;">
             <div class="glass-panel-dash" style="padding: 30px;">
-                <h2 style="font-family: 'Outfit'; font-size: 1.4rem; margin-bottom: 25px;">Account Directory</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2 style="font-family: 'Outfit'; font-size: 1.4rem; margin: 0;">Account Directory</h2>
+                    <a href="export_data.php?type=users" class="btn-coord" style="text-decoration: none;">
+                        <i class="fa-solid fa-file-export"></i> EXPORT CSV
+                    </a>
+                </div>
                 <div style="overflow-x: auto;">
                     <table class="modern-table">
                         <thead>
@@ -274,7 +279,12 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
     <div id="content-events" class="admin-tab-content" style="display: none;">
         <div style="display: grid; grid-template-columns: 1fr 380px; gap: 30px;">
             <div class="glass-panel-dash" style="padding: 30px;">
-                <h2 style="font-family: 'Outfit'; font-size: 1.4rem; margin-bottom: 25px;">Competition Tracks</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2 style="font-family: 'Outfit'; font-size: 1.4rem;  margin: 0;">Competition Tracks</h2>
+                    <a href="export_data.php?type=events" class="btn-coord" style="text-decoration: none;">
+                        <i class="fa-solid fa-file-export"></i> EXPORT CSV
+                    </a>
+                </div>
                 <div style="overflow-x: auto;">
                     <table class="modern-table">
                         <thead>
@@ -337,10 +347,17 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                         
                         <div class="form-group" style="margin-bottom: 15px;">
                             <label class="modern-label">Event Logo / Header Image</label>
-                            <input type="file" name="logo" id="ev-logo" class="modern-input" accept="image/*" onchange="previewLogo(this)">
-                            <div id="logo-preview-container" style="margin-top: 12px; display: none; text-align: center;">
-                                <div style="font-size: 0.6rem; color: var(--text-dim); margin-bottom: 6px;">LIVE PREVIEW</div>
-                                <img id="logo-preview" src="#" alt="Preview" style="max-width: 100%; height: 100px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border);">
+                            <label class="mobile-file-upload">
+                                <input type="file" name="logo" id="ev-logo" accept="image/*" onchange="previewLogo(this)">
+                                <div class="mobile-file-upload-content">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <span>Tap to Browse Images</span>
+                                    <span style="font-size: 0.65rem; color: var(--text-dim); font-weight: 400;">JPEG, PNG, WEBP</span>
+                                </div>
+                            </label>
+                            <div id="logo-preview-container" style="margin-top: 15px; display: none; text-align: center;">
+                                <div style="font-size: 0.6rem; color: var(--text-dim); margin-bottom: 8px;">LIVE PREVIEW</div>
+                                <img id="logo-preview" src="#" alt="Preview" style="max-width: 100%; height: 120px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border-bright); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                             </div>
                         </div>
 
@@ -377,9 +394,9 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                         <div style="font-size: 0.65rem; color: #a855f7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-weight: 700;">
                             <i class="fa-solid fa-users"></i> Team Event Settings
                         </div>
-                        <label style="display:flex; align-items:center; gap:12px; cursor:pointer; margin-bottom:14px;">
-                            <input type="checkbox" name="is_team_event" id="ev-is-team" style="width:18px;height:18px;accent-color:#a855f7;" onchange="toggleEvTeamFields()">
-                            <span style="color:#c4b5fd; font-size:0.82rem; font-weight:700;">Enable Team Registration</span>
+                        <label style="display:flex; justify-content: space-between; align-items:center; cursor:pointer; margin-bottom:18px; padding: 12px 16px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(124,58,237,0.15);">
+                            <span style="color:#c4b5fd; font-size:0.85rem; font-weight:700;">Enable Team Registration</span>
+                            <input type="checkbox" name="is_team_event" id="ev-is-team" class="mobile-toggle" onchange="toggleEvTeamFields()">
                         </label>
                         <div id="ev-team-size-fields" style="display:none; grid-template-columns:1fr 1fr; gap:15px;">
                             <div>
@@ -405,9 +422,14 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
         <div class="glass-panel-dash" style="padding: 30px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                 <h2 style="font-family: 'Outfit'; font-size: 1.4rem;">Flow Management</h2>
-                <button onclick="window.print()" class="btn-coord"
-                    style="padding: 6px 16px; font-size: 0.7rem; border: 1px solid var(--primary); color: var(--primary);"><i
-                        class="fa-solid fa-file-pdf"></i> RECORD EXPORT</button>
+                <div style="display: flex; gap: 10px;">
+                    <a href="export_data.php?type=participation" class="btn-coord" style="text-decoration: none; padding: 6px 16px; font-size: 0.7rem; color: var(--secondary); border-color: var(--secondary);">
+                        <i class="fa-solid fa-file-csv"></i> CSV EXPORT
+                    </a>
+                    <button onclick="window.print()" class="btn-coord"
+                        style="padding: 6px 16px; font-size: 0.7rem; border: 1px solid var(--primary); color: var(--primary);"><i
+                            class="fa-solid fa-file-pdf"></i> RECORD PRINT</button>
+                </div>
             </div>
             <div style="overflow-x: auto;">
                 <table class="modern-table">
@@ -742,6 +764,11 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
 
     function previewLogo(input) {
         if (input.files && input.files[0]) {
+            // Update the span text to show the file name
+            const labelSpan = input.closest('.mobile-file-upload').querySelector('span');
+            labelSpan.innerText = input.files[0].name;
+            labelSpan.style.color = 'var(--accent-1)';
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById('logo-preview').src = e.target.result;

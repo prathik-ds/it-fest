@@ -26,7 +26,22 @@ $stmt = $pdo->query("SELECT * FROM announcements ORDER BY created_at DESC LIMIT 
 $announcements = $stmt->fetchAll();
 ?>
 
-<div style="padding: 40px;">
+<style>
+@media (max-width: 768px) {
+    .dash-page-wrap { padding: 0 !important; }
+    .dash-main-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+        padding: 14px !important;
+    }
+    .dash-sidebar-col { order: 2; }
+    .dash-events-col { order: 1; }
+    .dash-events-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+</style>
+
+<div class="dash-page-wrap" style="padding: 40px;">
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <div class="header-content">
@@ -44,9 +59,9 @@ $announcements = $stmt->fetchAll();
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 350px; gap: 30px; margin-top: 30px;">
+    <div class="dash-main-grid" style="display: grid; grid-template-columns: 1fr 350px; gap: 30px; margin-top: 30px;">
         <!-- Registrations Table -->
-        <div class="glass-panel" style="padding: 30px;">
+        <div class="dash-events-col glass-panel" style="padding: 30px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                 <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700;">My Registrations</h2>
                 <a href="events.php" class="btn-coord" style="text-decoration: none;">
@@ -144,7 +159,7 @@ $announcements = $stmt->fetchAll();
         </div>
 
         <!-- Sidebar Info -->
-        <div style="display: flex; flex-direction: column; gap: 24px;">
+        <div class="dash-sidebar-col" style="display: flex; flex-direction: column; gap: 24px;">
             <!-- QR Entry Info -->
             <div class="glass-panel" style="padding: 28px; text-align: center; border-color: rgba(0, 212, 255, 0.12); position: relative; overflow: hidden;">
                 <div style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: radial-gradient(circle, rgba(0, 212, 255, 0.08), transparent 70%); border-radius: 50%;"></div>

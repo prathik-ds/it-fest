@@ -183,9 +183,9 @@ $coordinators = $pdo->query("SELECT user_id, name FROM users WHERE role = 'coord
 
                 <!-- Team Event Toggle -->
                 <div style="margin-bottom: 18px; padding: 18px; background: rgba(124,58,237,0.05); border: 1px solid rgba(124,58,237,0.15); border-radius: 12px;">
-                    <label style="display:flex; align-items:center; gap:12px; cursor:pointer; margin-bottom:14px;">
-                        <input type="checkbox" name="is_team_event" id="field-is-team" style="width:18px;height:18px;accent-color:#a855f7;" onchange="toggleTeamFields()">
-                        <span style="color:#c4b5fd; font-size:0.82rem; font-weight:700;"><i class="fa-solid fa-users"></i> &nbsp;Team Event</span>
+                    <label style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:14px; padding: 12px 16px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(124,58,237,0.15);">
+                        <span style="color:#c4b5fd; font-size:0.85rem; font-weight:700;"><i class="fa-solid fa-users"></i> &nbsp;Team Event</span>
+                        <input type="checkbox" name="is_team_event" id="field-is-team" class="mobile-toggle" onchange="toggleTeamFields()">
                     </label>
                     <div id="team-size-fields" style="display:none; grid-template-columns:1fr 1fr; gap:12px;">
                         <div class="form-group">
