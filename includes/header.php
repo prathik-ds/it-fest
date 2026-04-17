@@ -27,13 +27,16 @@ $is_dashboard_page = in_array($current_page, ['dashboard.php', 'coordinator.php'
     <title>FUSIONVERSE 2026 | BCA IT Fest</title>
     <meta name="description" content="FUSIONVERSE 2026 — The premier BCA IT Fest celebrating innovation, code, and technology. Register today!">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <?php if ($current_page == 'index.php'): ?>
     <link rel="stylesheet" href="assets/css/splash.css">
+    <script src="assets/js/splash.js" defer></script>
+    <?php endif; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" href="favicon.ico">
-    <script src="assets/js/splash.js" defer></script>
 </head>
 <body>
 
+    <?php if ($current_page == 'index.php'): ?>
     <!-- ═══════════════════════════════════════════
          FUSIONVERSE SPLASH SCREEN
          ═══════════════════════════════════════════ -->
@@ -52,6 +55,7 @@ $is_dashboard_page = in_array($current_page, ['dashboard.php', 'coordinator.php'
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
     <?php if ($is_dashboard_page): ?>
         <!-- ═══════════════════════════════════════════

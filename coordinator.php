@@ -1,6 +1,6 @@
 <?php 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
-if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'coordinator') {
+if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'coordinator' && $_SESSION['user']['role'] !== 'admin')) {
     header('Location: index.php');
     exit;
 }
