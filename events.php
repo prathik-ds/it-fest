@@ -146,6 +146,26 @@ if ($user) {
     box-shadow: 0 0 20px rgba(0,212,255,0.2);
     color: #fff;
 }
+.ev-details-btn {
+    width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #94a3c7;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px;
+    border-radius: 10px; cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    margin-bottom: 12px;
+}
+.ev-details-btn:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.2);
+    color: #fff;
+}
 .ev-register-btn:disabled {
     opacity: 0.4; cursor: not-allowed;
     border-color: rgba(255,255,255,0.15); color: #5b6a8a;
@@ -270,6 +290,35 @@ if ($user) {
     font-size: 0.75rem; color: #5b6a8a;
     text-align: center; margin-top: 8px;
 }
+
+/* ── Details Modal ── */
+#detailsModal {
+    display: none; position: fixed; inset: 0;
+    background: rgba(4,6,14,0.92); z-index: 4000;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(15px);
+}
+.details-modal-box {
+    background: rgba(15,22,41,0.98);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 28px; padding: 0;
+    max-width: 650px; width: 95%; max-height: 90vh;
+    position: relative; overflow-y: auto;
+    animation: zoomIn 0.3s ease;
+}
+.details-header-img {
+    height: 240px; width: 100%; object-fit: cover;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.details-body { padding: 32px; }
+.details-rules-box {
+    background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px; padding: 20px; margin-top: 24px;
+}
+@keyframes zoomIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
 </style>
 
 <!-- Page Header -->
@@ -371,6 +420,9 @@ if ($user) {
 
         <!-- Action Footer -->
         <div class="ev-card-footer">
+            <button class="ev-details-btn" onclick='showEventDetails(<?= json_encode($event) ?>)'>
+                <i class="fa-solid fa-circle-info"></i> More Details
+            </button>
             <?php if ($user): ?>
                 <?php if ($is_team): ?>
                     <?php if ($my_team): ?>
@@ -481,7 +533,47 @@ if ($user) {
         </div>
     </div>
 </div>
+<!-- ═══ DETAILS MODAL ═══ -->
+<div id="detailsModal">
+    <div class="details-modal-box">
+        <button onclick="closeDetailsModal()" style="position:absolute; top:20px; right:20px; z-index:10; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:white; cursor:pointer; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; backdrop-filter:blur(5px);">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        
+        <img id="det-img" class="details-header-img" src="" alt="Event Logo" style="display:none;">
+        <div id="det-placeholder" style="height:120px; background:linear-gradient(135deg, rgba(0,212,255,0.1), rgba(124,58,237,0.1)); display:none;"></div>
 
+        <div class="details-body">
+            <div id="det-cat" style="font-size:0.7rem; font-weight:800; color:var(--accent-1); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;"></div>
+            <h2 id="det-name" style="font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:700; color:#fff; margin:0 0 16px;"></h2>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid rgba(255,255,255,0.1);">
+                <div>
+                   <div style="font-size:0.65rem; color:#5b6a8a; text-transform:uppercase; margin-bottom:5px;">Schedule</div>
+                   <div id="det-time" style="font-size:0.95rem; color:#f0f4ff; font-weight:600;"></div>
+                </div>
+                <div>
+                   <div style="font-size:0.65rem; color:#5b6a8a; text-transform:uppercase; margin-bottom:5px;">Venue</div>
+                   <div id="det-venue" style="font-size:0.95rem; color:#f0f4ff; font-weight:600;"></div>
+                </div>
+            </div>
+
+            <p id="det-desc" style="color:#94a3c7; line-height:1.7; font-size:0.95rem;"></p>
+
+            <div class="details-rules-box">
+                <h4 style="font-family:'Space Grotesk',sans-serif; color:var(--accent-2); margin:0 0 12px; font-size:1rem; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-scroll"></i> Competition Rules
+                </h4>
+                <div id="det-rules" style="color:#f0f4ff; font-size:0.85rem; line-height:1.8; white-space:pre-wrap;"></div>
+            </div>
+            
+            <div style="margin-top:30px; display:flex; align-items:center; gap:12px; color:#5b6a8a; font-size:0.8rem;">
+                <i class="fa-solid fa-user-tie"></i>
+                Coordinator: <span id="det-coord" style="color:#f0f4ff; font-weight:600;"></span>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
 let _activeEventId = null;
 let _activeTeamId  = null;
@@ -669,6 +761,37 @@ function copyMyCode() {
 // Close modal on backdrop click
 document.getElementById('teamModal').addEventListener('click', function(e) {
     if (e.target === this) closeTeamModal();
+});
+
+function showEventDetails(ev) {
+    document.getElementById('det-name').textContent = ev.name;
+    document.getElementById('det-cat').textContent = ev.category + ' TRACK';
+    document.getElementById('det-desc').textContent = ev.description || 'No description available.';
+    document.getElementById('det-rules').textContent = ev.rules || 'Rules will be shared soon.';
+    document.getElementById('det-time').textContent = ev.date + ' at ' + ev.time;
+    document.getElementById('det-venue').textContent = ev.venue || 'TBD';
+    document.getElementById('det-coord').textContent = ev.coordinator_name || 'System Assigned';
+    
+    const img = document.getElementById('det-img');
+    const ph = document.getElementById('det-placeholder');
+    if (ev.image) {
+        img.src = ev.image;
+        img.style.display = 'block';
+        ph.style.display = 'none';
+    } else {
+        img.style.display = 'none';
+        ph.style.display = 'block';
+    }
+    
+    document.getElementById('detailsModal').style.display = 'flex';
+}
+
+function closeDetailsModal() {
+    document.getElementById('detailsModal').style.display = 'none';
+}
+
+document.getElementById('detailsModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDetailsModal();
 });
 </script>
 

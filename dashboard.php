@@ -149,6 +149,12 @@ $announcements = $stmt->fetchAll();
                                                 <i class="fa-solid fa-award"></i> Cert
                                             </a>
                                         <?php endif; ?>
+
+                                        <?php if ($ev['is_team_event']): ?>
+                                            <button onclick="manageTeam(<?= $ev['id'] ?>, '<?= htmlspecialchars(addslashes($ev['name'])) ?>')" class="btn-coord" style="padding: 6px 14px; font-size: 0.68rem; background: rgba(124, 58, 237, 0.06); color: var(--accent-2); border: 1px solid rgba(124, 58, 237, 0.2);">
+                                                <i class="fa-solid fa-users-gear"></i> Team
+                                            </button>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -215,6 +221,24 @@ $announcements = $stmt->fetchAll();
     </div>
 </div>
 
+<!-- Team Management Modal -->
+<div id="teamModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4, 6, 14, 0.85); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+    <div class="glass-panel" style="background: rgba(15, 22, 41, 0.98); padding: 40px; border-radius: 24px; border: 1px solid rgba(124, 58, 237, 0.3); max-width: 450px; width: 90%; position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h3 id="team-modal-title" style="font-family: 'Space Grotesk', sans-serif; color: var(--accent-2); margin: 0;">Team Management</h3>
+            <button onclick="closeTeamModal()" style="background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <input type="hidden" id="manage-event-id">
+        
+        <div id="team-content">
+            <div style="text-align: center; padding: 20px;">
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; color: var(--accent-1);"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     let qrObj = null;
@@ -244,6 +268,151 @@ $announcements = $stmt->fetchAll();
         if(qrObj) {
             qrObj.clear();
         }
+    }
+
+    // --- Team Management Logic ---
+    function manageTeam(eventId, eventName) {
+        document.getElementById('manage-event-id').value = eventId;
+        document.getElementById('team-modal-title').innerText = eventName + " Team";
+        document.getElementById('teamModal').style.display = 'flex';
+        refreshTeamInfo(eventId);
+    }
+
+    function closeTeamModal() {
+        document.getElementById('teamModal').style.display = 'none';
+    }
+
+    function refreshTeamInfo(eventId) {
+        const content = document.getElementById('team-content');
+        content.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fa-solid fa-circle-notch fa-spin"></i></div>';
+        
+        const formData = new FormData();
+        formData.append('action', 'get_team');
+        formData.append('event_id', eventId);
+
+        fetch('team_actions.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                renderTeamManage(data.team);
+            } else {
+                renderTeamEntry();
+            }
+        });
+    }
+
+    function renderTeamEntry() {
+        const content = document.getElementById('team-content');
+        content.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div style="padding: 15px; background: rgba(0, 212, 255, 0.05); border-radius: 12px; border: 1px dashed var(--border);">
+                    <h4 style="font-size: 0.85rem; margin-bottom: 12px; color: var(--accent-1);">CREATE A NEW TEAM</h4>
+                    <input type="text" id="new-team-name" placeholder="Team Name" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: white; margin-bottom: 10px;">
+                    <button onclick="createTeam()" class="btn-neon" style="width: 100%; font-size: 0.75rem;">Create Team</button>
+                </div>
+                
+                <div style="text-align: center; color: var(--text-dim); font-size: 0.7rem;">— OR —</div>
+                
+                <div style="padding: 15px; background: rgba(124, 58, 237, 0.05); border-radius: 12px; border: 1px dashed var(--border);">
+                    <h4 style="font-size: 0.85rem; margin-bottom: 12px; color: var(--accent-2);">JOIN EXISTING TEAM</h4>
+                    <input type="text" id="join-invite-code" placeholder="Invite Code (e.g. XJ2K9L)" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: white; text-transform: uppercase; margin-bottom: 10px;">
+                    <button onclick="joinTeam()" class="btn-neon" style="width: 100%; font-size: 0.75rem; border-color: var(--accent-2); color: var(--accent-2);">Join Team</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderTeamManage(team) {
+        const currentUserId = "<?= $user_id ?>";
+        const isLeader = team.leader_user_id === currentUserId;
+        const content = document.getElementById('team-content');
+        
+        let membersHtml = '';
+        team.members.forEach(m => {
+            membersHtml += `
+                <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 6px; font-size: 0.85rem;">
+                    <span>${m.user_name} ${m.user_id === team.leader_user_id ? '<i class="fa-solid fa-crown" style="color:#fbbf24; font-size:0.7rem; margin-left:5px;"></i>' : ''}</span>
+                    <span style="color: var(--text-dim); font-size: 0.72rem;">${m.user_id}</span>
+                </div>
+            `;
+        });
+
+        content.innerHTML = `
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div style="font-size: 1.4rem; font-weight: 800; color: white;">${team.name}</div>
+                <div style="margin-top: 10px;">
+                    <span style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;">Invite Code</span>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; color: var(--accent-1); letter-spacing: 4px; margin-top: 5px; background: rgba(0,212,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(0,212,255,0.2);">${team.invite_code}</div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <h4 style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">TEAM MEMBERS (${team.members.length})</h4>
+                ${membersHtml}
+            </div>
+
+            <button onclick="leaveTeam(${team.id})" class="btn-coord" style="width: 100%; border: 1px solid var(--danger); color: var(--danger); font-size: 0.75rem;">
+                ${isLeader ? 'DISSOLVE TEAM' : 'LEAVE TEAM'}
+            </button>
+        `;
+    }
+
+    function createTeam() {
+        const name = document.getElementById('new-team-name').value;
+        const eventId = document.getElementById('manage-event-id').value;
+        if (!name) return alert("Please enter team name");
+
+        const formData = new FormData();
+        formData.append('action', 'create_team');
+        formData.append('event_id', eventId);
+        formData.append('team_name', name);
+
+        fetch('team_actions.php', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alert("Team Created Successfully!");
+                location.reload();
+            } else alert(data.message);
+        });
+    }
+
+    function joinTeam() {
+        const code = document.getElementById('join-invite-code').value;
+        if (!code) return alert("Please enter invite code");
+
+        const formData = new FormData();
+        formData.append('action', 'join_team');
+        formData.append('invite_code', code);
+
+        fetch('team_actions.php', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alert("Joined Team!");
+                location.reload();
+            } else alert(data.message);
+        });
+    }
+
+    function leaveTeam(teamId) {
+        if (!confirm("Are you sure? This action cannot be undone.")) return;
+
+        const formData = new FormData();
+        formData.append('action', 'leave_team');
+        formData.append('team_id', teamId);
+
+        fetch('team_actions.php', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else alert(data.message);
+        });
     }
 </script>
 
