@@ -11,6 +11,14 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once __DIR__ . '/../config/db.php';
 
+if (empty($_SESSION['csrf_token'])) {
+    if (function_exists('random_bytes')) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
+    }
+}
+
 function isActive($page) {
     return basename($_SERVER['PHP_SELF']) == $page ? 'active' : '';
 }

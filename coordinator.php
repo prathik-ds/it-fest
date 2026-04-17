@@ -209,6 +209,10 @@ if ($active_event_id) {
                                                     act.type='hidden'; act.name='action'; act.value='delete_registration';
                                                     form.appendChild(act);
                                                     
+                                                    const csrf = document.createElement('input');
+                                                    csrf.type='hidden'; csrf.name='csrf_token'; csrf.value='<?= $_SESSION['csrf_token'] ?>';
+                                                    form.appendChild(csrf);
+                                                    
                                                     const rid = document.createElement('input');
                                                     rid.type='hidden'; rid.name='reg_id'; rid.value='<?= $p['reg_id'] ?>';
                                                     form.appendChild(rid);
@@ -291,6 +295,7 @@ if ($active_event_id) {
         if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
             html5QrcodeScanner.stop().then(() => {
                 container.style.display = 'none';
+                try { html5QrcodeScanner.clear(); } catch(e) {}
                 html5QrcodeScanner = null;
             }).catch(() => {
                 container.style.display = 'none';
@@ -299,7 +304,9 @@ if ($active_event_id) {
         } else {
             container.style.display = 'none';
             if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear();
+                try {
+                    html5QrcodeScanner.clear();
+                } catch(e) {}
                 html5QrcodeScanner = null;
             }
         }

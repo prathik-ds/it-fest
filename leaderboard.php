@@ -2,7 +2,7 @@
 include 'includes/header.php'; 
 
 // Fetch Top Performers across all events where score > 0
-$stmt = $pdo->query("SELECT r.user_id, u.name as user_name, u.college, e.name as event_name, r.score, r.status FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id WHERE r.score > 0 OR r.status != 'registered' ORDER BY r.score DESC, r.status DESC LIMIT 20");
+$stmt = $pdo->query("SELECT r.user_id, u.name as user_name, u.college, e.name as event_name, r.score, r.status FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id WHERE r.status IN ('winner', 'runner') ORDER BY r.status DESC, r.score DESC LIMIT 20");
 $topScores = $stmt->fetchAll();
 ?>
 
@@ -59,7 +59,6 @@ $topScores = $stmt->fetchAll();
                                 </div>
                                 <div>
                                     <div style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;"><?= htmlspecialchars($row['user_name']) ?></div>
-                                    <div style="font-size: 0.72rem; color: var(--text-dim);"><?= htmlspecialchars($row['college']) ?></div>
                                 </div>
                             </div>
                         </td>

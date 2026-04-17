@@ -8,11 +8,30 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'coordinator' &&
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['action']) && $_POST['action'] === 'delete_registration') {
+    $action = $_POST['action'] ?? '';
+    
+    // Check CSRF could be added here if we had tokens, but we'll focus on the authorization bypass first.
+    
+    if ($action === 'delete_registration') {
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            header('Location: coordinator.php?error=Invalid+Security+Token');
+            exit;
+        }
+
         $reg_id = $_POST['reg_id'];
         $event_id = $_POST['event_id'];
         
         try {
+            // Validate registration belongs to this event
+            $stmt = $pdo->prepare("SELECT event_id, user_id FROM registrations WHERE id = ?");
+            $stmt->execute([$reg_id]);
+            $reg = $stmt->fetch();
+            
+            if (!$reg || $reg['event_id'] != $event_id) {
+                header('Location: coordinator.php?error=Invalid+Registration');
+                exit;
+            }
+
             if ($_SESSION['user']['role'] === 'admin') {
                 $is_owner = true;
             } else {
@@ -25,6 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($is_owner) {
                 $pdo->beginTransaction();
                 
+                // If team event, remove from team_members if needed (this would be good to add based on unregister_event.php)
+                $stmt = $pdo->prepare("
+                    DELETE tm FROM team_members tm
+                    JOIN teams t ON tm.team_id = t.id
+                    WHERE tm.user_id = ? AND t.event_id = ?
+                ");
+                $stmt->execute([$reg['user_id'], $event_id]);
+
                 // Delete registration
                 $stmt = $pdo->prepare("DELETE FROM registrations WHERE id = ?");
                 $stmt->execute([$reg_id]);
@@ -35,12 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 $pdo->commit();
                 header('Location: coordinator.php?manage_event=' . $event_id . '&msg=Participant+Removed');
+                exit;
             } else {
                 header('Location: coordinator.php?error=Unauthorized+Action');
+                exit;
             }
         } catch (Exception $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
             header('Location: coordinator.php?manage_event=' . $event_id . '&error=' . urlencode($e->getMessage()));
+            exit;
         }
     } else {
         $reg_id = $_POST['reg_id'];
@@ -50,6 +80,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $status = $_POST['status'];
 
         try {
+            // Validate registration belongs to this event
+            $stmt = $pdo->prepare("SELECT event_id FROM registrations WHERE id = ?");
+            $stmt->execute([$reg_id]);
+            $reg = $stmt->fetch();
+            
+            if (!$reg || $reg['event_id'] != $event_id) {
+                header('Location: coordinator.php?error=Invalid+Registration');
+                exit;
+            }
+
             // Double check ownership
             if ($_SESSION['user']['role'] === 'admin') {
                 $is_owner = true;
@@ -64,14 +104,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt = $pdo->prepare("UPDATE registrations SET attendance = ?, score = ?, status = ? WHERE id = ?");
                 $stmt->execute([$attendance, $score, $status, $reg_id]);
                 header('Location: coordinator.php?manage_event=' . $event_id . '&msg=Record+Updated+Successfully');
+                exit;
             } else {
                 header('Location: coordinator.php?error=Unauthorized+Action');
+                exit;
             }
         } catch (PDOException $e) {
             header('Location: coordinator.php?manage_event=' . $event_id . '&error=' . urlencode($e->getMessage()));
+            exit;
         }
     }
 } else {
     header('Location: coordinator.php');
+    exit;
 }
 ?>

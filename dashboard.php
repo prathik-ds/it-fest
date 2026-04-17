@@ -98,7 +98,12 @@ $announcements = $stmt->fetchAll();
                                     <td style="padding: 16px;" data-label="Event">
                                         <div style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;"><?= htmlspecialchars($ev['name']) ?></div>
                                         <div style="font-size: 0.72rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px; margin-top: 3px;">
-                                            <span style="width: 6px; height: 6px; border-radius: 50%; background: <?= $ev['category'] == 'IT' ? 'var(--accent-1)' : 'var(--accent-2)' ?>;"></span>
+                                            <?php
+                                                $dash_cat_color = '#00d4ff'; // IT = Water
+                                                if($ev['category'] == 'Commerce') $dash_cat_color = '#ff5722'; // Commerce = Flame
+                                                if($ev['category'] == 'ART') $dash_cat_color = '#22c55e'; // Art = Forest
+                                            ?>
+                                            <span style="width: 6px; height: 6px; border-radius: 50%; background: <?= $dash_cat_color ?>;"></span>
                                             <?= $ev['category'] ?>
                                         </div>
                                     </td>
@@ -156,8 +161,9 @@ $announcements = $stmt->fetchAll();
                                             </button>
                                         <?php endif; ?>
 
-                                        <form action="unregister_event.php" method="POST" style="display:inline;" onsubmit="return confirm('UNREGISTER FROM <?= strtoupper(htmlspecialchars($ev['name'])) ?>?');">
+                                        <form action="unregister_event.php" method="POST" style="display:inline;" onsubmit="return confirm(<?= htmlspecialchars(json_encode('UNREGISTER FROM ' . strtoupper($ev['name']) . '?'), ENT_QUOTES, 'UTF-8') ?>);">
                                             <input type="hidden" name="event_id" value="<?= $ev['id'] ?>">
+                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                             <button type="submit" class="btn-coord" style="padding: 6px 10px; font-size: 0.65rem; background: rgba(244, 63, 94, 0.05); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.2); margin-left:8px;" title="Unregister">
                                                 <i class="fa-solid fa-circle-xmark"></i> CANCEL
                                             </button>

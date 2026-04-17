@@ -317,13 +317,13 @@ foreach ($all_regs_raw as $reg) {
                         <tbody>
                             <?php foreach ($all_events as $ev): ?>
                                 <tr>
-                                    <td data-label="Event" onclick='editEvent(<?= json_encode($ev) ?>)' style="cursor: pointer;">
+                                    <td data-label="Event" onclick="editEvent(<?= htmlspecialchars(json_encode($ev), ENT_QUOTES, 'UTF-8') ?>)" style="cursor: pointer;">
                                         <div style="font-weight: 600; color: var(--primary);">
                                             <?= htmlspecialchars($ev['name']) ?></div>
                                         <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 4px;"><i
                                                 class="fa-solid fa-layer-group"></i> <?= $ev['category'] ?> Track</div>
                                     </td>
-                                    <td style="text-align: center;" data-label="Venue" onclick='editEvent(<?= json_encode($ev) ?>)' style="cursor: pointer;">
+                                    <td data-label="Venue" onclick="editEvent(<?= htmlspecialchars(json_encode($ev), ENT_QUOTES, 'UTF-8') ?>)" style="text-align: center; cursor: pointer;">
                                         <i class="fa-solid fa-location-dot text-dim"></i> <?= $ev['venue'] ?: 'TBD' ?>
                                     </td>
                                     <td style="text-align: right;" data-label="Management">
@@ -331,7 +331,7 @@ foreach ($all_regs_raw as $reg) {
                                             <a href="coordinator.php?manage_event=<?= $ev['id'] ?>" class="btn-coord" style="text-decoration: none; padding: 6px 12px; font-size: 0.65rem; background: rgba(0, 212, 255, 0.08); color: var(--accent-1); border-color: var(--accent-1);">
                                                 <i class="fa-solid fa-camera"></i> BOOTH MGMT
                                             </a>
-                                            <div style="font-size: 0.65rem; color: var(--text-dim); cursor: pointer;" onclick='editEvent(<?= json_encode($ev) ?>)'>
+                                            <div style="font-size: 0.65rem; color: var(--text-dim); cursor: pointer;" onclick="editEvent(<?= htmlspecialchars(json_encode($ev), ENT_QUOTES, 'UTF-8') ?>)">
                                                 <i class="fa-solid fa-pen-to-square"></i> Edit Config
                                             </div>
                                         </div>

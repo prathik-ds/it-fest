@@ -354,9 +354,9 @@ if ($user) {
         $fill = $event['max_participants'] > 0 ? ($event['current_participants'] / $event['max_participants']) * 100 : 0;
         $is_full = $event['current_participants'] >= $event['max_participants'];
         
-        $cat_color = 'var(--accent-1)'; // Default IT
-        if($event['category'] == 'Commerce') $cat_color = 'var(--accent-2)';
-        if($event['category'] == 'ART') $cat_color = 'var(--accent-4)';
+        $cat_color = '#00d4ff'; // IT = Water (Cyan)
+        if($event['category'] == 'Commerce') $cat_color = '#ff5722'; // Commerce = Flame (Orange/Red)
+        if($event['category'] == 'ART') $cat_color = '#22c55e'; // Art = Forest (Green)
         
         $cap_color = $fill > 80 ? 'var(--danger)' : 'linear-gradient(90deg, var(--accent-2), var(--accent-1))';
         $is_team = !empty($event['is_team_event']);
@@ -385,9 +385,10 @@ if ($user) {
             <?php endif; ?>
             
             <!-- Eligibility Overlay (Centered at the top of the image) -->
-            <div style="position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 2; padding: 4px 12px; border-radius: 6px; font-size: 0.58rem; font-weight: 800; letter-spacing: 1px; background: rgba(0,0,0,0.65); color: <?= $event['eligibility_stream'] == 'ALL' ? '#10b981' : '#fbbf24' ?>; border: 1px solid currentColor; backdrop-filter: blur(10px); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <?php $el_stream = $event['eligibility_stream'] ?? 'ALL'; ?>
+            <div style="position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 2; padding: 4px 12px; border-radius: 6px; font-size: 0.58rem; font-weight: 800; letter-spacing: 1px; background: rgba(0,0,0,0.65); color: <?= $el_stream == 'ALL' ? '#10b981' : '#fbbf24' ?>; border: 1px solid currentColor; backdrop-filter: blur(10px); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <i class="fa-solid fa-graduation-cap"></i> 
-                <?= $event['eligibility_stream'] == 'ALL' ? 'OPEN TO ALL' : strtoupper($event['eligibility_stream']) . ' ONLY' ?>
+                <?= $el_stream == 'ALL' ? 'OPEN TO ALL' : strtoupper($el_stream) . ' ONLY' ?>
             </div>
         </div>
 
