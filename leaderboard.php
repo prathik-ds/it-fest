@@ -35,7 +35,7 @@ $topScores = $stmt->fetchAll();
                     <th style="padding: 18px 24px; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">Rank</th>
                     <th style="padding: 18px 24px; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">Participant</th>
                     <th style="padding: 18px 24px; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">Event</th>
-                    <th style="padding: 18px 24px; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; text-align: right;">Score</th>
+                    <th style="padding: 18px 24px; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; text-align: right;">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -66,14 +66,12 @@ $topScores = $stmt->fetchAll();
                         <td style="padding: 20px 24px;" data-label="Event">
                             <div>
                                 <div style="font-size: 0.88rem; color: var(--text-secondary);"><?= htmlspecialchars($row['event_name']) ?></div>
-                                <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.65rem; padding: 3px 10px; border-radius: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: <?= $row['status'] == 'winner' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(124, 58, 237, 0.1)' ?>; color: <?= $row['status'] == 'winner' ? 'var(--accent-5)' : 'var(--accent-2)' ?>; border: 1px solid <?= $row['status'] == 'winner' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(124, 58, 237, 0.2)' ?>;">
-                                    <?= $row['status'] ?>
-                                </span>
                             </div>
                         </td>
-                        <td style="padding: 20px 24px; text-align: right;" data-label="Score">
-                            <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
-                                <?= $row['score'] ?>
+                        <td style="padding: 20px 24px; text-align: right;" data-label="Status">
+                            <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.65rem; padding: 5px 12px; border-radius: 6px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; background: <?= $row['status'] == 'winner' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(124, 58, 237, 0.1)' ?>; color: <?= $row['status'] == 'winner' ? 'var(--accent-5)' : 'var(--accent-2)' ?>; border: 1px solid <?= $row['status'] == 'winner' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(124, 58, 237, 0.2)' ?>;">
+                                <i class="<?= $row['status'] == 'winner' ? 'fa-solid fa-crown' : 'fa-solid fa-star' ?>"></i>
+                                <?= $row['status'] ?>
                             </span>
                         </td>
                     </tr>
