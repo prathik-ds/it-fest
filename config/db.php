@@ -2,7 +2,7 @@
 // Database connection configuration
 
 $host = 'localhost';
-$db   = 'synergy_fest';
+$db   = 'fusionverse_db';
 $user = 'root';
 $pass = ''; // Default XAMPP/Wamp password is empty
 $charset = 'utf8mb4';

@@ -1,12 +1,12 @@
 <?php
-// SYNERGY AUTO-INSTALLER
+// FUSIONVERSE AUTO-INSTALLER
 
 $host = 'localhost';
 $user = 'root';
 $pass = ''; // Default XAMPP/Wamp password
-$db   = 'synergy_fest';
+$db   = 'fusionverse_db';
 
-echo "<h2 style='font-family: sans-serif;'>SYNERGY DATABASE SETUP</h2>";
+echo "<h2 style='font-family: sans-serif;'>FUSIONVERSE DATABASE SETUP</h2>";
 
 try {
     // 1. Connect without DB
@@ -85,8 +85,8 @@ try {
     $stmt->execute();
     if ($stmt->fetchColumn() == 0) {
         $admin_pass = password_hash('admin123', PASSWORD_DEFAULT);
-        $pdo->exec("INSERT INTO users (user_id, name, email, phone, college, course, password, role) VALUES ('ADMIN001', 'Super Admin', 'admin@synergy.com', '1234567890', 'SYNERGY HQ', 'Management', '$admin_pass', 'admin')");
-        echo "Admin account created (admin@synergy.com / admin123).<br>";
+        $pdo->exec("INSERT INTO users (user_id, name, email, phone, college, course, password, role) VALUES ('ADMIN001', 'Super Admin', 'admin@fusionverse.com', '1234567890', 'FUSIONVERSE HQ', 'Management', '$admin_pass', 'admin')");
+        echo "Admin account created (admin@fusionverse.com / admin123).<br>";
     }
 
     // Check if events exist
@@ -95,7 +95,7 @@ try {
         $pdo->exec("INSERT INTO events (name, category, description, rules, date, time, venue, max_participants) VALUES 
         ('Code Rush', 'IT', 'Fast-paced coding competition where logic meets speed.', 'Individual. No internet allowed.', '2026-04-10', '10:00:00', 'Lab 1', 50),
         ('Biz Quiz', 'Commerce', 'Test your business knowledge and strategy across rounds.', 'Team of 2. Buzzer format.', '2026-04-10', '11:30:00', 'Main Auditorium', 100),
-        ('Nexus Hack', 'IT', 'Build the future in this intensive 12-hour build-a-thon.', 'Team of 3-4. Innovative solutions only.', '2026-04-11', '09:00:00', 'Arena North', 30)");
+        ('Fusion Hack', 'IT', 'Build the future in this intensive 12-hour build-a-thon.', 'Team of 3-4. Innovative solutions only.', '2026-04-11', '09:00:00', 'Arena North', 30)");
         echo "Demo events populated.<br>";
     }
 

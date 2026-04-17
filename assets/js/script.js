@@ -1,7 +1,7 @@
-// NEXUS BCA IT Fest — Interactive Engine
+// FusionVerse BCA IT Fest — Interactive Engine
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('%c⬡ NEXUS ENGINE ONLINE', 'color: #7c3aed; font-weight: bold; font-size: 14px;');
+    console.log('%c⬡ FusionVerse ENGINE ONLINE', 'color: #7c3aed; font-weight: bold; font-size: 14px;');
 
     // ── Mouse Glow Tracker ──
     const glow = document.createElement('div');

@@ -95,7 +95,7 @@ $all_users = $stmt->fetchAll();
                                 <input type="hidden" name="action" value="update_role">
                                 <input type="hidden" name="user_id" value="<?= $u['user_id'] ?>">
                                 <select name="role" onchange="this.form.submit()" style="padding: 6px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white; border-radius: 8px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; cursor: pointer;">
-                                    <option value="student" <?= $u['role'] == 'student' || $u['role'] == 'user' ? 'selected' : '' ?>>Student</option>
+                                    <option value="user" <?= $u['role'] == 'user' ? 'selected' : '' ?>>Student</option>
                                     <option value="coordinator" <?= $u['role'] == 'coordinator' ? 'selected' : '' ?>>Coordinator</option>
                                     <option value="admin" <?= $u['role'] == 'admin' ? 'selected' : '' ?>>Admin</option>
                                 </select>

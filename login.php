@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h2
                     style="font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
                     Welcome Back</h2>
-                <p style="font-size: 0.85rem; color: var(--text-muted);">Sign in to your NEXUS account</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Sign in to your FusionVerse account</p>
             </div>
 
             <?php if ($error): ?>
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <div style="text-align: center; margin-top: 28px;">
                 <p style="font-size: 0.85rem; color: var(--text-muted);">
-                    New to NEXUS?
+                    New to FusionVerse?
                     <a href="register.php"
                         style="color: var(--accent-1); text-decoration: none; font-weight: 700;">Create Account →</a>
                 </p>

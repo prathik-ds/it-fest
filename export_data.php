@@ -10,7 +10,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SES
 
 $type = $_GET['type'] ?? 'participation';
 $event_id = $_GET['event_id'] ?? null;
-$filename = "NexusFest_Export_" . ucfirst($type) . "_" . date('Y-m-d_His') . ".csv";
+$filename = "FusionVerse_Export_" . ucfirst($type) . "_" . date('Y-m-d_His') . ".csv";
 
 // Check permissions for coordinators - they can only export their own events' participation
 if ($_SESSION['user']['role'] === 'coordinator') {

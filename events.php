@@ -281,7 +281,7 @@ if ($user) {
     <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 3rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px;">
         <span style="background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Competitions</span>
     </h1>
-    <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto; font-size: 0.9rem;">Choose your challenge and register to compete at NEXUS 2026</p>
+    <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto; font-size: 0.9rem;">Choose your challenge and register to compete at FusionVerse 2026</p>
 </div>
 
 <?php if ($success): ?>
@@ -336,7 +336,7 @@ if ($user) {
         <div class="ev-card-body">
             <h3 class="ev-card-title"><?= htmlspecialchars($event['name']) ?></h3>
             <p class="ev-card-desc">
-                <?= htmlspecialchars($event['description'] ?: 'Challenge yourself in the ' . $event['name'] . ' competition track at NEXUS 2026.') ?>
+                <?= htmlspecialchars($event['description'] ?: 'Challenge yourself in the ' . $event['name'] . ' competition track at FusionVerse 2026.') ?>
             </p>
 
             <!-- Meta Info -->

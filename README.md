@@ -1,11 +1,11 @@
-# SYNERGY | Full-Stack College Fest Platform
+# FusionVerse | Full-Stack College Fest Platform
 
-SYNERGY is a high-performance web platform built specifically for a fusion of **IT (BCA)** and **Commerce (BCom)** fests. It features a futuristic, sci-fi-inspired UI with a robust PHP/MySQL backend.
+FusionVerse is a high-performance web platform built specifically for a fusion of **IT (BCA)** and **Commerce (BCom)** fests. It features a futuristic, sci-fi-inspired UI with a robust PHP/MySQL backend.
 
 ## 🚀 Key Features
 
 ### 1. 🏠 Immersive Home Page
-- **Hero Section**: Large glowing "SYNERGY" title with "Where Commerce Meets Code" tagline.
+- **Hero Section**: Large glowing "FusionVerse" title with "Where Commerce Meets Code" tagline.
 - **Countdown Timer**: Real-time ticker counting down to the fest date.
 - **Dynamic Highlights**: Glassmorphism cards showcasing core tracks.
 

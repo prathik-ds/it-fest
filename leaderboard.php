@@ -15,7 +15,7 @@ $topScores = $stmt->fetchAll();
     <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 3rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px;">
         <span style="background: var(--grad-warm); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Hall of Fame</span>
     </h1>
-    <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto; font-size: 0.9rem;">Celebrating the top performers of NEXUS 2026</p>
+    <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto; font-size: 0.9rem;">Celebrating the top performers of FusionVerse 2026</p>
 </div>
 
 <!-- Leaderboard Card -->

@@ -199,7 +199,7 @@ if ($data['status'] === 'runner') $certificate_type = "RUNNER UP";
     <div class="certificate-container">
         <div class="outer-border"></div>
         <div class="inner-content">
-            <div class="logo">SYNERGY FEST</div>
+            <div class="logo">FusionVerse FEST</div>
             <div class="certificate-title">Certificate of <?= $certificate_type ?></div>
             
             <div class="presented-to">THIS IS PROUDLY PRESENTED TO</div>
@@ -209,7 +209,7 @@ if ($data['status'] === 'runner') $certificate_type = "RUNNER UP";
                 of <span class="event-details"><?= htmlspecialchars($data['college']) ?></span> 
                 for their outstanding performance and successful participation in the 
                 <span class="event-details"><?= htmlspecialchars($data['event_name']) ?></span> 
-                event held during <span class="event-details">SYNERGY IT & Commerce Fest 2026</span>.
+                event held during <span class="event-details">FusionVerse IT & Commerce Fest 2026</span>.
             </div>
 
             <div class="footer">

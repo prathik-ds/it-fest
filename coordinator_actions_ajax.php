@@ -4,7 +4,7 @@ require_once 'config/db.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'coordinator') {
+if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'coordinator' && $_SESSION['user']['role'] !== 'admin')) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized Access']);
     exit;
 }
@@ -15,10 +15,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['action'] == 'qr_attendance')
     $c_id = $_SESSION['user']['user_id'];
 
     try {
-        // 1. Verify Coordinator owns the event
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM events WHERE id = ? AND coordinator_id = ?");
-        $stmt->execute([$event_id, $c_id]);
-        if ($stmt->fetchColumn() == 0) {
+        if ($_SESSION['user']['role'] === 'admin') {
+            $is_owner = true;
+        } else {
+            $c_id = $_SESSION['user']['user_id'];
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM events WHERE id = ? AND coordinator_id = ?");
+            $stmt->execute([$event_id, $c_id]);
+            $is_owner = $stmt->fetchColumn() > 0;
+        }
+
+        if (!$is_owner) {
             echo json_encode(['success' => false, 'message' => 'You are not assigned to this event.']);
             exit;
         }
