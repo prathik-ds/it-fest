@@ -8,8 +8,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'] ?? '';
     $email = $_POST['email'] ?? '';
     $phone = $_POST['phone'] ?? '';
-    $college = $_POST['college'] ?? '';
+    $college = "Main Institution"; // Hardcoded as per request to remove from form
     $course = $_POST['course'] ?? '';
+    $year = $_POST['year'] ?? '';
+    $roll_no = $_POST['roll_no'] ?? '';
     $password = $_POST['password'] ?? '';
 
     if (empty($name) || empty($email) || empty($password)) {
@@ -20,8 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO users (user_id, name, email, phone, college, course, password) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$user_id, $name, $email, $phone, $college, $course, $hashedPassword]);
+            $stmt = $pdo->prepare("INSERT INTO users (user_id, name, email, phone, college, course, year, roll_no, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$user_id, $name, $email, $phone, $college, $course, $year, $roll_no, $hashedPassword]);
             $success = "Registration successful! Your ID is <span style='color: var(--accent-1); font-weight: 700; font-family: JetBrains Mono, monospace;'>$user_id</span>. <a href='login.php' style='color: var(--accent-2); font-weight: 700; text-decoration: none;'>Sign In →</a>";
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) {
@@ -76,12 +78,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <input type="text" name="phone" placeholder="9876543210" required>
                     </div>
                     <div class="form-group">
-                        <label><i class="fa-solid fa-building-columns" style="margin-right: 6px; color: var(--accent-5);"></i>College</label>
-                        <input type="text" name="college" placeholder="Your College" required>
+                        <label><i class="fa-solid fa-graduation-cap" style="margin-right: 6px; color: var(--accent-4);"></i>Course</label>
+                        <select name="course" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; color: white; cursor: pointer;">
+                            <option value="" disabled selected>Select Course</option>
+                            <option value="BCA">BCA</option>
+                            <option value="BCOM">BCOM</option>
+                            <option value="BA">BA</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label><i class="fa-solid fa-graduation-cap" style="margin-right: 6px; color: var(--accent-4);"></i>Course</label>
-                        <input type="text" name="course" placeholder="BCA / MCA" required>
+                        <label><i class="fa-solid fa-calendar-alt" style="margin-right: 6px; color: var(--accent-5);"></i>Year</label>
+                        <select name="year" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; color: white; cursor: pointer;">
+                            <option value="" disabled selected>Select Year</option>
+                            <option value="1st year">1st year</option>
+                            <option value="2nd year">2nd year</option>
+                            <option value="3rd year">3rd year</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label><i class="fa-solid fa-id-card" style="margin-right: 6px; color: var(--accent-2);"></i>Roll Number</label>
+                        <input type="text" name="roll_no" placeholder="Enter your roll number" required>
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
                         <label><i class="fa-solid fa-lock" style="margin-right: 6px; color: var(--accent-1);"></i>Password</label>

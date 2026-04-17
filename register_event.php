@@ -16,14 +16,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    // Check if event is full
-    $stmt = $pdo->prepare("SELECT current_participants, max_participants FROM events WHERE id = ?");
+    // Check if event exists and check eligibility
+    $stmt = $pdo->prepare("SELECT eligibility_stream, current_participants, max_participants FROM events WHERE id = ?");
     $stmt->execute([$event_id]);
     $event = $stmt->fetch();
 
     if (!$event) {
         header('Location: events.php?error=Event+not+found');
         exit;
+    }
+
+    // Eligibility check
+    $userCourse = $_SESSION['user']['course']; // BCA, BCOM, or BA
+    $requiredStream = $event['eligibility_stream']; // IT, Commerce, Art, or ALL
+
+    if ($requiredStream !== 'ALL') {
+        $qualified = false;
+        if ($requiredStream === 'IT' && $userCourse === 'BCA') $qualified = true;
+        if ($requiredStream === 'Commerce' && $userCourse === 'BCOM') $qualified = true;
+        if ($requiredStream === 'Art' && $userCourse === 'BA') $qualified = true;
+
+        if (!$qualified) {
+            $msg = "Registration Error: This event is restricted to $requiredStream students only.";
+            header('Location: events.php?error=' . urlencode($msg));
+            exit;
+        }
     }
 
     if ($event['max_participants'] > 0 && $event['current_participants'] >= $event['max_participants']) {

@@ -72,11 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $c_phone = $c_data['phone'];
         }
 
-        $stmt = $pdo->prepare("INSERT INTO events (name, category, description, rules, date, time, venue, coordinator_name, coordinator_phone, coordinator_id, max_participants, image, is_team_event, min_team_size, max_team_size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $is_team = isset($_POST['is_team_event']) ? 1 : 0;
         $min_ts  = (int)($_POST['min_team_size'] ?? 2);
         $max_ts  = (int)($_POST['max_team_size'] ?? 4);
-        $stmt->execute([$name, $category, $description, $rules, $date, $time, $venue, $c_name, $c_phone, $coord_id, $max_p, $image_path, $is_team, $min_ts, $max_ts]);
+        $eligibility = $_POST['eligibility_stream'];
+
+        $stmt = $pdo->prepare("INSERT INTO events (name, category, eligibility_stream, description, rules, date, time, venue, coordinator_name, coordinator_phone, coordinator_id, max_participants, image, is_team_event, min_team_size, max_team_size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $category, $eligibility, $description, $rules, $date, $time, $venue, $c_name, $c_phone, $coord_id, $max_p, $image_path, $is_team, $min_ts, $max_ts]);
         $msg = "EVENT TRACK DEPLOYED.";
     } elseif ($action === 'update_event') {
         $id = $_POST['event_id'];
@@ -101,11 +103,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        $stmt = $pdo->prepare("UPDATE events SET name=?, category=?, description=?, rules=?, date=?, time=?, venue=?, coordinator_name=?, coordinator_phone=?, coordinator_id=?, max_participants=?, image=?, is_team_event=?, min_team_size=?, max_team_size=? WHERE id=?");
+        $stmt = $pdo->prepare("UPDATE events SET name=?, category=?, eligibility_stream=?, description=?, rules=?, date=?, time=?, venue=?, coordinator_name=?, coordinator_phone=?, coordinator_id=?, max_participants=?, image=?, is_team_event=?, min_team_size=?, max_team_size=? WHERE id=?");
         $is_team = isset($_POST['is_team_event']) ? 1 : 0;
         $min_ts  = (int)($_POST['min_team_size'] ?? 2);
         $max_ts  = (int)($_POST['max_team_size'] ?? 4);
-        $stmt->execute([$_POST['name'], $_POST['category'], $description, $_POST['rules'], $_POST['date'], $_POST['time'], $_POST['venue'], $c_name, $c_phone, $coord_id, $_POST['max_participants'], $image_path, $is_team, $min_ts, $max_ts, $id]);
+        $eligibility = $_POST['eligibility_stream'];
+        $stmt->execute([$_POST['name'], $_POST['category'], $eligibility, $description, $_POST['rules'], $_POST['date'], $_POST['time'], $_POST['venue'], $c_name, $c_phone, $coord_id, $_POST['max_participants'], $image_path, $is_team, $min_ts, $max_ts, $id]);
         $msg = "EVENT TRACK UPDATED.";
     }
 
@@ -125,7 +128,12 @@ $participation_data = $pdo->query("SELECT name, current_participants as count FR
 $all_events = $pdo->query("SELECT * FROM events ORDER BY name")->fetchAll();
 $all_users = $pdo->query("SELECT * FROM users ORDER BY role DESC, name")->fetchAll();
 $coordinators = $pdo->query("SELECT user_id, name FROM users WHERE role = 'coordinator'")->fetchAll();
-$all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as event_name FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id ORDER BY r.created_at DESC")->fetchAll();
+$all_regs_raw = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as event_name FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id ORDER BY e.name, r.created_at DESC")->fetchAll();
+
+$events_with_regs = [];
+foreach ($all_regs_raw as $reg) {
+    $events_with_regs[$reg['event_name']][] = $reg;
+}
 ?>
 
 <div class="admin-main-wrapper">
@@ -178,7 +186,7 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                 </div>
             </div>
             <div class="stat-card-modern cyan">
-                <div class="stat-icon"><i class="fa-solid fa-calendar-stars"></i></div>
+                <div class="stat-icon"><i class="fa-solid fa-calendar-day"></i></div>
                 <div class="stat-info">
                     <span class="stat-label">Active Events</span>
                     <span class="stat-value"><?= $events_count ?></span>
@@ -303,25 +311,30 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                             <tr>
                                 <th>EVENT</th>
                                 <th style="text-align: center;">VENUE</th>
-                                <th style="text-align: right;">COORDINATOR</th>
+                                <th style="text-align: right;">MANAGEMENT</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($all_events as $ev): ?>
-                                <tr style="cursor: pointer;" onclick='editEvent(<?= json_encode($ev) ?>)'>
-                                    <td data-label="Event">
+                                <tr>
+                                    <td data-label="Event" onclick='editEvent(<?= json_encode($ev) ?>)' style="cursor: pointer;">
                                         <div style="font-weight: 600; color: var(--primary);">
                                             <?= htmlspecialchars($ev['name']) ?></div>
                                         <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 4px;"><i
                                                 class="fa-solid fa-layer-group"></i> <?= $ev['category'] ?> Track</div>
                                     </td>
-                                    <td style="text-align: center;" data-label="Venue"><i
-                                            class="fa-solid fa-location-dot text-dim"></i> <?= $ev['venue'] ?: 'TBD' ?></td>
-                                    <td style="text-align: right;" data-label="Coordinator">
-                                        <div style="font-weight: 600;">
-                                            <?= htmlspecialchars($ev['coordinator_name'] ?: 'System Assigned') ?></div>
-                                        <div style="font-size: 0.65rem; color: var(--text-dim);">
-                                            <?= $ev['coordinator_id'] ?: 'AUTO' ?></div>
+                                    <td style="text-align: center;" data-label="Venue" onclick='editEvent(<?= json_encode($ev) ?>)' style="cursor: pointer;">
+                                        <i class="fa-solid fa-location-dot text-dim"></i> <?= $ev['venue'] ?: 'TBD' ?>
+                                    </td>
+                                    <td style="text-align: right;" data-label="Management">
+                                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                                            <a href="coordinator.php?manage_event=<?= $ev['id'] ?>" class="btn-coord" style="text-decoration: none; padding: 6px 12px; font-size: 0.65rem; background: rgba(0, 212, 255, 0.08); color: var(--accent-1); border-color: var(--accent-1);">
+                                                <i class="fa-solid fa-camera"></i> BOOTH MGMT
+                                            </a>
+                                            <div style="font-size: 0.65rem; color: var(--text-dim); cursor: pointer;" onclick='editEvent(<?= json_encode($ev) ?>)'>
+                                                <i class="fa-solid fa-pen-to-square"></i> Edit Config
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -346,8 +359,16 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                         <div class="form-group" style="margin-bottom: 15px;"><label class="modern-label">Track Title</label><input type="text" name="name" id="ev-name" class="modern-input" required placeholder="e.g. Code Rush"></div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                            <div><label class="modern-label">Track Type</label><select name="category" id="ev-cat" class="modern-select"><option value="IT">IT Track</option><option value="Commerce">Commerce</option></select></div>
-                            <div><label class="modern-label">Max Capacity</label><input type="number" name="max_participants" id="ev-max" value="50" class="modern-input"></div>
+                            <div><label class="modern-label">Track Type</label><select name="category" id="ev-cat" class="modern-select"><option value="IT">IT Track</option><option value="Commerce">Commerce Track</option><option value="ART">Art Track</option></select></div>
+                            <div>
+                                <label class="modern-label">Restricted To (Stream)</label>
+                                <select name="eligibility_stream" id="ev-eligibility" class="modern-select">
+                                    <option value="ALL">OPEN TO ALL</option>
+                                    <option value="IT">IT Only (BCA)</option>
+                                    <option value="Commerce">Commerce Only (BCOM)</option>
+                                    <option value="Art">Art Only (BA)</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -397,6 +418,8 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                             <div><label class="modern-label">Date</label><input type="date" name="date" id="ev-date" class="modern-input"></div>
                             <div><label class="modern-label">Time</label><input type="time" name="time" id="ev-time" class="modern-input"></div>
                         </div>
+                            <div><label class="modern-label">Max Capacity</label><input type="number" name="max_participants" id="ev-max" value="50" class="modern-input"></div>
+                        </div>
                         <div class="form-group" style="margin-bottom: 15px;"><label class="modern-label">Venue</label><input type="text" name="venue" id="ev-venue" class="modern-input" placeholder="e.g. Main Auditorium"></div>
                         <div class="form-group" style="margin-bottom: 25px;"><label class="modern-label">Full Rules (Modal)</label><textarea name="rules" id="ev-rules" class="modern-textarea" style="height: 100px; resize: vertical;" placeholder="Detailed rules..."></textarea></div>
                     </div>
@@ -443,69 +466,81 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                             class="fa-solid fa-file-pdf"></i> RECORD PRINT</button>
                 </div>
             </div>
-            <div style="overflow-x: auto;">
-                <table class="modern-table">
-                    <thead>
-                        <tr>
-                            <th>PARTICIPANT</th>
-                            <th>EVENT</th>
-                            <th style="text-align: center;">APPROVAL FLOW</th>
-                            <th style="text-align: right;">DATETIME</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($all_regs as $r): ?>
-                            <tr>
-                                <td data-label="Participant">
-                                    <div style="font-weight: 600; font-size: 0.95rem;">
-                                        <?= htmlspecialchars($r['user_name']) ?></div>
-                                    <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 4px;"><i
-                                            class="fa-solid fa-graduation-cap"></i> <?= htmlspecialchars($r['college']) ?>
-                                    </div>
-                                </td>
-                                <td data-label="Event">
-                                    <div style="font-weight: 500; color: var(--secondary);">
-                                        <?= htmlspecialchars($r['event_name']) ?></div>
-                                </td>
-                                <td style="text-align: center;" data-label="Status">
-                                    <form method="POST">
-                                        <input type="hidden" name="action" value="update_reg_status">
-                                        <input type="hidden" name="reg_id" value="<?= $r['id'] ?>">
-                                        <?php
-                                        $statusClass = '';
-                                        if ($r['status'] == 'registered')
-                                            $statusClass = 'pending';
-                                        elseif ($r['status'] == 'participated')
-                                            $statusClass = 'approved';
-                                        elseif ($r['status'] == 'winner' || $r['status'] == 'runner')
-                                            $statusClass = 'winner';
-                                        ?>
-                                        <select name="status" onchange="this.form.submit()"
-                                            class="status-select <?= $statusClass ?>">
-                                            <option value="registered" <?= $r['status'] == 'registered' ? 'selected' : '' ?>>
-                                                PENDING APPROVAL</option>
-                                            <option value="participated" <?= $r['status'] == 'participated' ? 'selected' : '' ?>>APPROVED / PLAYED</option>
-                                            <option value="winner" <?= $r['status'] == 'winner' ? 'selected' : '' ?>>🏆 WINNER
-                                            </option>
-                                            <option value="runner" <?= $r['status'] == 'runner' ? 'selected' : '' ?>>🥈
-                                                RUNNER-UP</option>
-                                        </select>
-                                    </form>
-                                </td>
-                                <td style="text-align: right; font-size: 0.8rem; color: var(--text-muted);" data-label="Time">
-                                    <i class="fa-regular fa-clock"></i>
-                                    <?= date('d M, h:i A', strtotime($r['created_at'])) ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                        <?php if (empty($all_regs)): ?>
-                            <tr>
-                                <td colspan="4" style="padding: 60px; text-align: center; color: var(--text-dim);">No active
-                                    registrations.</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <?php $idx = 0; foreach ($events_with_regs as $event_name => $registrations): $idx++; ?>
+                    <div class="event-group-panel" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden;">
+                        <div onclick="toggleAccordion('event-grp-<?= $idx ?>', this)" style="background: rgba(124, 58, 237, 0.03); padding: 14px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.3s;">
+                            <h3 style="font-family: 'Outfit'; font-size: 0.95rem; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 12px;">
+                                <i class="fa-solid fa-chevron-right accordion-caret" style="transition: transform 0.3s; font-size: 0.7rem; color: var(--accent-1);"></i>
+                                <span><?= htmlspecialchars($event_name) ?></span>
+                                <span style="font-size: 0.6rem; background: rgba(0,212,255,0.1); color: var(--accent-1); padding: 2px 8px; border-radius: 4px; margin-left: 5px;">
+                                    <?= count($registrations) ?> Enrolled
+                                </span>
+                            </h3>
+                            <div style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Click to view</div>
+                        </div>
+                        <div id="event-grp-<?= $idx ?>" style="display: none; padding: 0; border-top: 1px solid rgba(255,255,255,0.03);">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th style="padding-left: 24px;">PARTICIPANT</th>
+                                        <th style="text-align: center;">APPROVAL FLOW</th>
+                                        <th style="text-align: right; padding-right: 24px;">DATETIME</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($registrations as $r): ?>
+                                        <tr>
+                                            <td data-label="Participant" style="padding-left: 24px;">
+                                                <div style="font-weight: 600; font-size: 0.95rem;">
+                                                    <?= htmlspecialchars($r['user_name']) ?></div>
+                                                <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 4px;"><i
+                                                        class="fa-solid fa-graduation-cap"></i> <?= htmlspecialchars($r['college']) ?>
+                                                </div>
+                                            </td>
+                                            <td style="text-align: center;" data-label="Status">
+                                                <form method="POST">
+                                                    <input type="hidden" name="action" value="update_reg_status">
+                                                    <input type="hidden" name="reg_id" value="<?= $r['id'] ?>">
+                                                    <?php
+                                                    $statusClass = '';
+                                                    if ($r['status'] == 'registered')
+                                                        $statusClass = 'pending';
+                                                    elseif ($r['status'] == 'participated')
+                                                        $statusClass = 'approved';
+                                                    elseif ($r['status'] == 'winner' || $r['status'] == 'runner')
+                                                        $statusClass = 'winner';
+                                                    ?>
+                                                    <select name="status" onchange="this.form.submit()"
+                                                        class="status-select <?= $statusClass ?>">
+                                                        <option value="registered" <?= $r['status'] == 'registered' ? 'selected' : '' ?>>
+                                                            PENDING APPROVAL</option>
+                                                        <option value="participated" <?= $r['status'] == 'participated' ? 'selected' : '' ?>>APPROVED / PLAYED</option>
+                                                        <option value="winner" <?= $r['status'] == 'winner' ? 'selected' : '' ?>>🏆 WINNER
+                                                        </option>
+                                                        <option value="runner" <?= $r['status'] == 'runner' ? 'selected' : '' ?>>🥈
+                                                            RUNNER-UP</option>
+                                                    </select>
+                                                </form>
+                                            </td>
+                                            <td style="text-align: right; font-size: 0.8rem; color: var(--text-muted); padding-right: 24px;" data-label="Time">
+                                                <i class="fa-regular fa-clock"></i>
+                                                <?= date('d M, h:i A', strtotime($r['created_at'])) ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                
+                <?php if (empty($events_with_regs)): ?>
+                    <div class="glass-panel-dash" style="padding: 60px; text-align: center; color: var(--text-dim);">
+                        <i class="fa-solid fa-clipboard-question" style="font-size: 3rem; opacity: 0.2; margin-bottom: 20px; display: block;"></i>
+                        No active registrations found in the system.
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -693,6 +728,11 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
     .status-select.pending { color: var(--accent-1); }
     .status-select.approved { color: var(--accent-3); }
     .status-select.winner { color: var(--accent-5); }
+    
+    /* Accordion Styles */
+    .event-group-panel:hover .accordion-caret { transform: scale(1.2); }
+    .event-group-panel.active .accordion-caret { transform: rotate(90deg); }
+    .event-group-panel.active { border-color: rgba(124,58,237,0.3); background: rgba(255,255,255,0.03); }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -742,6 +782,7 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
         document.getElementById('ev-name').value = ev.name;
         document.getElementById('ev-desc').value = ev.description || '';
         document.getElementById('ev-cat').value = ev.category;
+        document.getElementById('ev-eligibility').value = ev.eligibility_stream || 'ALL';
         document.getElementById('ev-max').value = ev.max_participants;
         document.getElementById('ev-coord').value = ev.coordinator_id || '';
         document.getElementById('ev-date').value = ev.date;
@@ -851,6 +892,22 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                 animation: { duration: 2000, easing: 'easeOutQuart' }
             }
         });
+    }
+
+    function toggleAccordion(id, header) {
+        const content = document.getElementById(id);
+        const panel = header.parentElement;
+        const isHidden = content.style.display === 'none';
+        
+        // Toggle visibility
+        content.style.display = isHidden ? 'block' : 'none';
+        
+        // Toggle active class for caret rotation
+        if (isHidden) {
+            panel.classList.add('active');
+        } else {
+            panel.classList.remove('active');
+        }
     }
 </script>
 

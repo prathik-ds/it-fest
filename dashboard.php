@@ -155,6 +155,13 @@ $announcements = $stmt->fetchAll();
                                                 <i class="fa-solid fa-users-gear"></i> Team
                                             </button>
                                         <?php endif; ?>
+
+                                        <form action="unregister_event.php" method="POST" style="display:inline;" onsubmit="return confirm('UNREGISTER FROM <?= strtoupper(htmlspecialchars($ev['name'])) ?>?');">
+                                            <input type="hidden" name="event_id" value="<?= $ev['id'] ?>">
+                                            <button type="submit" class="btn-coord" style="padding: 6px 10px; font-size: 0.65rem; background: rgba(244, 63, 94, 0.05); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.2); margin-left:8px;" title="Unregister">
+                                                <i class="fa-solid fa-circle-xmark"></i> CANCEL
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -202,12 +209,12 @@ $announcements = $stmt->fetchAll();
 </div>
 
 <!-- QR Modal -->
-<div id="qrModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4, 6, 14, 0.85); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
-    <div class="glass-panel" style="background: rgba(15, 22, 41, 0.97); padding: 40px; text-align: center; border-radius: 24px; border: 1px solid rgba(124, 58, 237, 0.2); max-width: 370px; width: 90%; position: relative; overflow: hidden;">
+<div id="qrModal" onclick="if(event.target === this) closeModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4, 6, 14, 0.9); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(15px); cursor: pointer;">
+    <div class="glass-panel" style="background: rgba(15, 22, 41, 0.97); padding: 40px; text-align: center; border-radius: 24px; border: 1px solid rgba(124, 58, 237, 0.2); max-width: 370px; width: 90%; position: relative; overflow: hidden; cursor: default;">
         <div style="position: absolute; top: -40px; left: -40px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(124, 58, 237, 0.08), transparent 70%); border-radius: 50%;"></div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <h3 id="modal-event-name" style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; color: var(--accent-2); margin: 0; font-weight: 700;">Event Ticket</h3>
-            <button onclick="closeModal()" style="background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.15); color: var(--danger); cursor: pointer; font-size: 1rem; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-xmark"></i></button>
+            <button onclick="closeModal()" style="background: rgba(244, 63, 94, 0.12); border: 1px solid var(--danger); color: var(--danger); cursor: pointer; font-size: 1.2rem; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2001;" aria-label="Close Ticket"><i class="fa-solid fa-xmark"></i></button>
         </div>
         
         <div id="qrcode" style="background: white; padding: 18px; display: inline-block; border-radius: 16px; margin-bottom: 20px; min-width: 200px; min-height: 200px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);"></div>

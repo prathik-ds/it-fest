@@ -353,7 +353,11 @@ if ($user) {
     <?php
         $fill = $event['max_participants'] > 0 ? ($event['current_participants'] / $event['max_participants']) * 100 : 0;
         $is_full = $event['current_participants'] >= $event['max_participants'];
-        $cat_color = $event['category'] == 'IT' ? 'var(--accent-1)' : 'var(--accent-2)';
+        
+        $cat_color = 'var(--accent-1)'; // Default IT
+        if($event['category'] == 'Commerce') $cat_color = 'var(--accent-2)';
+        if($event['category'] == 'ART') $cat_color = 'var(--accent-4)';
+        
         $cap_color = $fill > 80 ? 'var(--danger)' : 'linear-gradient(90deg, var(--accent-2), var(--accent-1))';
         $is_team = !empty($event['is_team_event']);
         $my_team = $myTeams[$event['id']] ?? null;
@@ -379,6 +383,12 @@ if ($user) {
                 <i class="fa-solid fa-users" style="font-size: 0.55rem;"></i> TEAM
             </div>
             <?php endif; ?>
+            
+            <!-- Eligibility Overlay (Centered at the top of the image) -->
+            <div style="position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 2; padding: 4px 12px; border-radius: 6px; font-size: 0.58rem; font-weight: 800; letter-spacing: 1px; background: rgba(0,0,0,0.65); color: <?= $event['eligibility_stream'] == 'ALL' ? '#10b981' : '#fbbf24' ?>; border: 1px solid currentColor; backdrop-filter: blur(10px); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <i class="fa-solid fa-graduation-cap"></i> 
+                <?= $event['eligibility_stream'] == 'ALL' ? 'OPEN TO ALL' : strtoupper($event['eligibility_stream']) . ' ONLY' ?>
+            </div>
         </div>
 
         <!-- Card Body -->

@@ -10,9 +10,14 @@ include 'includes/header.php';
 $c_id = $_SESSION['user']['user_id'];
 $msg = $_GET['msg'] ?? '';
 
-// Fetch assigned events
-$stmt = $pdo->prepare("SELECT * FROM events WHERE coordinator_id = ? ORDER BY date, time");
-$stmt->execute([$c_id]);
+// Fetch assigned events (Admins see all events for management)
+if ($_SESSION['user']['role'] === 'admin') {
+    $stmt = $pdo->prepare("SELECT * FROM events ORDER BY date, time");
+    $stmt->execute();
+} else {
+    $stmt = $pdo->prepare("SELECT * FROM events WHERE coordinator_id = ? ORDER BY date, time");
+    $stmt->execute([$c_id]);
+}
 $assignedEvents = $stmt->fetchAll();
 
 // Handle active event selection
@@ -21,9 +26,14 @@ $active_event = null;
 $participants = [];
 
 if ($active_event_id) {
-    // Verify ownership
-    $stmt = $pdo->prepare("SELECT * FROM events WHERE id = ? AND coordinator_id = ?");
-    $stmt->execute([$active_event_id, $c_id]);
+    // Verify ownership (Skip check if Admin)
+    if ($_SESSION['user']['role'] === 'admin') {
+        $stmt = $pdo->prepare("SELECT * FROM events WHERE id = ?");
+        $stmt->execute([$active_event_id]);
+    } else {
+        $stmt = $pdo->prepare("SELECT * FROM events WHERE id = ? AND coordinator_id = ?");
+        $stmt->execute([$active_event_id, $c_id]);
+    }
     $active_event = $stmt->fetch();
     
     if ($active_event) {
@@ -139,7 +149,9 @@ if ($active_event_id) {
             <div id="scanner-container" class="glass-panel" style="display: none; padding: 30px; margin-bottom: 30px; text-align: center; border-color: var(--primary);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h3 style="font-size: 1rem; color: var(--primary);">Scanner Active</h3>
-                    <button onclick="stopScanner()" style="background: none; border: none; color: var(--danger); cursor: pointer;"><i class="fa-solid fa-xmark"></i> CLOSE</button>
+                    <button onclick="stopScanner()" style="background: rgba(244, 63, 94, 0.1); border: 1px solid var(--danger); color: var(--danger); cursor: pointer; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-circle-xmark"></i> CLOSE SCANNER
+                    </button>
                 </div>
                 <div id="reader" style="width: 100%; max-width: 500px; margin: 0 auto; border-radius: 16px; overflow: hidden;"></div>
                 <p id="scanner-msg" style="margin-top: 20px; color: var(--text-muted);">Frame the QR code to mark attendance</p>
@@ -185,7 +197,32 @@ if ($active_event_id) {
                                         </select>
                                     </td>
                                     <td style="padding: 16px; text-align: right;">
-                                        <button type="submit" class="btn-coord" style="padding: 6px 16px; font-size: 0.7rem;">UPDATE</button>
+                                        <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center;">
+                                            <button type="submit" class="btn-coord" style="padding: 6px 16px; font-size: 0.7rem;">UPDATE</button>
+                                            <button type="button" class="btn-icon-danger" style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 6px; cursor: pointer;" 
+                                                onclick="if(confirm('REMOVE THIS PARTICIPANT?')){
+                                                    const form = document.createElement('form');
+                                                    form.method = 'POST';
+                                                    form.action = 'coordinator_actions.php';
+                                                    
+                                                    const act = document.createElement('input');
+                                                    act.type='hidden'; act.name='action'; act.value='delete_registration';
+                                                    form.appendChild(act);
+                                                    
+                                                    const rid = document.createElement('input');
+                                                    rid.type='hidden'; rid.name='reg_id'; rid.value='<?= $p['reg_id'] ?>';
+                                                    form.appendChild(rid);
+                                                    
+                                                    const eid = document.createElement('input');
+                                                    eid.type='hidden'; eid.name='event_id'; eid.value='<?= $active_event_id ?>';
+                                                    form.appendChild(eid);
+                                                    
+                                                    document.body.appendChild(form);
+                                                    form.submit();
+                                                }">
+                                                <i class="fa-solid fa-trash-can" style="font-size: 0.75rem;"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </form>
                             </tr>
@@ -208,7 +245,9 @@ if ($active_event_id) {
         document.getElementById('scanner-container').style.display = 'block';
         document.getElementById('scanner-msg').innerText = "Initializing camera...";
         
-        html5QrcodeScanner = new Html5Qrcode("reader");
+        if (!html5QrcodeScanner) {
+            html5QrcodeScanner = new Html5Qrcode("reader");
+        }
         const activeEventId = "<?= $active_event_id ?>";
 
         const qrCodeSuccessCallback = (decodedText, decodedResult) => {
@@ -248,10 +287,21 @@ if ($active_event_id) {
     }
 
     function stopScanner() {
-        if (html5QrcodeScanner) {
+        const container = document.getElementById('scanner-container');
+        if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
             html5QrcodeScanner.stop().then(() => {
-                document.getElementById('scanner-container').style.display = 'none';
+                container.style.display = 'none';
+                html5QrcodeScanner = null;
+            }).catch(() => {
+                container.style.display = 'none';
+                html5QrcodeScanner = null;
             });
+        } else {
+            container.style.display = 'none';
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear();
+                html5QrcodeScanner = null;
+            }
         }
     }
 
