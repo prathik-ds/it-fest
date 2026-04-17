@@ -64,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
 
             <form method="POST">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div class="form-group" style="grid-column: span 2;">
+                <div class="auth-grid">
+                    <div class="form-group auth-grid-full">
                         <label><i class="fa-solid fa-user" style="margin-right: 6px; color: var(--accent-1);"></i>Full Name</label>
                         <input type="text" name="name" placeholder="John Doe" required>
                     </div>
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                     <div class="form-group">
                         <label><i class="fa-solid fa-graduation-cap" style="margin-right: 6px; color: var(--accent-4);"></i>Course</label>
-                        <select name="course" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; color: white; cursor: pointer;">
+                        <select name="course" required>
                             <option value="" disabled selected>Select Course</option>
                             <option value="BCA">BCA</option>
                             <option value="BCOM">BCOM</option>
@@ -88,18 +88,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                     <div class="form-group">
                         <label><i class="fa-solid fa-calendar-alt" style="margin-right: 6px; color: var(--accent-5);"></i>Year</label>
-                        <select name="year" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; color: white; cursor: pointer;">
+                        <select name="year" required>
                             <option value="" disabled selected>Select Year</option>
                             <option value="1st year">1st year</option>
                             <option value="2nd year">2nd year</option>
                             <option value="3rd year">3rd year</option>
                         </select>
                     </div>
-                    <div class="form-group" style="grid-column: span 2;">
+                    <div class="form-group auth-grid-full">
                         <label><i class="fa-solid fa-id-card" style="margin-right: 6px; color: var(--accent-2);"></i>Roll Number</label>
                         <input type="text" name="roll_no" placeholder="Enter your roll number" required>
                     </div>
-                    <div class="form-group" style="grid-column: span 2;">
+                    <div class="form-group auth-grid-full">
                         <label><i class="fa-solid fa-lock" style="margin-right: 6px; color: var(--accent-1);"></i>Password</label>
                         <input type="password" name="password" placeholder="••••••••" required>
                     </div>

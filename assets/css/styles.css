@@ -1709,3 +1709,30 @@ nav {
         grid-template-columns: 1fr !important;
     }
 }
+/* ── Authentication & Forms ── */
+.auth-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.auth-grid-full {
+    grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+    .auth-grid {
+        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .auth-grid > * {
+        grid-column: span 1 !important;
+        width: 100% !important;
+    }
+    
+    .glass {
+        padding: 32px 24px !important;
+    }
+}

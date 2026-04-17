@@ -2,7 +2,7 @@
 include 'includes/header.php'; 
 
 // Fetch Top Performers across all events where score > 0
-$stmt = $pdo->query("SELECT r.user_id, u.name as user_name, u.college, e.name as event_name, r.score, r.status FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id WHERE r.status IN ('winner', 'runner') ORDER BY r.status DESC, r.score DESC LIMIT 20");
+$stmt = $pdo->query("SELECT r.user_id, u.name as user_name, u.college, e.name as event_name, r.score, r.status FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id WHERE r.status IN ('winner', 'runner') ORDER BY e.name ASC, CASE WHEN LOWER(r.status) = 'winner' THEN 1 WHEN LOWER(r.status) = 'runner' THEN 2 ELSE 3 END ASC LIMIT 50");
 $topScores = $stmt->fetchAll();
 ?>
 
@@ -32,29 +32,27 @@ $topScores = $stmt->fetchAll();
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
                 <tr style="border-bottom: 1px solid var(--border);">
-                    <th style="padding: 18px 24px; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">Rank</th>
+                    <th style="padding: 18px 24px; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">Standing</th>
                     <th style="padding: 18px 24px; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">Participant</th>
                     <th style="padding: 18px 24px; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">Event</th>
                     <th style="padding: 18px 24px; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; text-align: right;">Status</th>
                 </tr>
             </thead>
             <tbody>
-                <?php $rank = 1; foreach($topScores as $row): ?>
-                    <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s; <?= $rank <= 3 ? 'background: rgba(124, 58, 237, 0.03);' : '' ?>" onmouseover="this.style.background='rgba(0, 212, 255, 0.03)'" onmouseout="this.style.background='<?= $rank <= 3 ? 'rgba(124, 58, 237, 0.03)' : 'transparent' ?>'">
-                        <td style="padding: 20px 24px;" data-label="Rank">
-                            <?php if ($rank == 1): ?>
-                                <span style="font-size: 1.3rem;">🥇</span>
-                            <?php elseif ($rank == 2): ?>
-                                <span style="font-size: 1.3rem;">🥈</span>
-                            <?php elseif ($rank == 3): ?>
-                                <span style="font-size: 1.3rem;">🥉</span>
+                <?php foreach($topScores as $row): ?>
+                    <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;" onmouseover="this.style.background='rgba(0, 212, 255, 0.03)'" onmouseout="this.style.background='transparent'">
+                        <td style="padding: 20px 24px;" data-label="Standing">
+                            <?php if (strtolower($row['status']) == 'winner'): ?>
+                                <span style="font-size: 1.3rem;" title="1st Place">🥇</span>
+                            <?php elseif (strtolower($row['status']) == 'runner'): ?>
+                                <span style="font-size: 1.3rem;" title="2nd Place">🥈</span>
                             <?php else: ?>
-                                <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 700; color: var(--text-muted);">#<?= $rank ?></span>
+                                <span style="font-size: 1.3rem;" title="Participant">🏅</span>
                             <?php endif; ?>
                         </td>
                         <td style="padding: 20px 24px;" data-label="Participant">
                             <div style="display: flex; align-items: center; gap: 12px;">
-                                <div style="width: 38px; height: 38px; border-radius: 12px; background: <?= $rank <= 3 ? 'var(--grad-primary)' : 'rgba(100, 130, 200, 0.1)' ?>; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: white; flex-shrink: 0;">
+                                <div style="width: 38px; height: 38px; border-radius: 12px; background: <?= strtolower($row['status']) == 'winner' ? 'var(--grad-primary)' : 'rgba(100, 130, 200, 0.1)' ?>; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: white; flex-shrink: 0;">
                                     <?= strtoupper(substr($row['user_name'], 0, 1)) ?>
                                 </div>
                                 <div>
@@ -68,13 +66,13 @@ $topScores = $stmt->fetchAll();
                             </div>
                         </td>
                         <td style="padding: 20px 24px; text-align: right;" data-label="Status">
-                            <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.65rem; padding: 5px 12px; border-radius: 6px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; background: <?= $row['status'] == 'winner' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(124, 58, 237, 0.1)' ?>; color: <?= $row['status'] == 'winner' ? 'var(--accent-5)' : 'var(--accent-2)' ?>; border: 1px solid <?= $row['status'] == 'winner' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(124, 58, 237, 0.2)' ?>;">
-                                <i class="<?= $row['status'] == 'winner' ? 'fa-solid fa-crown' : 'fa-solid fa-star' ?>"></i>
-                                <?= $row['status'] ?>
+                            <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.65rem; padding: 5px 12px; border-radius: 6px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; background: <?= strtolower($row['status']) == 'winner' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(124, 58, 237, 0.1)' ?>; color: <?= strtolower($row['status']) == 'winner' ? 'var(--accent-5)' : 'var(--accent-2)' ?>; border: 1px solid <?= strtolower($row['status']) == 'winner' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(124, 58, 237, 0.2)' ?>;">
+                                <i class="<?= strtolower($row['status']) == 'winner' ? 'fa-solid fa-crown' : 'fa-solid fa-star' ?>"></i>
+                                <?= strtoupper($row['status']) ?>
                             </span>
                         </td>
                     </tr>
-                <?php $rank++; endforeach; ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
     <?php endif; ?>
