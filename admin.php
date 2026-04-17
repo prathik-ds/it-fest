@@ -128,17 +128,17 @@ $coordinators = $pdo->query("SELECT user_id, name FROM users WHERE role = 'coord
 $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as event_name FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id ORDER BY r.created_at DESC")->fetchAll();
 ?>
 
-<div style="padding: 40px;">
-    <div class="dashboard-header">
+<div class="admin-main-wrapper">
+    <div class="dashboard-header-modern">
         <div class="header-content">
-            <h1>Command Center</h1>
-            <p>Full-scale management of users, events, and festival registrations.</p>
+            <h1 style="display: flex; align-items: center; gap: 12px;">
+                <div class="admin-icon-glow"><i class="fa-solid fa-bolt-lightning"></i></div>
+                Command Center
+            </h1>
+            <p>Master control panel for FusionVerse events and users.</p>
         </div>
-        <div class="header-actions">
-            <span class="status-tag"
-                style="background: rgba(168, 85, 247, 0.1); color: var(--secondary); padding: 8px 16px; font-size: 0.8rem; border-radius: 8px;">
-                <i class="fa-solid fa-shield-halved"></i> MASTER ADMINISTRATION
-            </span>
+        <div class="header-status-badge">
+            <i class="fa-solid fa-shield-halved"></i> MASTER ADMIN
         </div>
     </div>
 
@@ -167,26 +167,38 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                 style="margin-right: 8px;"></i> REGISTRATION DESK</button>
     </div>
 
-    <!-- TAB: DASHBOARD -->
+    <!-- TAB: DASHBOARD (Overview) -->
     <div id="content-dashboard" class="admin-tab-content">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px;">
-            <div class="glass-panel-dash" style="padding: 30px; text-align: center;">
-                <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Total Participants
+        <div class="stats-grid-modern">
+            <div class="stat-card-modern purple">
+                <div class="stat-icon"><i class="fa-solid fa-user-group"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Participants</span>
+                    <span class="stat-value"><?= $total_users ?></span>
                 </div>
-                <div style="font-size: 2.2rem; font-weight: 800; color: var(--primary);"><?= $total_users ?></div>
             </div>
-            <div class="glass-panel-dash" style="padding: 30px; text-align: center;">
-                <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Active Events</div>
-                <div style="font-size: 2.2rem; font-weight: 800; color: var(--secondary);"><?= $events_count ?></div>
+            <div class="stat-card-modern cyan">
+                <div class="stat-icon"><i class="fa-solid fa-calendar-stars"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Active Events</span>
+                    <span class="stat-value"><?= $events_count ?></span>
+                </div>
             </div>
-            <div class="glass-panel-dash" style="padding: 30px; text-align: center;">
-                <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Total Bookings</div>
-                <div style="font-size: 2.2rem; font-weight: 800; color: var(--success);"><?= $total_regs ?></div>
+            <div class="stat-card-modern emerald">
+                <div class="stat-icon"><i class="fa-solid fa-ticket"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Bookings</span>
+                    <span class="stat-value"><?= $total_regs ?></span>
+                </div>
             </div>
         </div>
-        <div class="glass-panel-dash" style="padding: 30px;">
-            <h2 style="font-family: 'Outfit'; font-size: 1.2rem; margin-bottom: 30px;">Top Competition Entries</h2>
-            <div style="height: 300px;"><canvas id="participationChart"></canvas></div>
+        
+        <div class="glass-panel-dash" style="padding: 24px; margin-top: 24px;">
+            <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-chart-line" style="color: var(--accent-1);"></i>
+                Participation Analytics
+            </h2>
+            <div style="height: 320px; position: relative;"><canvas id="participationChart"></canvas></div>
         </div>
     </div>
 
@@ -444,18 +456,18 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                     <tbody>
                         <?php foreach ($all_regs as $r): ?>
                             <tr>
-                                <td>
+                                <td data-label="Participant">
                                     <div style="font-weight: 600; font-size: 0.95rem;">
                                         <?= htmlspecialchars($r['user_name']) ?></div>
                                     <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 4px;"><i
                                             class="fa-solid fa-graduation-cap"></i> <?= htmlspecialchars($r['college']) ?>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Event">
                                     <div style="font-weight: 500; color: var(--secondary);">
                                         <?= htmlspecialchars($r['event_name']) ?></div>
                                 </td>
-                                <td style="text-align: center;">
+                                <td style="text-align: center;" data-label="Status">
                                     <form method="POST">
                                         <input type="hidden" name="action" value="update_reg_status">
                                         <input type="hidden" name="reg_id" value="<?= $r['id'] ?>">
@@ -480,7 +492,7 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
                                         </select>
                                     </form>
                                 </td>
-                                <td style="text-align: right; font-size: 0.8rem; color: var(--text-muted);">
+                                <td style="text-align: right; font-size: 0.8rem; color: var(--text-muted);" data-label="Time">
                                     <i class="fa-regular fa-clock"></i>
                                     <?= date('d M, h:i A', strtotime($r['created_at'])) ?>
                                 </td>
@@ -501,78 +513,143 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
 
 <!-- Styles for Tabs & Inputs -->
 <style>
+    /* Admin UI Overhaul Styles */
+    .admin-main-wrapper { padding: 32px; max-width: 1400px; margin: 0 auto; }
+    
+    .dashboard-header-modern {
+        background: linear-gradient(135deg, rgba(15, 22, 41, 0.4), rgba(4, 6, 14, 0.6));
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .admin-icon-glow {
+        width: 48px; height: 48px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--accent-1); font-size: 1.2rem;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    }
+    
+    .header-status-badge {
+        background: rgba(124, 58, 237, 0.1);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        color: #a855f7;
+        padding: 8px 18px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center; gap: 8px;
+    }
+
+    /* Stats Grid Overhaul */
+    .stats-grid-modern {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+    
+    .stat-card-modern {
+        background: var(--bg-glass);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    
+    .stat-card-modern:hover {
+        transform: translateY(-5px);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    .stat-icon {
+        width: 56px; height: 56px;
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .stat-card-modern.purple .stat-icon { background: rgba(124, 58, 237, 0.1); color: #a855f7; }
+    .stat-card-modern.cyan   .stat-icon { background: rgba(0, 212, 255, 0.1); color: #00d4ff; }
+    .stat-card-modern.emerald .stat-icon { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    
+    .stat-info { display: flex; flex-direction: column; }
+    .stat-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+    .stat-value { font-size: 1.8rem; font-weight: 800; color: white; line-height: 1; }
+
+    /* Mobile Adaptations */
+    @media (max-width: 992px) {
+        .admin-main-wrapper { padding: 12px; }
+        .dashboard-header-modern { flex-direction: column; align-items: flex-start; padding: 20px; border-radius: 16px; }
+        .stats-grid-modern { grid-template-columns: 1fr; gap: 12px; }
+        .stat-card-modern { padding: 16px; }
+        .tab-container { display: none !important; }
+    }
+    
+    @media (max-width: 768px) {
+        .tab-container {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg-void);
+            padding: 10px 10px 5px;
+            margin: 0 -16px 20px;
+        }
+        .tab-btn { padding: 10px 16px; font-size: 0.75rem; }
+    }
+
     /* Tab Navigation */
     .tab-container {
         display: flex;
-        gap: 15px;
+        gap: 8px;
         margin-bottom: 30px;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 5px;
+        padding-bottom: 2px;
         overflow-x: auto;
+        scrollbar-width: none;
     }
+    .tab-container::-webkit-scrollbar { display: none; }
 
     .tab-btn {
-        background: none;
-        border: none;
+        background: rgba(15, 22, 41, 0.3);
+        border: 1px solid var(--border);
         color: var(--text-dim);
         padding: 12px 24px;
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
         font-weight: 700;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         cursor: pointer;
-        transition: all 0.3s ease;
-        border-radius: 12px 12px 0 0;
-        position: relative;
+        transition: all 0.25s ease;
+        border-radius: 12px;
         white-space: nowrap;
     }
 
     .tab-btn:hover {
-        color: var(--text-main);
-        background: rgba(255, 255, 255, 0.02);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
     }
 
     .tab-btn.active {
-        color: var(--primary);
-        background: rgba(99, 102, 241, 0.05);
+        background: rgba(124, 58, 237, 0.12);
+        border-color: rgba(124, 58, 237, 0.3);
+        color: #a855f7;
     }
 
-    .tab-btn.active::after {
-        content: '';
-        position: absolute;
-        bottom: -5px;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: var(--primary);
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
-    }
-
-    /* Modern Form Elements */
-    .modern-input,
-    .modern-select,
-    .modern-textarea {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 12px 16px;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--border);
-        color: var(--text-main);
-        border-radius: 10px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.85rem;
-        transition: all 0.3s ease;
-    }
-
-    .modern-input:focus,
-    .modern-select:focus,
-    .modern-textarea:focus {
-        outline: none;
-        border-color: var(--primary);
-        background: rgba(99, 102, 241, 0.05);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-    }
-
+    /* Form Components */
     .modern-label {
         display: block;
         font-size: 0.75rem;
@@ -582,104 +659,40 @@ $all_regs = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as e
         letter-spacing: 1px;
         margin-bottom: 8px;
     }
+    .modern-input, .modern-select, .modern-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        color: white;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
 
     /* Table Styling */
-    .modern-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
+    .modern-table { width: 100%; border-collapse: separate; border-spacing: 0; }
     .modern-table th {
-        padding: 16px;
-        text-align: left;
-        font-size: 0.7rem;
-        color: var(--text-dim);
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        position: sticky;
-        top: 0;
-        background: rgba(17, 24, 39, 0.95);
-        backdrop-filter: blur(10px);
-        z-index: 10;
+        padding: 16px; text-align: left; font-size: 0.7rem; color: var(--text-dim);
+        text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
-
-    .modern-table td {
-        padding: 16px;
-        border-bottom: 1px solid var(--border);
-        font-size: 0.85rem;
-        vertical-align: middle;
-        transition: background 0.2s ease;
-    }
-
-    .modern-table tbody tr:hover td {
-        background: rgba(255, 255, 255, 0.02);
-    }
+    .modern-table td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
 
     /* Buttons */
     .btn-icon-danger {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-        border: 1px solid var(--danger);
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
+        background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger);
+        width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center;
     }
 
-    .btn-icon-danger:hover {
-        background: var(--danger);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-    }
-
-    /* Select Status */
+    /* Status Select */
     .status-select {
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border: 1px solid var(--border);
-        -webkit-appearance: none;
-        appearance: none;
-        background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
-        background-repeat: no-repeat;
-        background-position: right 10px top 50%;
-        background-size: 8px auto;
-        padding-right: 28px;
+        padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700;
+        border: 1px solid var(--border); background-color: rgba(15, 22, 41, 0.5); color: white;
     }
-
-    .status-select.pending {
-        background-color: rgba(99, 102, 241, 0.1);
-        color: var(--primary);
-        border-color: rgba(99, 102, 241, 0.3);
-    }
-
-    .status-select.approved {
-        background-color: rgba(16, 185, 129, 0.1);
-        color: var(--success);
-        border-color: rgba(16, 185, 129, 0.3);
-    }
-
-    .status-select.winner {
-        background-color: rgba(245, 158, 11, 0.1);
-        color: var(--warning);
-        border-color: rgba(245, 158, 11, 0.3);
-    }
-
-    .status-select:focus {
-        box-shadow: 0 0 0 2px var(--bg-dark), 0 0 0 4px var(--primary);
-        outline: none;
-    }
+    .status-select.pending { color: var(--accent-1); }
+    .status-select.approved { color: var(--accent-3); }
+    .status-select.winner { color: var(--accent-5); }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

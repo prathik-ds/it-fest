@@ -92,12 +92,17 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
         </div>
 
         <!-- Mobile Top Bar -->
-        <div class="mobile-top-bar">
-            <a href="index.php" style="text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px;">
-                <div class="brand-icon-dash" style="width: 30px; height: 30px; font-size: 0.75rem; border-radius: 8px;">F</div>
-                FUSIONVERSE
-            </a>
-            <a href="logout.php" style="color: var(--danger); font-size: 1.1rem;"><i class="fa-solid fa-right-from-bracket"></i></a>
+        <div class="mobile-top-bar" style="display: flex; align-items: center; justify-content: space-between; z-index: 1002;">
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <button class="nav-toggle-dash" onclick="toggleSidebar()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 1.1rem; cursor: pointer; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: 0.2s;">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+                <a href="index.php" style="text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-left: 5px;">
+                    <div class="brand-icon-dash" style="width: 32px; height: 32px; font-size: 0.75rem; border-radius: 8px;">F</div>
+                    <span style="letter-spacing: -0.5px;">FUSIONVERSE</span>
+                </a>
+            </div>
+            <a href="logout.php" style="color: var(--danger); font-size: 1.1rem; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(239, 68, 68, 0.05); border-radius: 10px;"><i class="fa-solid fa-right-from-bracket"></i></a>
         </div>
 
         <div class="app-wrapper">
@@ -156,11 +161,31 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                             <!-- ADMINISTRATION -->
                             <div class="menu-label-dash">ADMINISTRATION</div>
                             <li class="menu-item">
-                                <a href="admin.php" class="menu-link-dash <?= isActive('admin.php') ?>">
-                                    <i class="fa-solid fa-gauge-high"></i>
-                                    <span>Analytics</span>
+                                <a href="admin.php?tab=dashboard" class="menu-link-dash <?= isActive('admin.php') && (!isset($_GET['tab']) || $_GET['tab'] == 'dashboard') ? 'active' : '' ?>">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                    <span>Dashboard</span>
                                 </a>
                             </li>
+                            <li class="menu-item">
+                                <a href="admin.php?tab=users" class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'users' ? 'active' : '' ?>">
+                                    <i class="fa-solid fa-users-gear"></i>
+                                    <span>User Management</span>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="admin.php?tab=events" class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'events' ? 'active' : '' ?>">
+                                    <i class="fa-solid fa-calendar-alt"></i>
+                                    <span>Event Management</span>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="admin.php?tab=regs" class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'regs' ? 'active' : '' ?>">
+                                    <i class="fa-solid fa-clipboard-check"></i>
+                                    <span>Registration Desk</span>
+                                </a>
+                            </li>
+                            
+                            <div class="menu-label-dash" style="margin-top: 20px;">QUICK LINKS</div>
                             <li class="menu-item">
                                 <a href="admin_explore_events.php" class="menu-link-dash <?= isActive('admin_explore_events.php') ?>">
                                     <i class="fa-solid fa-compass"></i>
@@ -168,21 +193,9 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                                 </a>
                             </li>
                             <li class="menu-item">
-                                <a href="admin.php?tab=events" class="menu-link-dash">
-                                    <i class="fa-solid fa-calendar-plus"></i>
-                                    <span>Deploy Events</span>
-                                </a>
-                            </li>
-                            <li class="menu-item">
                                 <a href="admin_leaderboard.php" class="menu-link-dash <?= isActive('admin_leaderboard.php') ?>">
                                     <i class="fa-solid fa-crown"></i>
                                     <span>Leaderboard</span>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="admin_users.php" class="menu-link-dash <?= isActive('admin_users.php') ?>">
-                                    <i class="fa-solid fa-users-gear"></i>
-                                    <span>User Directory</span>
                                 </a>
                             </li>
                         <?php endif; ?>
@@ -205,6 +218,29 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                     </li>
                 </ul>
             </aside>
+            
+            <!-- Mobile Overlay -->
+            <div id="sidebar-overlay" onclick="toggleSidebar()" style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;"></div>
+
+            <script>
+                function toggleSidebar() {
+                    const sidebar = document.querySelector('.sidebar');
+                    const overlay = document.getElementById('sidebar-overlay');
+                    const isOpen = sidebar.classList.contains('open');
+                    
+                    if (isOpen) {
+                        sidebar.classList.remove('open');
+                        overlay.style.opacity = '0';
+                        setTimeout(() => { overlay.style.display = 'none'; }, 300);
+                        document.body.style.overflow = '';
+                    } else {
+                        overlay.style.display = 'block';
+                        setTimeout(() => { overlay.style.opacity = '1'; }, 10);
+                        sidebar.classList.add('open');
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+            </script>
 
             <!-- Main Content Section -->
             <main class="main-content-dash">
