@@ -253,26 +253,178 @@ if ($user) {
     }
 
     @media (max-width: 600px) {
-        .events-grid {
-            grid-template-columns: 1fr;
-            gap: 14px;
+        .container { padding: 0 8px !important; margin-top: 10px !important; }
+        .events-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 70px; }
+        
+        /* ── Compact Horizontal Card ── */
+        .ev-card {
+            display: grid !important;
+            grid-template-columns: 110px 1fr !important; /* Shrunk image col width slightly to give more room to text */
+            grid-template-rows: 1fr auto !important;
+            grid-template-areas: 
+                "img body"
+                "img footer" !important;
+            height: 135px !important; /* Increased height for better fit */
+            border-radius: 14px !important;
+            background: linear-gradient(145deg, rgba(20, 28, 50, 0.9), rgba(8, 12, 26, 0.95)) !important;
+            border: 1px solid rgba(0, 212, 255, 0.12) !important;
+            overflow: hidden !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+            transform: none !important;
+        }
+        
+        .ev-card:hover { transform: none !important; }
+
+        .ev-card-img {
+            grid-area: img !important;
+            width: 110px !important;
+            height: 100% !important;
+            border-radius: 14px 0 0 14px !important;
         }
 
-        .container {
-            padding: 0 12px !important;
-            margin-top: 0 !important;
+        .ev-card-badge {
+            top: 6px; left: 6px;
+            font-size: 0.45rem;
+            padding: 2px 8px;
+            backdrop-filter: blur(4px);
         }
-
-        .ev-card-title {
-            font-size: 1.1rem;
+        
+        .ev-team-badge {
+            display: none !important; /* Hide team badge from image to save space */
+        }
+        
+        /* Reposition Eligibility to bottom of image on mobile */
+        .ev-card-img div[style*="left: 50%"] {
+            top: auto !important;
+            bottom: 6px !important;
+            transform: translateX(-50%) !important;
+            font-size: 0.42rem !important;
+            padding: 2px 6px !important;
+            width: 85% !important;
+            text-align: center;
         }
 
         .ev-card-body {
-            padding: 14px 16px 10px;
+            grid-area: body !important;
+            padding: 12px 12px 2px 15px !important; /* Increased left padding (15px) for clear gutter from image */
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
         }
 
+        .ev-card-title {
+            font-size: 0.95rem !important;
+            margin-bottom: 4px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            color: #fff !important;
+        }
+
+        .ev-card-desc {
+            display: none !important; /* Hide description to enable compact mode */
+        }
+
+        .ev-card-meta {
+            margin-bottom: 4px !important;
+            gap: 2px !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+        }
+
+        .ev-card-meta-item {
+            font-size: 0.6rem !important;
+            padding: 1px 4px !important;
+            background: transparent !important;
+            border: none !important;
+            color: #94a3c7 !important;
+        }
+        
+        .ev-card-meta-item i { width: 12px !important; font-size: 0.65rem !important; }
+
+        /* Hide Capacity Bar on small mobile cards */
+        div[style*="margin-bottom: 4px"] { display: none !important; }
+
         .ev-card-footer {
-            padding: 0 16px 16px;
+            grid-area: footer !important;
+            padding: 4px 12px 12px 15px !important; /* Balanced left padding with body */
+            display: flex !important;
+            gap: 10px !important;
+            background: transparent !important;
+            align-items: center !important; 
+            justify-content: flex-start !important;
+        }
+
+        .ev-details-btn {
+            width: 36px !important;
+            height: 36px !important;
+            min-height: 36px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 10px !important;
+            flex-shrink: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: rgba(255,255,255,0.08) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            overflow: hidden !important;
+        }
+
+        .ev-details-btn .btn-text {
+            display: none !important; /* Cleanly hide text on mobile */
+        }
+        
+        .ev-details-btn i {
+            margin: 0 !important;
+            font-size: 1.25rem !important; /* Slightly larger for better detail */
+            color: #fff !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .ev-register-btn {
+            height: 36px !important;
+            min-height: 36px !important;
+            font-size: 0.68rem !important;
+            padding: 0 16px !important;
+            margin: 0 !important;
+            flex: 1 !important;
+            border-radius: 10px !important;
+            letter-spacing: 0.5px !important;
+            white-space: nowrap !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+        }
+        
+        .ev-register-btn i { font-size: 0.75rem !important; }
+
+        /* Modal Mobile Shrink */
+        .details-modal-box {
+            width: 94% !important;
+            max-height: 85vh !important;
+            border-radius: 20px !important;
+        }
+        .details-header-img {
+            height: 160px !important;
+        }
+        .details-body {
+            padding: 20px !important;
+        }
+        .team-modal-box {
+            padding: 24px 20px !important;
+            border-radius: 20px !important;
+        }
+        .team-tab {
+            font-size: 0.65rem !important;
+            padding: 8px !important;
+        }
+        .team-code-box {
+            font-size: 1.2rem !important;
+            padding: 12px !important;
         }
     }
 
@@ -675,7 +827,7 @@ if ($user) {
             <!-- Action Footer -->
             <div class="ev-card-footer">
                 <button class="ev-details-btn" onclick='showEventDetails(<?= json_encode($event) ?>)'>
-                    <i class="fa-solid fa-circle-info"></i> More Details
+                    <i class="fa-solid fa-circle-info"></i> <span class="btn-text">More Details</span>
                 </button>
                 <?php if ($user): ?>
                     <?php if ($is_team): ?>
@@ -1072,22 +1224,6 @@ if ($user) {
     document.getElementById('detailsModal').addEventListener('click', function (e) {
         if (e.target === this) closeDetailsModal();
     });
-</script>
-
-<?php include 'includes/footer.php'; ?>
-ph.style.display = 'block';
-}
-
-document.getElementById('detailsModal').style.display = 'flex';
-}
-
-function closeDetailsModal() {
-document.getElementById('detailsModal').style.display = 'none';
-}
-
-document.getElementById('detailsModal').addEventListener('click', function(e) {
-if (e.target === this) closeDetailsModal();
-});
 </script>
 
 <?php include 'includes/footer.php'; ?>
