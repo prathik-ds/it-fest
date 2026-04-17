@@ -17,7 +17,8 @@ function isActive($page) {
 
 $user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
 $current_page = basename($_SERVER['PHP_SELF']);
-$is_dashboard_page = in_array($current_page, ['dashboard.php', 'coordinator.php', 'admin.php', 'admin_explore_events.php', 'admin_leaderboard.php', 'admin_users.php']);
+$dashboard_pages = ['dashboard.php', 'coordinator.php', 'admin.php', 'admin_explore_events.php', 'admin_leaderboard.php', 'admin_users.php', 'events.php', 'leaderboard.php'];
+$is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -92,23 +93,23 @@ $is_dashboard_page = in_array($current_page, ['dashboard.php', 'coordinator.php'
 
         <!-- Mobile Top Bar -->
         <div class="mobile-top-bar">
-            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px;">
-                <div class="brand-icon-dash" style="width: 30px; height: 30px; font-size: 0.75rem; border-radius: 8px;">N</div>
+            <a href="index.php" style="text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px;">
+                <div class="brand-icon-dash" style="width: 30px; height: 30px; font-size: 0.75rem; border-radius: 8px;">F</div>
                 FUSIONVERSE
-            </div>
+            </a>
             <a href="logout.php" style="color: var(--danger); font-size: 1.1rem;"><i class="fa-solid fa-right-from-bracket"></i></a>
         </div>
 
         <div class="app-wrapper">
             <!-- Sidebar -->
             <aside class="sidebar">
-                <div class="sidebar-brand">
-                    <div class="brand-icon-dash">N</div>
+                <a href="index.php" class="sidebar-brand" style="text-decoration: none;">
+                    <div class="brand-icon-dash">F</div>
                     <div class="brand-name" style="font-family: 'Space Grotesk', sans-serif;">
                         <h2 style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; text-transform: none;">FUSIONVERSE</h2>
                         <p style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px;">BCA IT FEST</p>
                     </div>
-                </div>
+                </a>
 
                 <ul class="sidebar-menu">
                     <!-- MAIN SECTION -->
@@ -148,12 +149,7 @@ $is_dashboard_page = in_array($current_page, ['dashboard.php', 'coordinator.php'
                                     <span>Assigned Events</span>
                                 </a>
                             </li>
-                            <li class="menu-item">
-                                <a href="coordinator.php#scanner" class="menu-link-dash">
-                                    <i class="fa-solid fa-qrcode"></i>
-                                    <span>Scan Entry</span>
-                                </a>
-                            </li>
+
                         <?php endif; ?>
 
                         <?php if ($user['role'] === 'admin'): ?>

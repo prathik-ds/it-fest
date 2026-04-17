@@ -1,6 +1,8 @@
     <?php 
+    $user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
     $current_page = basename($_SERVER['PHP_SELF']);
-    $is_dashboard_page = in_array($current_page, ['dashboard.php', 'coordinator.php', 'admin.php']);
+    $dashboard_pages = ['dashboard.php', 'coordinator.php', 'admin.php', 'admin_explore_events.php', 'admin_leaderboard.php', 'admin_users.php', 'events.php', 'leaderboard.php'];
+    $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages));
     ?>
 
     <?php if ($is_dashboard_page): ?>
