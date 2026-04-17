@@ -1545,46 +1545,71 @@ nav {
         flex-shrink: 0;
     }
 
-    /* Table -> Card Transform */
+    /* Table -> Card Transform (Admin & Global) */
     table { width: 100% !important; }
-    table, thead, tbody, th, td, tr { display: block; }
-    thead tr { position: absolute; top: -9999px; left: -9999px; }
+    table, tbody, th, td, tr { display: block; }
+    thead { display: none !important; } /* Hide headers entirely on mobile */
     tr {
-        margin-bottom: 12px;
-        background: rgba(15, 22, 41, 0.6) !important;
-        border-radius: 14px;
-        padding: 10px 12px;
-        border: 1px solid rgba(100,130,200,0.1) !important;
+        margin-bottom: 16px;
+        background: rgba(15, 22, 41, 0.7) !important;
+        border-radius: 16px;
+        padding: 14px 16px;
+        border: 1px solid rgba(124, 58, 237, 0.2) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        position: relative;
+    }
+    tr::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 4px; height: 100%;
+        background: var(--grad-primary);
+        border-radius: 4px 0 0 4px;
     }
     td {
         border: none !important;
-        position: relative;
-        padding: 9px 8px 9px 42% !important;
-        text-align: right !important;
-        min-height: 40px;
+        padding: 4px 4px 4px 8px !important;
+        text-align: left !important;
         display: flex !important;
-        align-items: center;
-        justify-content: flex-end;
-        flex-wrap: wrap;
-        gap: 6px;
-        font-size: 0.84rem;
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: auto;
+        font-size: 0.88rem;
+        gap: 4px;
     }
-    td:before {
-        position: absolute;
-        top: 50%; transform: translateY(-50%);
-        left: 12px;
-        width: 37%;
-        white-space: nowrap;
-        text-align: left;
+    /* Smart data-label handling if present */
+    td[data-label] {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    td[data-label]:before {
+        content: attr(data-label);
+        font-size: 0.65rem;
         font-weight: 700;
         color: var(--text-dim);
-        font-size: 0.62rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        content: attr(data-label);
+        margin-right: 12px;
     }
-    td[style*="display: flex"] { flex-wrap: wrap !important; justify-content: flex-end !important; }
-    td:last-child { border-bottom: none !important; }
+    
+    /* Format the last action row dynamically */
+    td:last-child {
+        flex-direction: row !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        border-top: 1px dashed rgba(255, 255, 255, 0.1) !important;
+        padding-top: 14px !important;
+        margin-top: 8px;
+    }
+    td:last-child > div {
+        flex-direction: row !important;
+        width: 100%;
+        justify-content: flex-end;
+    }
 
     /* Touch-Friendly Inputs */
     input, select, textarea {
