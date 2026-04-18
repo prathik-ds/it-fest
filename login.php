@@ -30,9 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="glass" style="padding: 44px 36px; border-color: rgba(124, 58, 237, 0.15);">
             <!-- Header -->
             <div style="text-align: center; margin-bottom: 36px;">
-                <div
-                    style="width: 56px; height: 56px; background: var(--grad-primary); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 18px; box-shadow: 0 8px 30px rgba(124, 58, 237, 0.25);">
-                    <i class="fa-solid fa-fingerprint" style="color: white;"></i>
+                <div style="margin-bottom: 18px;">
+                    <img src="assets/img/loogo - Edited.png" alt="Logo" style="width: 72px; height: 72px; object-fit: contain;">
                 </div>
                 <h2
                     style="font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">

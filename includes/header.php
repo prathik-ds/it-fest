@@ -54,7 +54,7 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
         <script src="assets/js/splash.js" defer></script>
     <?php endif; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="icon" href="favicon.ico">
+    <link rel="icon" type="image/png" href="assets/img/loogo - Edited.png">
 </head>
 
 <body>
@@ -96,12 +96,10 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                 <i class="fa-solid fa-trophy"></i>
                 <span>Events</span>
             </a>
-            <?php if ($user && $user['role'] !== 'admin'): ?>
-                <a href="dashboard.php" class="mobile-nav-item <?= isActive('dashboard.php') ?>">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-            <?php endif; ?>
+            <a href="dashboard.php" class="mobile-nav-item <?= isActive('dashboard.php') ?>">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
             <a href="leaderboard.php" class="mobile-nav-item <?= isActive('leaderboard.php') ?>">
                 <i class="fa-solid fa-ranking-star"></i>
                 <span>Ranks</span>
@@ -120,9 +118,9 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
             style="display: flex; align-items: center; justify-content: space-between; z-index: 1002;">
             <div style="display: flex; align-items: center; gap: 5px;">
                 <a href="index.php"
-                    style="text-decoration: none; display: flex; align-items: center; gap: 10px; margin-left: 5px;">
-                    <img src="assets/img/loogo - Edited.png" alt="FusionVerse" style="height: 32px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0,212,255,0.3));">
-                    <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px;">FUSIONVERSE</span>
+                    style="text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-left: 5px;">
+                    <img src="assets/img/loogo - Edited.png" alt="Logo" style="width: 32px; height: 32px; object-fit: contain; border-radius: 8px;">
+                    <span style="letter-spacing: -0.5px;">FUSIONVERSE</span>
                 </a>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -135,10 +133,10 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
         <div class="app-wrapper">
             <!-- Sidebar -->
             <aside class="sidebar">
-                <a href="index.php" class="sidebar-brand" style="text-decoration: none; gap: 12px;">
-                    <img src="assets/img/loogo - Edited.png" alt="FV" style="height: 36px; object-fit: contain;">
+                <a href="index.php" class="sidebar-brand" style="text-decoration: none;">
+                    <img src="assets/img/loogo - Edited.png" alt="Logo" style="width: 44px; height: 44px; object-fit: contain; border-radius: 12px; margin-right: 12px;">
                     <div class="brand-name" style="font-family: 'Space Grotesk', sans-serif;">
-                        <h2 style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; text-transform: none; background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                        <h2 style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; text-transform: none;">
                             FUSIONVERSE</h2>
                         <p
                             style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px;">
@@ -148,31 +146,33 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
 
                 <ul class="sidebar-menu">
                     <!-- MAIN SECTION -->
-                    <div class="menu-label-dash">MAIN</div>
-                    <li class="menu-item">
-                        <a href="index.html" class="menu-link-dash">
-                            <i class="fa-solid fa-house"></i>
-                            <span>Home Page</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="dashboard.php" class="menu-link-dash <?= isActive('dashboard.php') ?>">
-                            <i class="fa-solid fa-chart-line"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="events.php" class="menu-link-dash <?= isActive('events.php') ?>">
-                            <i class="fa-solid fa-trophy"></i>
-                            <span>Explore Events</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="leaderboard.php" class="menu-link-dash <?= isActive('leaderboard.php') ?>">
-                            <i class="fa-solid fa-ranking-star"></i>
-                            <span>Leaderboard</span>
-                        </a>
-                    </li>
+                    <?php if ($user && $user['role'] !== 'admin'): ?>
+                        <div class="menu-label-dash">MAIN</div>
+                        <li class="menu-item">
+                            <a href="index.php" class="menu-link-dash">
+                                <i class="fa-solid fa-house"></i>
+                                <span>Home Page</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="dashboard.php" class="menu-link-dash <?= isActive('dashboard.php') ?>">
+                                <i class="fa-solid fa-chart-line"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="events.php" class="menu-link-dash <?= isActive('events.php') ?>">
+                                <i class="fa-solid fa-trophy"></i>
+                                <span>Explore Events</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="leaderboard.php" class="menu-link-dash <?= isActive('leaderboard.php') ?>">
+                                <i class="fa-solid fa-ranking-star"></i>
+                                <span>Leaderboard</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
                     <?php if ($user): ?>
                         <?php if ($user['role'] === 'coordinator'): ?>
@@ -191,28 +191,36 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                             <!-- ADMINISTRATION -->
                             <div class="menu-label-dash">ADMINISTRATION</div>
                             <li class="menu-item">
-                                <a href="admin.php?tab=dashboard"
+                                <a href="<?= $current_page == 'admin.php' ? 'javascript:void(0)' : 'admin.php?tab=dashboard' ?>"
+                                    onclick="<?= $current_page == 'admin.php' ? 'showTab(\'dashboard\')' : '' ?>"
+                                    data-tab="dashboard"
                                     class="menu-link-dash <?= isActive('admin.php') && (!isset($_GET['tab']) || $_GET['tab'] == 'dashboard') ? 'active' : '' ?>">
                                     <i class="fa-solid fa-chart-pie"></i>
                                     <span>Dashboard</span>
                                 </a>
                             </li>
                             <li class="menu-item">
-                                <a href="admin.php?tab=users"
+                                <a href="<?= $current_page == 'admin.php' ? 'javascript:void(0)' : 'admin.php?tab=users' ?>"
+                                    onclick="<?= $current_page == 'admin.php' ? 'showTab(\'users\')' : '' ?>"
+                                    data-tab="users"
                                     class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'users' ? 'active' : '' ?>">
                                     <i class="fa-solid fa-users-gear"></i>
                                     <span>User Management</span>
                                 </a>
                             </li>
                             <li class="menu-item">
-                                <a href="admin.php?tab=events"
+                                <a href="<?= $current_page == 'admin.php' ? 'javascript:void(0)' : 'admin.php?tab=events' ?>"
+                                    onclick="<?= $current_page == 'admin.php' ? 'showTab(\'events\')' : '' ?>"
+                                    data-tab="events"
                                     class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'events' ? 'active' : '' ?>">
                                     <i class="fa-solid fa-calendar-alt"></i>
                                     <span>Event Management</span>
                                 </a>
                             </li>
                             <li class="menu-item">
-                                <a href="admin.php?tab=regs"
+                                <a href="<?= $current_page == 'admin.php' ? 'javascript:void(0)' : 'admin.php?tab=regs' ?>"
+                                    onclick="<?= $current_page == 'admin.php' ? 'showTab(\'regs\')' : '' ?>"
+                                    data-tab="regs"
                                     class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'regs' ? 'active' : '' ?>">
                                     <i class="fa-solid fa-clipboard-check"></i>
                                     <span>Registration Desk</span>
@@ -239,12 +247,14 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
 
                     <!-- ACCOUNT SECTION -->
                     <div class="menu-label-dash">ACCOUNT</div>
-                    <li class="menu-item">
-                        <a href="dashboard.php" class="menu-link-dash">
-                            <i class="fa-solid fa-user-circle"></i>
-                            <span>My Profile</span>
-                        </a>
-                    </li>
+                    <?php if ($user && $user['role'] !== 'admin'): ?>
+                        <li class="menu-item">
+                            <a href="dashboard.php" class="menu-link-dash">
+                                <i class="fa-solid fa-user-circle"></i>
+                                <span>My Profile</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
                     <li class="menu-item">
                         <a href="logout.php" class="menu-link-dash" style="color: var(--danger)">
                             <i class="fa-solid fa-right-from-bracket"></i>
@@ -302,10 +312,7 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                     <div class="scanline"></div>
 
                     <nav>
-                        <a href="index.php" class="logo" style="gap: 10px; text-decoration: none; display: flex; align-items: center;">
-                            <img src="assets/img/loogo - Edited.png" alt="Logo" style="height: 36px; filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.4));">
-                            <span style="background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">FUSIONVERSE</span>
-                        </a>
+                        <a href="index.php" class="logo neon-text-blue">FUSIONVERSE</a>
                         <button class="nav-hamburger"
                             onclick="document.querySelector('.nav-links').classList.toggle('open')">
                             <i class="fa-solid fa-bars"></i>
@@ -315,14 +322,13 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                             <li><a href="events.php" class="<?= isActive('events.php') ?>">Events</a></li>
                             <li><a href="leaderboard.php" class="<?= isActive('leaderboard.php') ?>">Leaderboard</a></li>
                             <?php if ($user): ?>
+                                <li><a href="dashboard.php" class="<?= isActive('dashboard.php') ?>">Dashboard</a></li>
+                                <?php if ($user['role'] === 'coordinator'): ?>
+                                    <li><a href="coordinator.php"
+                                            class="neon-text-purple <?= isActive('coordinator.php') ?>">Coordinator</a></li>
+                                <?php endif; ?>
                                 <?php if ($user['role'] === 'admin'): ?>
-                                    <li><a href="admin.php" class="neon-text-pink <?= isActive('admin.php') ?>">Admin Panel</a></li>
-                                <?php else: ?>
-                                    <li><a href="dashboard.php" class="<?= isActive('dashboard.php') ?>">Dashboard</a></li>
-                                    <?php if ($user['role'] === 'coordinator'): ?>
-                                        <li><a href="coordinator.php"
-                                                class="neon-text-purple <?= isActive('coordinator.php') ?>">Coordinator</a></li>
-                                    <?php endif; ?>
+                                    <li><a href="admin.php" class="neon-text-pink <?= isActive('admin.php') ?>">Admin</a></li>
                                 <?php endif; ?>
                                 <li><a href="logout.php" style="color: var(--danger)">Logout</a></li>
                             <?php else: ?>

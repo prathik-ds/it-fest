@@ -9,9 +9,9 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'coordinator' &&
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = $_POST['action'] ?? '';
-    
+
     // Check CSRF could be added here if we had tokens, but we'll focus on the authorization bypass first.
-    
+
     if ($action === 'delete_registration') {
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
             header('Location: coordinator.php?error=Invalid+Security+Token');
@@ -20,13 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $reg_id = $_POST['reg_id'];
         $event_id = $_POST['event_id'];
-        
+
         try {
             // Validate registration belongs to this event
             $stmt = $pdo->prepare("SELECT event_id, user_id FROM registrations WHERE id = ?");
             $stmt->execute([$reg_id]);
             $reg = $stmt->fetch();
-            
+
             if (!$reg || $reg['event_id'] != $event_id) {
                 header('Location: coordinator.php?error=Invalid+Registration');
                 exit;
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             if ($is_owner) {
                 $pdo->beginTransaction();
-                
+
                 // If team event, remove from team_members if needed (this would be good to add based on unregister_event.php)
                 $stmt = $pdo->prepare("
                     DELETE tm FROM team_members tm
@@ -55,11 +55,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 // Delete registration
                 $stmt = $pdo->prepare("DELETE FROM registrations WHERE id = ?");
                 $stmt->execute([$reg_id]);
-                
+
                 // Decrement count
                 $stmt = $pdo->prepare("UPDATE events SET current_participants = GREATEST(0, current_participants - 1) WHERE id = ?");
                 $stmt->execute([$event_id]);
-                
+
                 $pdo->commit();
                 header('Location: coordinator.php?manage_event=' . $event_id . '&msg=Participant+Removed');
                 exit;
@@ -68,7 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 exit;
             }
         } catch (Exception $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
+            if ($pdo->inTransaction())
+                $pdo->rollBack();
             header('Location: coordinator.php?manage_event=' . $event_id . '&error=' . urlencode($e->getMessage()));
             exit;
         }
@@ -76,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $reg_id = $_POST['reg_id'];
         $event_id = $_POST['event_id'];
         $attendance = $_POST['attendance'];
+        $score = $_POST['score'];
         $status = $_POST['status'];
 
         try {
@@ -83,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt = $pdo->prepare("SELECT event_id, team_id FROM registrations WHERE id = ?");
             $stmt->execute([$reg_id]);
             $reg = $stmt->fetch();
-            
+
             if (!$reg || $reg['event_id'] != $event_id) {
                 header('Location: coordinator.php?error=Invalid+Registration');
                 exit;
@@ -98,14 +100,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt->execute([$event_id, $c_id]);
                 $is_owner = $stmt->fetchColumn() > 0;
             }
-            
+
             if ($is_owner) {
                 if (!empty($reg['team_id'])) {
-                    $stmt = $pdo->prepare("UPDATE registrations SET attendance = ?, status = ? WHERE team_id = ? AND event_id = ?");
-                    $stmt->execute([$attendance, $status, $reg['team_id'], $event_id]);
+                    $stmt = $pdo->prepare("UPDATE registrations SET attendance = ?, score = ?, status = ? WHERE team_id = ? AND event_id = ?");
+                    $stmt->execute([$attendance, $score, $status, $reg['team_id'], $event_id]);
                 } else {
-                    $stmt = $pdo->prepare("UPDATE registrations SET attendance = ?, status = ? WHERE id = ?");
-                    $stmt->execute([$attendance, $status, $reg_id]);
+                    $stmt = $pdo->prepare("UPDATE registrations SET attendance = ?, score = ?, status = ? WHERE id = ?");
+                    $stmt->execute([$attendance, $score, $status, $reg_id]);
                 }
                 header('Location: coordinator.php?manage_event=' . $event_id . '&msg=Record+Updated+Successfully');
                 exit;

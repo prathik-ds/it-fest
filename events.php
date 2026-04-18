@@ -12,7 +12,7 @@ $myTeams = [];
 $myRegistrations = []; // Individual registrations
 if ($user) {
     $uid = $user['user_id'];
-    
+
     // Fetch Teams
     $stmt2 = $pdo->prepare("
         SELECT t.event_id, t.id as team_id, t.name as team_name, t.invite_code, t.leader_user_id
@@ -261,27 +261,39 @@ if ($user) {
     }
 
     @media (max-width: 600px) {
-        .container { padding: 0 8px !important; margin-top: 10px !important; }
-        .events-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 70px; }
-        
+        .container {
+            padding: 0 8px !important;
+            margin-top: 10px !important;
+        }
+
+        .events-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 70px;
+        }
+
         /* ── Compact Horizontal Card ── */
         .ev-card {
             display: grid !important;
-            grid-template-columns: 110px 1fr !important; /* Shrunk image col width slightly to give more room to text */
+            grid-template-columns: 110px 1fr !important;
+            /* Shrunk image col width slightly to give more room to text */
             grid-template-rows: 1fr auto !important;
-            grid-template-areas: 
+            grid-template-areas:
                 "img body"
                 "img footer" !important;
-            height: 135px !important; /* Increased height for better fit */
+            height: 135px !important;
+            /* Increased height for better fit */
             border-radius: 14px !important;
             background: linear-gradient(145deg, rgba(20, 28, 50, 0.9), rgba(8, 12, 26, 0.95)) !important;
             border: 1px solid rgba(0, 212, 255, 0.12) !important;
             overflow: hidden !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
             transform: none !important;
         }
-        
-        .ev-card:hover { transform: none !important; }
+
+        .ev-card:hover {
+            transform: none !important;
+        }
 
         .ev-card-img {
             grid-area: img !important;
@@ -291,16 +303,18 @@ if ($user) {
         }
 
         .ev-card-badge {
-            top: 6px; left: 6px;
+            top: 6px;
+            left: 6px;
             font-size: 0.45rem;
             padding: 2px 8px;
             backdrop-filter: blur(4px);
         }
-        
+
         .ev-team-badge {
-            display: none !important; /* Hide team badge from image to save space */
+            display: none !important;
+            /* Hide team badge from image to save space */
         }
-        
+
         /* Reposition Eligibility to bottom of image on mobile */
         .ev-card-img div[style*="left: 50%"] {
             top: auto !important;
@@ -314,7 +328,8 @@ if ($user) {
 
         .ev-card-body {
             grid-area: body !important;
-            padding: 12px 12px 2px 15px !important; /* Increased left padding (15px) for clear gutter from image */
+            padding: 12px 12px 2px 15px !important;
+            /* Increased left padding (15px) for clear gutter from image */
             display: flex !important;
             flex-direction: column !important;
             justify-content: flex-start !important;
@@ -330,7 +345,8 @@ if ($user) {
         }
 
         .ev-card-desc {
-            display: none !important; /* Hide description to enable compact mode */
+            display: none !important;
+            /* Hide description to enable compact mode */
         }
 
         .ev-card-meta {
@@ -347,19 +363,25 @@ if ($user) {
             border: none !important;
             color: #94a3c7 !important;
         }
-        
-        .ev-card-meta-item i { width: 12px !important; font-size: 0.65rem !important; }
+
+        .ev-card-meta-item i {
+            width: 12px !important;
+            font-size: 0.65rem !important;
+        }
 
         /* Hide Capacity Bar on small mobile cards */
-        div[style*="margin-bottom: 4px"] { display: none !important; }
+        div[style*="margin-bottom: 4px"] {
+            display: none !important;
+        }
 
         .ev-card-footer {
             grid-area: footer !important;
-            padding: 4px 12px 12px 15px !important; /* Balanced left padding with body */
+            padding: 4px 12px 12px 15px !important;
+            /* Balanced left padding with body */
             display: flex !important;
             gap: 10px !important;
             background: transparent !important;
-            align-items: center !important; 
+            align-items: center !important;
             justify-content: flex-start !important;
         }
 
@@ -374,18 +396,20 @@ if ($user) {
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            background: rgba(255,255,255,0.08) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
             overflow: hidden !important;
         }
 
         .ev-details-btn .btn-text {
-            display: none !important; /* Cleanly hide text on mobile */
+            display: none !important;
+            /* Cleanly hide text on mobile */
         }
-        
+
         .ev-details-btn i {
             margin: 0 !important;
-            font-size: 1.25rem !important; /* Slightly larger for better detail */
+            font-size: 1.25rem !important;
+            /* Slightly larger for better detail */
             color: #fff !important;
             display: inline-flex !important;
             align-items: center !important;
@@ -407,8 +431,10 @@ if ($user) {
             justify-content: center !important;
             gap: 6px !important;
         }
-        
-        .ev-register-btn i { font-size: 0.75rem !important; }
+
+        .ev-register-btn i {
+            font-size: 0.75rem !important;
+        }
 
         /* Modal Mobile Shrink */
         .details-modal-box {
@@ -416,20 +442,25 @@ if ($user) {
             max-height: 85vh !important;
             border-radius: 20px !important;
         }
+
         .details-header-img {
             height: 160px !important;
         }
+
         .details-body {
             padding: 20px !important;
         }
+
         .team-modal-box {
             padding: 24px 20px !important;
             border-radius: 20px !important;
         }
+
         .team-tab {
             font-size: 0.65rem !important;
             padding: 8px !important;
         }
+
         .team-code-box {
             font-size: 1.2rem !important;
             padding: 12px !important;
@@ -839,49 +870,42 @@ if ($user) {
                     <i class="fa-solid fa-circle-info"></i> <span class="btn-text">More Details</span>
                 </button>
                 <?php if ($user): ?>
-                    <?php if ($user['role'] === 'admin'): ?>
-                        <!-- Admin doesn't register, show management link -->
-                        <a href="admin.php" class="ev-register-btn" style="border-color: var(--accent-2); color: var(--accent-2); background: rgba(124, 58, 237, 0.05);">
-                            <i class="fa-solid fa-gear"></i> Manage Event
-                        </a>
-                    <?php else: ?>
-                        <?php if ($is_team): ?>
-                            <?php if ($my_team): ?>
-                                <!-- Already in a team -->
-                                <button class="ev-register-btn joined-btn"
-                                    onclick="viewMyTeam(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>')"
-                                    style="cursor:pointer; pointer-events:all;">
-                                    <i class="fa-solid fa-users"></i> My Team: <?= htmlspecialchars($my_team['team_name']) ?>
-                                </button>
-                            <?php elseif ($is_full): ?>
-                                <button class="ev-register-btn" disabled>
-                                    <i class="fa-solid fa-ban"></i> Full House
-                                </button>
-                            <?php else: ?>
-                                <button class="ev-register-btn team-btn"
-                                    onclick="openTeamModal(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>', <?= (int) $event['min_team_size'] ?>, <?= (int) $event['max_team_size'] ?>)">
-                                    <i class="fa-solid fa-users"></i> Team Register
-                                </button>
-                            <?php endif; ?>
+                    <?php if ($is_team): ?>
+                        <?php if ($my_team): ?>
+                            <!-- Already in a team -->
+                            <button class="ev-register-btn joined-btn"
+                                onclick="viewMyTeam(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>')"
+                                style="cursor:pointer; pointer-events:all;">
+                                <i class="fa-solid fa-users"></i> My Team: <?= htmlspecialchars($my_team['team_name']) ?>
+                            </button>
+                        <?php elseif ($is_full): ?>
+                            <button class="ev-register-btn" disabled>
+                                <i class="fa-solid fa-ban"></i> Full House
+                            </button>
                         <?php else: ?>
-                            <?php if (in_array($event['id'], $myRegistrations)): ?>
-                                <!-- Already Registered Individually - Unregister Removed per Request -->
-                                <button type="button" class="ev-register-btn" disabled
-                                    style="border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); opacity: 1;">
-                                    <i class="fa-solid fa-check-circle"></i> Registered
+                            <button class="ev-register-btn team-btn"
+                                onclick="openTeamModal(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>', <?= (int) $event['min_team_size'] ?>, <?= (int) $event['max_team_size'] ?>)">
+                                <i class="fa-solid fa-users"></i> Team Register
+                            </button>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <?php if (in_array($event['id'], $myRegistrations)): ?>
+                            <!-- Already Registered Individually - Unregister Removed per Request -->
+                            <button type="button" class="ev-register-btn" disabled
+                                style="border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); opacity: 1;">
+                                <i class="fa-solid fa-check-circle"></i> Registered
+                            </button>
+                        <?php else: ?>
+                            <form action="register_event.php" method="POST">
+                                <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
+                                <button type="submit" class="ev-register-btn" <?= $is_full ? 'disabled' : '' ?>>
+                                    <?php if ($is_full): ?>
+                                        <i class="fa-solid fa-ban"></i> Full House
+                                    <?php else: ?>
+                                        <i class="fa-solid fa-bolt"></i> Register Now
+                                    <?php endif; ?>
                                 </button>
-                            <?php else: ?>
-                                <form action="register_event.php" method="POST">
-                                    <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
-                                    <button type="submit" class="ev-register-btn" <?= $is_full ? 'disabled' : '' ?>>
-                                        <?php if ($is_full): ?>
-                                            <i class="fa-solid fa-ban"></i> Full House
-                                        <?php else: ?>
-                                            <i class="fa-solid fa-bolt"></i> Register Now
-                                        <?php endif; ?>
-                                    </button>
-                                </form>
-                            <?php endif; ?>
+                            </form>
                         <?php endif; ?>
                     <?php endif; ?>
                 <?php else: ?>
@@ -1190,7 +1214,7 @@ if ($user) {
 
     async function doUnregister(eventId, eventName) {
         if (!confirm('Are you sure you want to unregister from ' + eventName + '?')) return;
-        
+
         const fd = new FormData();
         fd.append('event_id', eventId);
         fd.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
@@ -1199,7 +1223,7 @@ if ($user) {
             const res = await fetch('ajax_unregister.php', { method: 'POST', body: fd }).then(r => r.json());
             if (res.success) {
                 // Reload same page to update UI without redirecting to dashboard
-                location.reload(); 
+                location.reload();
             } else {
                 alert(res.message);
             }

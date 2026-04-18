@@ -1,10 +1,12 @@
-<?php 
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'coordinator' && $_SESSION['user']['role'] !== 'admin')) {
     header('Location: index.php');
     exit;
 }
-include 'includes/header.php'; 
+include 'includes/header.php';
 
 
 $c_id = $_SESSION['user']['user_id'];
@@ -35,7 +37,7 @@ if ($active_event_id) {
         $stmt->execute([$active_event_id, $c_id]);
     }
     $active_event = $stmt->fetch();
-    
+
     if ($active_event) {
         $stmt = $pdo->prepare("SELECT u.name, u.email, u.phone, u.course, u.year, u.roll_no, r.user_id, r.id as reg_id, r.score, r.status, r.attendance, r.team_id, t.name as team_name FROM users u JOIN registrations r ON u.user_id = r.user_id LEFT JOIN teams t ON r.team_id = t.id WHERE r.event_id = ? ORDER BY t.name, u.name");
         $stmt->execute([$active_event_id]);
@@ -48,7 +50,8 @@ if ($active_event_id) {
     <div class="dashboard-header">
         <div class="header-content">
             <h1>
-                <span class="brand-icon" style="background: rgba(99, 102, 241, 0.2); border: 1px solid var(--primary); color: var(--primary); width: 36px; height: 36px; font-size: 0.9rem;">
+                <span class="brand-icon"
+                    style="background: rgba(99, 102, 241, 0.2); border: 1px solid var(--primary); color: var(--primary); width: 36px; height: 36px; font-size: 0.9rem;">
                     <i class="fa-solid fa-calendar-days"></i>
                 </span>
                 My Assigned Events
@@ -62,8 +65,9 @@ if ($active_event_id) {
     </div>
 </div>
 
-<?php if($msg): ?>
-    <div style="margin: 0 40px 20px; padding: 15px; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); color: var(--success); border-radius: 12px; font-size: 0.9rem;">
+<?php if ($msg): ?>
+    <div
+        style="margin: 0 40px 20px; padding: 15px; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); color: var(--success); border-radius: 12px; font-size: 0.9rem;">
         <i class="fa-solid fa-circle-check"></i> <?= htmlspecialchars($msg) ?>
     </div>
 <?php endif; ?>
@@ -71,26 +75,30 @@ if ($active_event_id) {
 <?php if (!$active_event_id): ?>
     <!-- Grid View of Events -->
     <div class="events-grid-dash">
-        <?php foreach($assignedEvents as $ev): ?>
+        <?php foreach ($assignedEvents as $ev): ?>
             <?php
-                // Get participant count for this event
-                $pst = $pdo->prepare("SELECT COUNT(*) FROM registrations WHERE event_id = ?");
-                $pst->execute([$ev['id']]);
-                $pCount = $pst->fetchColumn();
+            // Get participant count for this event
+            $pst = $pdo->prepare("SELECT COUNT(*) FROM registrations WHERE event_id = ?");
+            $pst->execute([$ev['id']]);
+            $pCount = $pst->fetchColumn();
             ?>
             <div class="event-card-dash">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <span class="status-tag" style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 4px 10px; border-radius: 6px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase;">
+                    <span class="status-tag"
+                        style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 4px 10px; border-radius: 6px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase;">
                         ASSIGNED
                     </span>
                     <span style="font-size: 0.75rem; color: var(--text-dim);">
-                        <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> <?= date('h:i A', strtotime($ev['time'])) ?>
+                        <i class="fa-regular fa-clock" style="margin-right: 5px;"></i>
+                        <?= date('h:i A', strtotime($ev['time'])) ?>
                     </span>
                 </div>
-                
-                <h3 style="font-family: 'Outfit'; font-size: 1.3rem; margin-bottom: 10px;"><?= htmlspecialchars($ev['name']) ?></h3>
-                
-                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+
+                <h3 style="font-family: 'Outfit'; font-size: 1.3rem; margin-bottom: 10px;"><?= htmlspecialchars($ev['name']) ?>
+                </h3>
+
+                <div
+                    style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i>
                     <?= $ev['venue'] ?: 'Venue TBD' ?>
                 </div>
@@ -98,26 +106,34 @@ if ($active_event_id) {
                 <div style="display: flex; gap: 12px; margin-bottom: 25px;">
                     <div class="stat-box-dash">
                         <span style="font-size: 1.1rem; font-weight: 800; color: var(--primary);"><?= $pCount ?></span>
-                        <span style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Registered</span>
+                        <span
+                            style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Registered</span>
                     </div>
                     <div class="stat-box-dash">
-                        <span style="font-size: 1.1rem; font-weight: 800; color: var(--secondary);"><?= $ev['category'] ?></span>
-                        <span style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Track</span>
+                        <span
+                            style="font-size: 1.1rem; font-weight: 800; color: var(--secondary);"><?= $ev['category'] ?></span>
+                        <span
+                            style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Track</span>
                     </div>
                 </div>
 
-                <a href="coordinator.php?manage_event=<?= $ev['id'] ?>" class="btn-start-dash" style="text-decoration: none; display: block; text-align: center; margin-bottom: 10px;">
+                <a href="coordinator.php?manage_event=<?= $ev['id'] ?>" class="btn-start-dash"
+                    style="text-decoration: none; display: block; text-align: center; margin-bottom: 10px;">
                     MANAGE EVENT
                 </a>
-                <a href="coordinator.php?manage_event=<?= $ev['id'] ?>&view=results" style="text-decoration: none; display: block; text-align: center; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; padding: 10px; border-radius: 10px; border: 1px solid var(--border); transition: 0.3s;" onmouseover="this.style.borderColor='var(--secondary)'; this.style.color='var(--text-main)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-muted)'">
+                <a href="coordinator.php?manage_event=<?= $ev['id'] ?>&view=results"
+                    style="text-decoration: none; display: block; text-align: center; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; padding: 10px; border-radius: 10px; border: 1px solid var(--border); transition: 0.3s;"
+                    onmouseover="this.style.borderColor='var(--secondary)'; this.style.color='var(--text-main)'"
+                    onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-muted)'">
                     <i class="fa-solid fa-trophy" style="margin-right: 6px;"></i> LEADERBOARD / RESULTS
                 </a>
             </div>
         <?php endforeach; ?>
 
-        <?php if(empty($assignedEvents)): ?>
+        <?php if (empty($assignedEvents)): ?>
             <div class="glass-panel-dash" style="grid-column: 1/-1; text-align: center; padding: 80px; border-style: dashed;">
-                <i class="fa-solid fa-calendar-xmark" style="font-size: 3rem; color: var(--text-dim); opacity: 0.3; margin-bottom: 20px;"></i>
+                <i class="fa-solid fa-calendar-xmark"
+                    style="font-size: 3rem; color: var(--text-dim); opacity: 0.3; margin-bottom: 20px;"></i>
                 <h3 style="color: var(--text-muted); font-family: 'Outfit';">No Assignments Yet</h3>
                 <p style="color: var(--text-dim); font-size: 0.9rem;">Check back later or contact Admin for track duties.</p>
             </div>
@@ -129,11 +145,13 @@ if ($active_event_id) {
         <div class="glass-panel" style="padding: 30px; margin-bottom: 30px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                 <div>
-                    <a href="coordinator.php" style="color: var(--primary); text-decoration: none; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <a href="coordinator.php"
+                        style="color: var(--primary); text-decoration: none; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                         <i class="fa-solid fa-arrow-left"></i> BACK TO EVENTS
                     </a>
-                    <h2 style="font-size: 2rem; font-family: 'Outfit', sans-serif;"><?= htmlspecialchars($active_event['name']) ?></h2>
-                    <p style="color: var(--text-dim)">Manage participants and update scores for this event.</p>
+                    <h2 style="font-size: 2rem; font-family: 'Outfit', sans-serif;">
+                        <?= htmlspecialchars($active_event['name']) ?></h2>
+                    <p style="color: var(--text-dim)">Manage participant attendance and track event status.</p>
                 </div>
                 <div style="display: flex; gap: 12px;">
                     <button onclick="startScanner()" class="btn-coord" style="padding: 10px 20px;">
@@ -146,15 +164,19 @@ if ($active_event_id) {
             </div>
 
             <!-- QR Scanner Modal -->
-            <div id="scanner-container" class="glass-panel" style="display: none; padding: 30px; margin-bottom: 30px; text-align: center; border-color: var(--primary);">
+            <div id="scanner-container" class="glass-panel"
+                style="display: none; padding: 30px; margin-bottom: 30px; text-align: center; border-color: var(--primary);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h3 style="font-size: 1rem; color: var(--primary);">Scanner Active</h3>
-                    <button onclick="stopScanner()" style="background: rgba(244, 63, 94, 0.1); border: 1px solid var(--danger); color: var(--danger); cursor: pointer; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; display: flex; align-items: center; gap: 6px;">
+                    <button onclick="stopScanner()"
+                        style="background: rgba(244, 63, 94, 0.1); border: 1px solid var(--danger); color: var(--danger); cursor: pointer; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; display: flex; align-items: center; gap: 6px;">
                         <i class="fa-solid fa-circle-xmark"></i> CLOSE SCANNER
                     </button>
                 </div>
-                <div id="reader" style="width: 100%; max-width: 500px; margin: 0 auto; border-radius: 16px; overflow: hidden;"></div>
-                <p id="scanner-msg" style="margin-top: 20px; color: var(--text-muted);">Frame the QR code to mark attendance</p>
+                <div id="reader"
+                    style="width: 100%; max-width: 500px; margin: 0 auto; border-radius: 16px; overflow: hidden;"></div>
+                <p id="scanner-msg" style="margin-top: 20px; color: var(--text-muted);">Frame the QR code to mark attendance
+                </p>
             </div>
 
             <!-- Participant Table -->
@@ -169,7 +191,7 @@ if ($active_event_id) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($participants as $p): ?>
+                        <?php foreach ($participants as $p): ?>
                             <tr style="border-bottom: 1px solid var(--border);">
                                 <form action="coordinator_actions.php" method="POST">
                                     <input type="hidden" name="reg_id" value="<?= $p['reg_id'] ?>">
@@ -177,12 +199,17 @@ if ($active_event_id) {
                                     <td style="padding: 16px;">
                                         <div style="font-weight: 600;">
                                             <?= htmlspecialchars($p['name']) ?>
-                                            <?php if($p['team_name']): ?>
-                                                <span style="background: rgba(124, 58, 237, 0.15); color: var(--accent-2); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; margin-left: 6px;"><i class="fa-solid fa-users"></i> <?= htmlspecialchars($p['team_name']) ?></span>
+                                            <?php if ($p['team_name']): ?>
+                                                <span
+                                                    style="background: rgba(124, 58, 237, 0.15); color: var(--accent-2); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; margin-left: 6px;"><i
+                                                        class="fa-solid fa-users"></i>
+                                                    <?= htmlspecialchars($p['team_name']) ?></span>
                                             <?php endif; ?>
                                         </div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><?= $p['user_id'] ?> • <?= $p['course'] ?> • <?= $p['year'] ?></div>
-                                        <div style="font-size: 0.65rem; color: var(--accent-1); margin-top: 2px;">Roll: <?= $p['roll_no'] ?></div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+                                            <?= $p['user_id'] ?> • <?= $p['course'] ?> • <?= $p['year'] ?></div>
+                                        <div style="font-size: 0.65rem; color: var(--accent-1); margin-top: 2px;">Roll:
+                                            <?= $p['roll_no'] ?></div>
                                     </td>
                                     <td style="padding: 16px; text-align: center;">
                                         <select name="attendance" style="background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 8px;" onchange="if(this.value === 'present'){ this.closest('tr').querySelector('select[name=\'status\']').value = 'participated'; }">
@@ -200,8 +227,10 @@ if ($active_event_id) {
                                     </td>
                                     <td style="padding: 16px; text-align: right;">
                                         <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center;">
-                                            <button type="submit" class="btn-coord" style="padding: 6px 16px; font-size: 0.7rem;">UPDATE</button>
-                                            <button type="button" class="btn-icon-danger" style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 6px; cursor: pointer;" 
+                                            <button type="submit" class="btn-coord"
+                                                style="padding: 6px 16px; font-size: 0.7rem;">UPDATE</button>
+                                            <button type="button" class="btn-icon-danger"
+                                                style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 6px; cursor: pointer;"
                                                 onclick="if(confirm('REMOVE THIS PARTICIPANT?')){
                                                     const form = document.createElement('form');
                                                     form.method = 'POST';
@@ -233,8 +262,11 @@ if ($active_event_id) {
                                 </form>
                             </tr>
                         <?php endforeach; ?>
-                        <?php if(empty($participants)): ?>
-                            <tr><td colspan="5" style="padding: 60px; text-align: center; color: var(--text-dim);">No participants found.</td></tr>
+                        <?php if (empty($participants)): ?>
+                            <tr>
+                                <td colspan="5" style="padding: 60px; text-align: center; color: var(--text-dim);">No
+                                    participants found.</td>
+                            </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -250,7 +282,7 @@ if ($active_event_id) {
     function startScanner() {
         document.getElementById('scanner-container').style.display = 'block';
         document.getElementById('scanner-msg').innerText = "Initializing camera...";
-        
+
         if (!html5QrcodeScanner) {
             html5QrcodeScanner = new Html5Qrcode("reader");
         }
@@ -260,13 +292,13 @@ if ($active_event_id) {
             stopScanner(); // Stop scanning immediately after detecting
 
             // Check if it's the new EVENT_QR format
-            if(decodedText.startsWith("EVENT_QR|")) {
+            if (decodedText.startsWith("EVENT_QR|")) {
                 const parts = decodedText.split("|");
-                if(parts.length === 3) {
+                if (parts.length === 3) {
                     const scannedUserId = parts[1];
                     const scannedEventId = parts[2];
 
-                    if(scannedEventId !== activeEventId) {
+                    if (scannedEventId !== activeEventId) {
                         document.getElementById('scanner-msg').innerHTML = "<b style='color: var(--danger);'>ERROR: EVENT MISMATCH!</b><br>This ticket is for a different event.";
                         alert("ERROR: This QR ticket is for a different event! It cannot be used here.");
                         return;
@@ -297,7 +329,7 @@ if ($active_event_id) {
         if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
             html5QrcodeScanner.stop().then(() => {
                 container.style.display = 'none';
-                try { html5QrcodeScanner.clear(); } catch(e) {}
+                try { html5QrcodeScanner.clear(); } catch (e) { }
                 html5QrcodeScanner = null;
             }).catch(() => {
                 container.style.display = 'none';
@@ -308,7 +340,7 @@ if ($active_event_id) {
             if (html5QrcodeScanner) {
                 try {
                     html5QrcodeScanner.clear();
-                } catch(e) {}
+                } catch (e) { }
                 html5QrcodeScanner = null;
             }
         }
@@ -320,13 +352,13 @@ if ($active_event_id) {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `user_id=${userId}&event_id=<?= $active_event_id ?>&action=qr_attendance`
         })
-        .then(r => r.json())
-        .then(data => {
-            if(data.success) {
-                alert("Success: " + data.student_name + " marked present.");
-                location.reload();
-            } else alert("Error: " + data.message);
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Success: " + data.student_name + " marked present.");
+                    location.reload();
+                } else alert("Error: " + data.message);
+            });
     }
 
     document.getElementById('eventSearch')?.addEventListener('keyup', (e) => {

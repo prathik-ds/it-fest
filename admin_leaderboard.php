@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
 }
 
 // Fetch Leaderboard Data
-$stmt = $pdo->query("SELECT r.*, u.name as user_name, e.name as event_name FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id WHERE r.score > 0 OR r.status != 'registered' ORDER BY e.name, r.score DESC");
+$stmt = $pdo->query("SELECT r.*, u.name as user_name, e.name as event_name, e.is_team_event, t.name as team_name, t.id as t_id FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id LEFT JOIN teams t ON r.team_id = t.id WHERE r.score > 0 OR r.status != 'registered' ORDER BY e.name, r.score DESC");
 $allLeaderboard = $stmt->fetchAll();
 
 // Group by event for easier management
@@ -89,8 +89,22 @@ foreach($allLeaderboard as $row) {
                                 <?php foreach($participants as $p): ?>
                                     <tr style="border-bottom: 1px solid var(--border); transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.01)'" onmouseout="this.style.background='transparent'">
                                         <td style="padding: 18px 30px;">
-                                            <div style="font-weight: 700; color: var(--text-primary);"><?= htmlspecialchars($p['user_name']) ?></div>
-                                            <div style="font-size: 0.72rem; color: var(--text-dim);"><?= $p['user_id'] ?></div>
+                                            <?php if ($p['is_team_event'] && $p['team_name']): ?>
+                                                <div style="font-weight: 700; color: var(--accent-1); font-size: 1rem;">
+                                                    <i class="fa-solid fa-users"></i> <?= htmlspecialchars($p['team_name']) ?>
+                                                </div>
+                                                <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 4px;">
+                                                    Members: <?php 
+                                                        $mst = $pdo->prepare("SELECT u.name FROM users u JOIN registrations r2 ON u.user_id = r2.user_id WHERE r2.team_id = ?");
+                                                        $mst->execute([$p['t_id']]);
+                                                        $mems = $mst->fetchAll(PDO::FETCH_COLUMN);
+                                                        echo htmlspecialchars(implode(', ', $mems));
+                                                    ?>
+                                                </div>
+                                            <?php else: ?>
+                                                <div style="font-weight: 700; color: var(--text-primary);"><?= htmlspecialchars($p['user_name']) ?></div>
+                                                <div style="font-size: 0.72rem; color: var(--text-dim);"><?= $p['user_id'] ?></div>
+                                            <?php endif; ?>
                                         </td>
                                         <td style="padding: 18px 30px; text-align: center;">
                                             <span style="padding: 4px 12px; border-radius: 6px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: <?= $p['status'] == 'winner' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(124, 58, 237, 0.1)' ?>; color: <?= $p['status'] == 'winner' ? 'var(--accent-5)' : 'var(--accent-2)' ?>;">
