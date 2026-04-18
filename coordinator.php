@@ -37,7 +37,7 @@ if ($active_event_id) {
     $active_event = $stmt->fetch();
     
     if ($active_event) {
-        $stmt = $pdo->prepare("SELECT u.name, u.email, u.phone, u.course, u.year, u.roll_no, r.user_id, r.id as reg_id, r.score, r.status, r.attendance FROM users u JOIN registrations r ON u.user_id = r.user_id WHERE r.event_id = ? ORDER BY u.name");
+        $stmt = $pdo->prepare("SELECT u.name, u.email, u.phone, u.course, u.year, u.roll_no, r.user_id, r.id as reg_id, r.score, r.status, r.attendance, r.team_id, t.name as team_name FROM users u JOIN registrations r ON u.user_id = r.user_id LEFT JOIN teams t ON r.team_id = t.id WHERE r.event_id = ? ORDER BY t.name, u.name");
         $stmt->execute([$active_event_id]);
         $participants = $stmt->fetchAll();
     }
@@ -136,10 +136,10 @@ if ($active_event_id) {
                     <p style="color: var(--text-dim)">Manage participants and update scores for this event.</p>
                 </div>
                 <div style="display: flex; gap: 12px;">
-                    <button onclick="startScanner()" class="btn-results" style="background: var(--bg-card); border-color: var(--primary); color: var(--primary);">
+                    <button onclick="startScanner()" class="btn-coord" style="padding: 10px 20px;">
                         <i class="fa-solid fa-camera"></i> SCAN ATTENDANCE
                     </button>
-                    <a href="export_data.php?type=participation&event_id=<?= $active_event_id ?>" class="btn-results">
+                    <a href="export_data.php?type=participation&event_id=<?= $active_event_id ?>" class="btn-coord" style="padding: 10px 20px; background: rgba(0, 212, 255, 0.08); border-color: rgba(0, 212, 255, 0.2); color: var(--accent-1);">
                         <i class="fa-solid fa-file-csv"></i> EXPORT CSV
                     </a>
                 </div>
@@ -164,7 +164,6 @@ if ($active_event_id) {
                         <tr style="border-bottom: 1px solid var(--border);">
                             <th style="padding: 16px; text-align: left; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Participant</th>
                             <th style="padding: 16px; text-align: center; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Attendance</th>
-                            <th style="padding: 16px; text-align: center; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Score</th>
                             <th style="padding: 16px; text-align: center; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Status</th>
                             <th style="padding: 16px; text-align: right; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Actions</th>
                         </tr>
@@ -176,18 +175,20 @@ if ($active_event_id) {
                                     <input type="hidden" name="reg_id" value="<?= $p['reg_id'] ?>">
                                     <input type="hidden" name="event_id" value="<?= $active_event_id ?>">
                                     <td style="padding: 16px;">
-                                        <div style="font-weight: 600;"><?= htmlspecialchars($p['name']) ?></div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted);"><?= $p['user_id'] ?> • <?= $p['course'] ?> • <?= $p['year'] ?></div>
+                                        <div style="font-weight: 600;">
+                                            <?= htmlspecialchars($p['name']) ?>
+                                            <?php if($p['team_name']): ?>
+                                                <span style="background: rgba(124, 58, 237, 0.15); color: var(--accent-2); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; margin-left: 6px;"><i class="fa-solid fa-users"></i> <?= htmlspecialchars($p['team_name']) ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><?= $p['user_id'] ?> • <?= $p['course'] ?> • <?= $p['year'] ?></div>
                                         <div style="font-size: 0.65rem; color: var(--accent-1); margin-top: 2px;">Roll: <?= $p['roll_no'] ?></div>
                                     </td>
                                     <td style="padding: 16px; text-align: center;">
-                                        <select name="attendance" style="background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 8px;">
+                                        <select name="attendance" style="background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 8px;" onchange="if(this.value === 'present'){ this.closest('tr').querySelector('select[name=\'status\']').value = 'participated'; }">
                                             <option value="absent" <?= $p['attendance'] == 'absent' ? 'selected' : '' ?>>Absent</option>
                                             <option value="present" <?= $p['attendance'] == 'present' ? 'selected' : '' ?>>Present</option>
                                         </select>
-                                    </td>
-                                    <td style="padding: 16px; text-align: center;">
-                                        <input type="number" name="score" value="<?= $p['score'] ?>" style="width: 70px; background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 6px; border-radius: 8px; text-align: center;">
                                     </td>
                                     <td style="padding: 16px; text-align: center;">
                                         <select name="status" style="background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 8px;">

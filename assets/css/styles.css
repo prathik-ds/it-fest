@@ -481,14 +481,8 @@ nav {
     text-transform: uppercase;
 }
 
-.logo::before {
-    content: '⬡';
-    font-size: 1.3rem;
-    background: var(--grad-primary);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+/* Logo text styling - ::before icon removed in favor of real image */
+
 
 .nav-links {
     display: flex;

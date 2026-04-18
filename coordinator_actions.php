@@ -76,12 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $reg_id = $_POST['reg_id'];
         $event_id = $_POST['event_id'];
         $attendance = $_POST['attendance'];
-        $score = $_POST['score'];
         $status = $_POST['status'];
 
         try {
             // Validate registration belongs to this event
-            $stmt = $pdo->prepare("SELECT event_id FROM registrations WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT event_id, team_id FROM registrations WHERE id = ?");
             $stmt->execute([$reg_id]);
             $reg = $stmt->fetch();
             
@@ -101,8 +100,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             
             if ($is_owner) {
-                $stmt = $pdo->prepare("UPDATE registrations SET attendance = ?, score = ?, status = ? WHERE id = ?");
-                $stmt->execute([$attendance, $score, $status, $reg_id]);
+                if (!empty($reg['team_id'])) {
+                    $stmt = $pdo->prepare("UPDATE registrations SET attendance = ?, status = ? WHERE team_id = ? AND event_id = ?");
+                    $stmt->execute([$attendance, $status, $reg['team_id'], $event_id]);
+                } else {
+                    $stmt = $pdo->prepare("UPDATE registrations SET attendance = ?, status = ? WHERE id = ?");
+                    $stmt->execute([$attendance, $status, $reg_id]);
+                }
                 header('Location: coordinator.php?manage_event=' . $event_id . '&msg=Record+Updated+Successfully');
                 exit;
             } else {

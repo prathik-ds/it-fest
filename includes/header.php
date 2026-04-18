@@ -67,7 +67,7 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
             <div class="splash-content">
                 <div class="splash-logo-container">
                     <div class="splash-glow"></div>
-                    <img src="assets/img/fusionverse_logo.png" alt="FusionVerse Logo" class="splash-logo">
+                    <img src="assets/img/loogo - Edited.png" alt="FusionVerse Logo" class="splash-logo">
                 </div>
                 <div class="splash-text">
                     <h1 class="splash-title">FUSIONVERSE</h1>
@@ -96,10 +96,12 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                 <i class="fa-solid fa-trophy"></i>
                 <span>Events</span>
             </a>
-            <a href="dashboard.php" class="mobile-nav-item <?= isActive('dashboard.php') ?>">
-                <i class="fa-solid fa-chart-line"></i>
-                <span>Dashboard</span>
-            </a>
+            <?php if ($user && $user['role'] !== 'admin'): ?>
+                <a href="dashboard.php" class="mobile-nav-item <?= isActive('dashboard.php') ?>">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            <?php endif; ?>
             <a href="leaderboard.php" class="mobile-nav-item <?= isActive('leaderboard.php') ?>">
                 <i class="fa-solid fa-ranking-star"></i>
                 <span>Ranks</span>
@@ -118,10 +120,9 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
             style="display: flex; align-items: center; justify-content: space-between; z-index: 1002;">
             <div style="display: flex; align-items: center; gap: 5px;">
                 <a href="index.php"
-                    style="text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-left: 5px;">
-                    <div class="brand-icon-dash" style="width: 32px; height: 32px; font-size: 0.75rem; border-radius: 8px;">
-                        F</div>
-                    <span style="letter-spacing: -0.5px;">FUSIONVERSE</span>
+                    style="text-decoration: none; display: flex; align-items: center; gap: 10px; margin-left: 5px;">
+                    <img src="assets/img/loogo - Edited.png" alt="FusionVerse" style="height: 32px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0,212,255,0.3));">
+                    <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px;">FUSIONVERSE</span>
                 </a>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -134,10 +135,10 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
         <div class="app-wrapper">
             <!-- Sidebar -->
             <aside class="sidebar">
-                <a href="index.php" class="sidebar-brand" style="text-decoration: none;">
-                    <div class="brand-icon-dash">F</div>
+                <a href="index.php" class="sidebar-brand" style="text-decoration: none; gap: 12px;">
+                    <img src="assets/img/loogo - Edited.png" alt="FV" style="height: 36px; object-fit: contain;">
                     <div class="brand-name" style="font-family: 'Space Grotesk', sans-serif;">
-                        <h2 style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; text-transform: none;">
+                        <h2 style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; text-transform: none; background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
                             FUSIONVERSE</h2>
                         <p
                             style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px;">
@@ -301,7 +302,10 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                     <div class="scanline"></div>
 
                     <nav>
-                        <a href="index.php" class="logo neon-text-blue">FUSIONVERSE</a>
+                        <a href="index.php" class="logo" style="gap: 10px; text-decoration: none; display: flex; align-items: center;">
+                            <img src="assets/img/loogo - Edited.png" alt="Logo" style="height: 36px; filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.4));">
+                            <span style="background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">FUSIONVERSE</span>
+                        </a>
                         <button class="nav-hamburger"
                             onclick="document.querySelector('.nav-links').classList.toggle('open')">
                             <i class="fa-solid fa-bars"></i>
@@ -311,13 +315,14 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                             <li><a href="events.php" class="<?= isActive('events.php') ?>">Events</a></li>
                             <li><a href="leaderboard.php" class="<?= isActive('leaderboard.php') ?>">Leaderboard</a></li>
                             <?php if ($user): ?>
-                                <li><a href="dashboard.php" class="<?= isActive('dashboard.php') ?>">Dashboard</a></li>
-                                <?php if ($user['role'] === 'coordinator'): ?>
-                                    <li><a href="coordinator.php"
-                                            class="neon-text-purple <?= isActive('coordinator.php') ?>">Coordinator</a></li>
-                                <?php endif; ?>
                                 <?php if ($user['role'] === 'admin'): ?>
-                                    <li><a href="admin.php" class="neon-text-pink <?= isActive('admin.php') ?>">Admin</a></li>
+                                    <li><a href="admin.php" class="neon-text-pink <?= isActive('admin.php') ?>">Admin Panel</a></li>
+                                <?php else: ?>
+                                    <li><a href="dashboard.php" class="<?= isActive('dashboard.php') ?>">Dashboard</a></li>
+                                    <?php if ($user['role'] === 'coordinator'): ?>
+                                        <li><a href="coordinator.php"
+                                                class="neon-text-purple <?= isActive('coordinator.php') ?>">Coordinator</a></li>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                                 <li><a href="logout.php" style="color: var(--danger)">Logout</a></li>
                             <?php else: ?>

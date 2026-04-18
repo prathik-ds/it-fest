@@ -839,42 +839,49 @@ if ($user) {
                     <i class="fa-solid fa-circle-info"></i> <span class="btn-text">More Details</span>
                 </button>
                 <?php if ($user): ?>
-                    <?php if ($is_team): ?>
-                        <?php if ($my_team): ?>
-                            <!-- Already in a team -->
-                            <button class="ev-register-btn joined-btn"
-                                onclick="viewMyTeam(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>')"
-                                style="cursor:pointer; pointer-events:all;">
-                                <i class="fa-solid fa-users"></i> My Team: <?= htmlspecialchars($my_team['team_name']) ?>
-                            </button>
-                        <?php elseif ($is_full): ?>
-                            <button class="ev-register-btn" disabled>
-                                <i class="fa-solid fa-ban"></i> Full House
-                            </button>
-                        <?php else: ?>
-                            <button class="ev-register-btn team-btn"
-                                onclick="openTeamModal(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>', <?= (int) $event['min_team_size'] ?>, <?= (int) $event['max_team_size'] ?>)">
-                                <i class="fa-solid fa-users"></i> Team Register
-                            </button>
-                        <?php endif; ?>
+                    <?php if ($user['role'] === 'admin'): ?>
+                        <!-- Admin doesn't register, show management link -->
+                        <a href="admin.php" class="ev-register-btn" style="border-color: var(--accent-2); color: var(--accent-2); background: rgba(124, 58, 237, 0.05);">
+                            <i class="fa-solid fa-gear"></i> Manage Event
+                        </a>
                     <?php else: ?>
-                        <?php if (in_array($event['id'], $myRegistrations)): ?>
-                            <!-- Already Registered Individually - Unregister Removed per Request -->
-                            <button type="button" class="ev-register-btn" disabled
-                                style="border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); opacity: 1;">
-                                <i class="fa-solid fa-check-circle"></i> Registered
-                            </button>
-                        <?php else: ?>
-                            <form action="register_event.php" method="POST">
-                                <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
-                                <button type="submit" class="ev-register-btn" <?= $is_full ? 'disabled' : '' ?>>
-                                    <?php if ($is_full): ?>
-                                        <i class="fa-solid fa-ban"></i> Full House
-                                    <?php else: ?>
-                                        <i class="fa-solid fa-bolt"></i> Register Now
-                                    <?php endif; ?>
+                        <?php if ($is_team): ?>
+                            <?php if ($my_team): ?>
+                                <!-- Already in a team -->
+                                <button class="ev-register-btn joined-btn"
+                                    onclick="viewMyTeam(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>')"
+                                    style="cursor:pointer; pointer-events:all;">
+                                    <i class="fa-solid fa-users"></i> My Team: <?= htmlspecialchars($my_team['team_name']) ?>
                                 </button>
-                            </form>
+                            <?php elseif ($is_full): ?>
+                                <button class="ev-register-btn" disabled>
+                                    <i class="fa-solid fa-ban"></i> Full House
+                                </button>
+                            <?php else: ?>
+                                <button class="ev-register-btn team-btn"
+                                    onclick="openTeamModal(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>', <?= (int) $event['min_team_size'] ?>, <?= (int) $event['max_team_size'] ?>)">
+                                    <i class="fa-solid fa-users"></i> Team Register
+                                </button>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <?php if (in_array($event['id'], $myRegistrations)): ?>
+                                <!-- Already Registered Individually - Unregister Removed per Request -->
+                                <button type="button" class="ev-register-btn" disabled
+                                    style="border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); opacity: 1;">
+                                    <i class="fa-solid fa-check-circle"></i> Registered
+                                </button>
+                            <?php else: ?>
+                                <form action="register_event.php" method="POST">
+                                    <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
+                                    <button type="submit" class="ev-register-btn" <?= $is_full ? 'disabled' : '' ?>>
+                                        <?php if ($is_full): ?>
+                                            <i class="fa-solid fa-ban"></i> Full House
+                                        <?php else: ?>
+                                            <i class="fa-solid fa-bolt"></i> Register Now
+                                        <?php endif; ?>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
                         <?php endif; ?>
                     <?php endif; ?>
                 <?php else: ?>
