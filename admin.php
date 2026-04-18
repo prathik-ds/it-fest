@@ -21,13 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $name = $_POST['name'];
         $email = $_POST['email'];
         $phone = $_POST['phone'];
-        $college = $_POST['college'] ?? 'N/A';
         $role = $_POST['role'];
         $pass = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO users (user_id, name, email, phone, college, course, password, role) VALUES (?, ?, ?, ?, ?, 'General', ?, ?)");
-            $stmt->execute([$u_id, $name, $email, $phone, $college, $pass, $role]);
+            $stmt = $pdo->prepare("INSERT INTO users (user_id, name, email, phone, course, password, role) VALUES (?, ?, ?, ?, 'General', ?, ?)");
+            $stmt->execute([$u_id, $name, $email, $phone, $pass, $role]);
             $msg = "USER CREATED SUCCESSFULLY.";
         } catch (Exception $e) {
             $error = "FAILED TO CREATE USER: ID/EMAIL ALREADY EXISTS.";
@@ -128,7 +127,7 @@ $participation_data = $pdo->query("SELECT name, current_participants as count FR
 $all_events = $pdo->query("SELECT * FROM events ORDER BY name")->fetchAll();
 $all_users = $pdo->query("SELECT * FROM users ORDER BY role DESC, name")->fetchAll();
 $coordinators = $pdo->query("SELECT user_id, name FROM users WHERE role = 'coordinator'")->fetchAll();
-$all_regs_raw = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as event_name FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id ORDER BY e.name, r.created_at DESC")->fetchAll();
+$all_regs_raw = $pdo->query("SELECT r.*, u.name as user_name, e.name as event_name FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id ORDER BY e.name, r.created_at DESC")->fetchAll();
 
 $events_with_regs = [];
 foreach ($all_regs_raw as $reg) {
@@ -234,7 +233,10 @@ foreach ($all_regs_raw as $reg) {
                                 <tr>
                                     <td data-label="User">
                                         <div style="font-weight: 600;"><?= htmlspecialchars($u['name']) ?></div>
-                                        <div style="font-size: 0.65rem; color: var(--text-dim);"><?= $u['email'] ?></div>
+                                        <div style="font-size: 0.65rem; color: var(--text-dim);"><?= $u['email'] ?> • <?= $u['phone'] ?></div>
+                                        <div style="font-size: 0.6rem; color: var(--accent-1); margin-top: 4px; font-weight: 600;">
+                                            <?= $u['user_id'] ?> | <?= $u['course'] ?> | <?= $u['year'] ?> | Roll: <?= $u['roll_no'] ?>
+                                        </div>
                                     </td>
                                     <td style="text-align: center;" data-label="Role">
                                         <form method="POST">
@@ -494,8 +496,6 @@ foreach ($all_regs_raw as $reg) {
                                             <td data-label="Participant" style="padding-left: 24px;">
                                                 <div style="font-weight: 600; font-size: 0.95rem;">
                                                     <?= htmlspecialchars($r['user_name']) ?></div>
-                                                <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 4px;"><i
-                                                        class="fa-solid fa-graduation-cap"></i> <?= htmlspecialchars($r['college']) ?>
                                                 </div>
                                             </td>
                                             <td style="text-align: center;" data-label="Status">

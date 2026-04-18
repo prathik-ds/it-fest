@@ -10,7 +10,7 @@ FusionVerse is a high-performance web platform built specifically for a fusion o
 - **Dynamic Highlights**: Glassmorphism cards showcasing core tracks.
 
 ### 2. 🔐 User Authentication System
-- **Registration**: Captures Name, Email, Phone, College, and Course.
+- **Registration**: Captures Name, Email, Phone, and Course.
 - **Unique ID Generation**: Automatically assigns a `SYN-XXXX` ID for each student.
 - **Secure Login**: Verifies credentials and manages secure PHP sessions.
 

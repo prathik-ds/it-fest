@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
 }
 
 // Fetch Leaderboard Data
-$stmt = $pdo->query("SELECT r.*, u.name as user_name, u.college, e.name as event_name FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id WHERE r.score > 0 OR r.status != 'registered' ORDER BY e.name, r.score DESC");
+$stmt = $pdo->query("SELECT r.*, u.name as user_name, e.name as event_name FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id WHERE r.score > 0 OR r.status != 'registered' ORDER BY e.name, r.score DESC");
 $allLeaderboard = $stmt->fetchAll();
 
 // Group by event for easier management
@@ -80,7 +80,6 @@ foreach($allLeaderboard as $row) {
                             <thead>
                                 <tr style="border-bottom: 1px solid var(--border);">
                                     <th style="padding: 16px 30px; text-align: left; color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px;">Student</th>
-                                    <th style="padding: 16px 30px; text-align: left; color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px;">College</th>
                                     <th style="padding: 16px 30px; text-align: center; color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px;">Status</th>
                                     <th style="padding: 16px 30px; text-align: center; color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px;">Score</th>
                                     <th style="padding: 16px 30px; text-align: right; color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px;">Action</th>
@@ -92,9 +91,6 @@ foreach($allLeaderboard as $row) {
                                         <td style="padding: 18px 30px;">
                                             <div style="font-weight: 700; color: var(--text-primary);"><?= htmlspecialchars($p['user_name']) ?></div>
                                             <div style="font-size: 0.72rem; color: var(--text-dim);"><?= $p['user_id'] ?></div>
-                                        </td>
-                                        <td style="padding: 18px 30px;">
-                                            <div style="font-size: 0.85rem; color: var(--text-secondary);"><?= htmlspecialchars($p['college']) ?></div>
                                         </td>
                                         <td style="padding: 18px 30px; text-align: center;">
                                             <span style="padding: 4px 12px; border-radius: 6px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: <?= $p['status'] == 'winner' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(124, 58, 237, 0.1)' ?>; color: <?= $p['status'] == 'winner' ? 'var(--accent-5)' : 'var(--accent-2)' ?>;">

@@ -18,6 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = $_SESSION['user']['user_id'];
     $event_id = $_POST['event_id'] ?? '';
 
+    if ($_SESSION['user']['role'] === 'student') {
+        echo json_encode(['success' => false, 'message' => 'Unregistration is not permitted for students. Please contact an administrator if you need to cancel.']);
+        exit;
+    }
+
     if (empty($event_id)) {
         echo json_encode(['success' => false, 'message' => 'Missing Event ID']);
         exit;

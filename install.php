@@ -31,7 +31,6 @@ try {
             name VARCHAR(255) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
             phone VARCHAR(20) NOT NULL,
-            college VARCHAR(255) NOT NULL,
             course VARCHAR(255) NOT NULL,
             password VARCHAR(255) NOT NULL,
             role ENUM('student','coordinator', 'admin') DEFAULT 'student',
@@ -114,7 +113,7 @@ try {
     $stmt->execute();
     if ($stmt->fetchColumn() == 0) {
         $admin_pass = password_hash('admin123', PASSWORD_DEFAULT);
-        $pdo->exec("INSERT INTO users (user_id, name, email, phone, college, course, password, role) VALUES ('ADMIN001', 'Super Admin', 'admin@fusionverse.com', '1234567890', 'FUSIONVERSE HQ', 'Management', '$admin_pass', 'admin')");
+        $pdo->exec("INSERT INTO users (user_id, name, email, phone, course, password, role) VALUES ('ADMIN001', 'Super Admin', 'admin@fusionverse.com', '1234567890', 'Management', '$admin_pass', 'admin')");
         echo "Master Admin Account Deployed (admin@fusionverse.com / admin123).<br>";
     }
 

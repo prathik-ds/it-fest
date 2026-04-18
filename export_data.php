@@ -42,8 +42,8 @@ if ($type === 'items' && $_SESSION['user']['role'] === 'admin') {
 }
 
 if ($type === 'users' && $_SESSION['user']['role'] === 'admin') {
-    fputcsv($output, ['User ID', 'Name', 'Email', 'Phone', 'College', 'Role', 'Registration Date']);
-    $stmt = $pdo->query("SELECT user_id, name, email, phone, college, role, created_at FROM users ORDER BY role, name");
+    fputcsv($output, ['User ID', 'Name', 'Email', 'Phone', 'Role', 'Registration Date']);
+    $stmt = $pdo->query("SELECT user_id, name, email, phone, role, created_at FROM users ORDER BY role, name");
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         fputcsv($output, $row);
     }
@@ -54,9 +54,9 @@ if ($type === 'users' && $_SESSION['user']['role'] === 'admin') {
         fputcsv($output, $row);
     }
 } elseif ($type === 'participation') {
-    fputcsv($output, ['Event', 'User ID', 'Name', 'Email', 'Phone', 'College', 'Attendance', 'Score', 'Status', 'Team Name', 'Team Code', 'Registered At']);
+    fputcsv($output, ['Event', 'User ID', 'Name', 'Email', 'Phone', 'Attendance', 'Score', 'Status', 'Team Name', 'Team Code', 'Registered At']);
     
-    $query = "SELECT e.name as event_name, u.user_id, u.name as user_name, u.email, u.phone, u.college, r.attendance, r.score, r.status, t.name as team_name, t.invite_code, r.created_at 
+    $query = "SELECT e.name as event_name, u.user_id, u.name as user_name, u.email, u.phone, r.attendance, r.score, r.status, t.name as team_name, t.invite_code, r.created_at 
               FROM registrations r 
               JOIN users u ON r.user_id = u.user_id 
               JOIN events e ON r.event_id = e.id

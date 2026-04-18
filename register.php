@@ -8,23 +8,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'] ?? '';
     $email = $_POST['email'] ?? '';
     $phone = $_POST['phone'] ?? '';
-    $college = "Main Institution"; // Hardcoded as per request to remove from form
     $course = $_POST['course'] ?? '';
     $year = $_POST['year'] ?? '';
     $roll_no = $_POST['roll_no'] ?? '';
     $password = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
 
     if (empty($name) || empty($email) || empty($password)) {
         $error = "Name, Email, and Password are required.";
+    } elseif ($password !== $confirm_password) {
+        $error = "Passwords do not match!";
     } else {
         // Unique ID generation
         $user_id = 'NXS-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO users (user_id, name, email, phone, college, course, year, roll_no, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$user_id, $name, $email, $phone, $college, $course, $year, $roll_no, $hashedPassword]);
-            $success = "Registration successful! Your ID is <span style='color: var(--accent-1); font-weight: 700; font-family: JetBrains Mono, monospace;'>$user_id</span>. <a href='login.php' style='color: var(--accent-2); font-weight: 700; text-decoration: none;'>Sign In →</a>";
+            $stmt = $pdo->prepare("INSERT INTO users (user_id, name, email, phone, course, year, roll_no, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$user_id, $name, $email, $phone, $course, $year, $roll_no, $hashedPassword]);
+            
+            // Auto-login after registration
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+            $stmt->execute([$user_id]);
+            $newUser = $stmt->fetch();
+            
+            if ($newUser) {
+                $_SESSION['user'] = $newUser;
+                header('Location: dashboard.php');
+                exit;
+            }
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) {
                 $error = "Email or User ID already exists.";
@@ -35,6 +47,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
+<style>
+    .auth-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 16px;
+    }
+    .auth-grid-full {
+        grid-column: span 2;
+    }
+    @media (max-width: 500px) {
+        .auth-grid {
+            grid-template-columns: 1fr;
+        }
+        .auth-grid-full {
+            grid-column: span 1;
+        }
+    }
+</style>
 
 <div style="min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 40px 0;">
     <div style="max-width: 480px; width: 100%;">
@@ -53,13 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div style="padding: 12px 16px; border-radius: 12px; background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--danger); margin-bottom: 24px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
                     <i class="fa-solid fa-circle-exclamation"></i>
                     <?= $error ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($success): ?>
-                <div style="padding: 16px; border-radius: 12px; background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--text-primary); margin-bottom: 24px; font-size: 0.88rem; line-height: 1.6;">
-                    <i class="fa-solid fa-circle-check" style="color: var(--success); margin-right: 6px;"></i>
-                    <?= $success ?>
                 </div>
             <?php endif; ?>
 
@@ -99,9 +123,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <label><i class="fa-solid fa-id-card" style="margin-right: 6px; color: var(--accent-2);"></i>Roll Number</label>
                         <input type="text" name="roll_no" placeholder="Enter your roll number" required>
                     </div>
-                    <div class="form-group auth-grid-full">
+                    <div class="form-group">
                         <label><i class="fa-solid fa-lock" style="margin-right: 6px; color: var(--accent-1);"></i>Password</label>
                         <input type="password" name="password" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-shield-check" style="margin-right: 6px; color: var(--accent-2);"></i>Confirm Password</label>
+                        <input type="password" name="confirm_password" placeholder="••••••••" required>
                     </div>
                 </div>
                 <button type="submit" class="btn-neon" style="width: 100%; margin-top: 10px; padding: 14px; background: rgba(0, 212, 255, 0.06); border-color: var(--accent-1); color: var(--accent-1);">

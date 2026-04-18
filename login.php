@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="form-group">
                     <label><i class="fa-solid fa-envelope" style="margin-right: 6px; color: var(--accent-1);"></i>Email
                         Address</label>
-                    <input type="email" name="email" placeholder="you@college.edu" required>
+                    <input type="email" name="email" placeholder="you@fusionverse.com" required>
                 </div>
                 <div class="form-group">
                     <label><i class="fa-solid fa-lock"

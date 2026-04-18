@@ -859,11 +859,10 @@ if ($user) {
                         <?php endif; ?>
                     <?php else: ?>
                         <?php if (in_array($event['id'], $myRegistrations)): ?>
-                            <!-- Already Registered Individually -->
-                            <button type="button" class="ev-register-btn" 
-                                onclick="doUnregister(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>')"
-                                style="border-color: #f43f5e; color: #f43f5e; background: rgba(244, 63, 94, 0.05);">
-                                <i class="fa-solid fa-user-minus"></i> Unregister
+                            <!-- Already Registered Individually - Unregister Removed per Request -->
+                            <button type="button" class="ev-register-btn" disabled
+                                style="border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); opacity: 1;">
+                                <i class="fa-solid fa-check-circle"></i> Registered
                             </button>
                         <?php else: ?>
                             <form action="register_event.php" method="POST">
@@ -963,10 +962,7 @@ if ($user) {
             <p style="font-size:0.7rem; color:#5b6a8a; text-align:center; margin-top:4px;"><i
                     class="fa-solid fa-copy"></i> Click to copy</p>
             <div class="team-info-section" id="tMyTeam-members"></div>
-            <button class="team-submit-btn" id="btn-leaveTeam" onclick="doLeaveTeam()"
-                style="margin-top:20px; background:rgba(244,63,94,0.15); border:1px solid rgba(244,63,94,0.3);">
-                <i class="fa-solid fa-right-from-bracket"></i> <span id="leaveLabel">Leave Team</span>
-            </button>
+            <!-- Leave Team Feature Removed per Request -->
         </div>
     </div>
 </div>
@@ -1166,29 +1162,7 @@ if ($user) {
         }
     }
 
-    async function doLeaveTeam() {
-        const confirm_msg = _isLeader
-            ? 'This will DISSOLVE the team and remove ALL members. Continue?'
-            : 'Leave this team? You can rejoin with the invite code.';
-        if (!confirm(confirm_msg)) return;
-
-        const btn = document.getElementById('btn-leaveTeam');
-        btn.disabled = true;
-
-        const fd = new FormData();
-        fd.append('action', 'leave_team');
-        fd.append('team_id', _activeTeamId);
-
-        const res = await fetch('team_actions.php', { method: 'POST', body: fd }).then(r => r.json());
-        btn.disabled = false;
-
-        if (res.success) {
-            showAlert('✓ ' + res.message + ' — refreshing...', 'success');
-            setTimeout(() => location.reload(), 1500);
-        } else {
-            showAlert(res.message, 'error');
-        }
-    }
+    // leaveTeam logic removed.
 
     function copyCode() {
         navigator.clipboard.writeText(_myCode).then(() => {

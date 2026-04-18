@@ -161,9 +161,7 @@ $announcements = $stmt->fetchAll();
                                             </button>
                                         <?php endif; ?>
 
-                                        <button type="button" onclick="doUnregister(<?= $ev['id'] ?>, '<?= htmlspecialchars(addslashes($ev['name'])) ?>')" class="btn-coord" style="padding: 6px 10px; font-size: 0.65rem; background: rgba(244, 63, 94, 0.05); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.2); margin-left:8px;" title="Unregister">
-                                            <i class="fa-solid fa-circle-xmark"></i> CANCEL
-                                        </button>
+                                        <!-- Unregister (CANCEL) logic removed per user request -->
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -193,17 +191,31 @@ $announcements = $stmt->fetchAll();
                 </h3>
                 <div style="display: flex; flex-direction: column; gap: 18px;">
                     <div style="padding: 12px 14px; background: rgba(0, 0, 0, 0.15); border-radius: 12px; border: 1px solid var(--border);">
-                        <div style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">College</div>
-                        <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);"><?= htmlspecialchars($userinfo['college']) ?></div>
-                    </div>
-                    <div style="padding: 12px 14px; background: rgba(0, 0, 0, 0.15); border-radius: 12px; border: 1px solid var(--border);">
                         <div style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Course</div>
                         <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);"><?= htmlspecialchars($userinfo['course']) ?></div>
                     </div>
+                    <?php if (!empty($userinfo['year'])): ?>
+                    <div style="padding: 12px 14px; background: rgba(0, 0, 0, 0.15); border-radius: 12px; border: 1px solid var(--border);">
+                        <div style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Year</div>
+                        <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);"><?= htmlspecialchars($userinfo['year']) ?></div>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($userinfo['roll_no'])): ?>
+                    <div style="padding: 12px 14px; background: rgba(0, 0, 0, 0.15); border-radius: 12px; border: 1px solid var(--border);">
+                        <div style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Roll Number</div>
+                        <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);"><?= htmlspecialchars($userinfo['roll_no']) ?></div>
+                    </div>
+                    <?php endif; ?>
                     <div style="padding: 12px 14px; background: rgba(0, 0, 0, 0.15); border-radius: 12px; border: 1px solid var(--border);">
                         <div style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Email</div>
                         <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); word-break: break-all;"><?= htmlspecialchars($userinfo['email']) ?></div>
                     </div>
+                    <?php if (!empty($userinfo['phone'])): ?>
+                    <div style="padding: 12px 14px; background: rgba(0, 0, 0, 0.15); border-radius: 12px; border: 1px solid var(--border);">
+                        <div style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Phone</div>
+                        <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);"><?= htmlspecialchars($userinfo['phone']) ?></div>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -363,9 +375,9 @@ $announcements = $stmt->fetchAll();
                 ${membersHtml}
             </div>
 
-            <button onclick="leaveTeam(${team.id})" class="btn-coord" style="width: 100%; border: 1px solid var(--danger); color: var(--danger); font-size: 0.75rem;">
-                ${isLeader ? 'DISSOLVE TEAM' : 'LEAVE TEAM'}
-            </button>
+            <div style="text-align: center; color: var(--text-dim); font-size: 0.7rem; padding: 10px; border: 1px dashed var(--border); border-radius: 12px;">
+                <i class="fa-solid fa-lock" style="margin-right: 5px;"></i> Team structure is locked after registration.
+            </div>
         `;
     }
 
@@ -407,41 +419,7 @@ $announcements = $stmt->fetchAll();
         });
     }
 
-    function leaveTeam(teamId) {
-        if (!confirm("Are you sure? This action cannot be undone.")) return;
-
-        const formData = new FormData();
-        formData.append('action', 'leave_team');
-        formData.append('team_id', teamId);
-
-        fetch('team_actions.php', { method: 'POST', body: formData })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else alert(data.message);
-        });
-    }
-
-    async function doUnregister(eventId, eventName) {
-        if (!confirm('CANCEL REGISTRATION FOR ' + eventName.toUpperCase() + '?')) return;
-        
-        const fd = new FormData();
-        fd.append('event_id', eventId);
-        fd.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
-
-        try {
-            const res = await fetch('ajax_unregister.php', { method: 'POST', body: fd }).then(r => r.json());
-            if (res.success) {
-                location.reload(); 
-            } else {
-                alert(res.message);
-            }
-        } catch (e) {
-            alert('An error occurred. Please try again.');
-        }
-    }
+    // Unregistration logic removed.
 </script>
 
 <?php include 'includes/footer.php'; ?>

@@ -37,7 +37,7 @@ if ($active_event_id) {
     $active_event = $stmt->fetch();
     
     if ($active_event) {
-        $stmt = $pdo->prepare("SELECT u.name, u.email, u.phone, u.college, r.user_id, r.id as reg_id, r.score, r.status, r.attendance FROM users u JOIN registrations r ON u.user_id = r.user_id WHERE r.event_id = ? ORDER BY u.name");
+        $stmt = $pdo->prepare("SELECT u.name, u.email, u.phone, u.course, u.year, u.roll_no, r.user_id, r.id as reg_id, r.score, r.status, r.attendance FROM users u JOIN registrations r ON u.user_id = r.user_id WHERE r.event_id = ? ORDER BY u.name");
         $stmt->execute([$active_event_id]);
         $participants = $stmt->fetchAll();
     }
@@ -177,7 +177,8 @@ if ($active_event_id) {
                                     <input type="hidden" name="event_id" value="<?= $active_event_id ?>">
                                     <td style="padding: 16px;">
                                         <div style="font-weight: 600;"><?= htmlspecialchars($p['name']) ?></div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted);"><?= $p['user_id'] ?> • <?= htmlspecialchars($p['college']) ?></div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);"><?= $p['user_id'] ?> • <?= $p['course'] ?> • <?= $p['year'] ?></div>
+                                        <div style="font-size: 0.65rem; color: var(--accent-1); margin-top: 2px;">Roll: <?= $p['roll_no'] ?></div>
                                     </td>
                                     <td style="padding: 16px; text-align: center;">
                                         <select name="attendance" style="background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 8px;">

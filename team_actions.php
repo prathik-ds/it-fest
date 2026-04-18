@@ -158,7 +158,8 @@ switch ($action) {
 
     // ─── LEAVE TEAM ─────────────────────────────────────────────────────────────
     case 'leave_team':
-        $team_id = (int)($_POST['team_id'] ?? 0);
+        echo json_encode(['success' => false, 'message' => 'Leaving teams or dissolving teams is not permitted after registration.']);
+        exit;
 
         if (!$team_id) {
             echo json_encode(['success' => false, 'message' => 'Invalid team']);

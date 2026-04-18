@@ -15,7 +15,7 @@ if (!$event_id) {
 
 // Fetch registration and event details to verify participation
 $stmt = $pdo->prepare("
-    SELECT r.*, e.name as event_name, e.category, u.name as user_name, u.college 
+    SELECT r.*, e.name as event_name, e.category, u.name as user_name 
     FROM registrations r 
     JOIN events e ON r.event_id = e.id 
     JOIN users u ON r.user_id = u.user_id 
@@ -206,7 +206,6 @@ if ($data['status'] === 'runner') $certificate_type = "RUNNER UP";
             <div class="student-name"><?= htmlspecialchars($data['user_name']) ?></div>
             
             <div class="description">
-                of <span class="event-details"><?= htmlspecialchars($data['college']) ?></span> 
                 for their outstanding performance and successful participation in the 
                 <span class="event-details"><?= htmlspecialchars($data['event_name']) ?></span> 
                 event held during <span class="event-details">FusionVerse IT & Commerce Fest 2026</span>.

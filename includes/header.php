@@ -29,7 +29,8 @@ if (empty($_SESSION['csrf_token'])) {
     }
 }
 
-function isActive($page) {
+function isActive($page)
+{
     return basename($_SERVER['PHP_SELF']) == $page ? 'active' : '';
 }
 
@@ -40,40 +41,43 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FUSIONVERSE 2026 | BCA IT Fest</title>
-    <meta name="description" content="FUSIONVERSE 2026 — The premier BCA IT Fest celebrating innovation, code, and technology. Register today!">
+    <meta name="description"
+        content="FUSIONVERSE 2026 — The premier BCA IT Fest celebrating innovation, code, and technology. Register today!">
     <link rel="stylesheet" href="assets/css/styles.css">
     <?php if ($current_page == 'index.php'): ?>
-    <link rel="stylesheet" href="assets/css/splash.css">
-    <script src="assets/js/splash.js" defer></script>
+        <link rel="stylesheet" href="assets/css/splash.css">
+        <script src="assets/js/splash.js" defer></script>
     <?php endif; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" href="favicon.ico">
 </head>
+
 <body>
 
     <?php if ($current_page == 'index.php'): ?>
-    <!-- ═══════════════════════════════════════════
+        <!-- ═══════════════════════════════════════════
          FUSIONVERSE SPLASH SCREEN
          ═══════════════════════════════════════════ -->
-    <div id="splash-screen">
-        <div class="splash-content">
-            <div class="splash-logo-container">
-                <div class="splash-glow"></div>
-                <img src="assets/img/fusionverse_logo.png" alt="FusionVerse Logo" class="splash-logo">
-            </div>
-            <div class="splash-text">
-                <h1 class="splash-title">FUSIONVERSE</h1>
-                <p class="splash-subtitle">BCA | BCOM | BA • IT FEST 2026</p>
-            </div>
-            <div class="loader-bar">
-                <div class="loader-progress"></div>
+        <div id="splash-screen">
+            <div class="splash-content">
+                <div class="splash-logo-container">
+                    <div class="splash-glow"></div>
+                    <img src="assets/img/fusionverse_logo.png" alt="FusionVerse Logo" class="splash-logo">
+                </div>
+                <div class="splash-text">
+                    <h1 class="splash-title">FUSIONVERSE</h1>
+                    <p class="splash-subtitle">BCA | BCOM | BA • IT FEST 2026</p>
+                </div>
+                <div class="loader-bar">
+                    <div class="loader-progress"></div>
+                </div>
             </div>
         </div>
-    </div>
     <?php endif; ?>
 
     <?php if ($is_dashboard_page): ?>
@@ -81,10 +85,10 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
              DASHBOARD LAYOUT — BCA FUSIONVERSE COMMAND CENTER
              ═══════════════════════════════════════════ -->
         <div class="bg-gradient-dash"></div>
-        
-        <!-- Mobile Bottom Nav -->
+
+        <!-- Mobile Bottom Nav - REPLACED HAMBURGER PER REQUEST -->
         <div class="mobile-nav-bar">
-            <a href="dashboard.php" class="mobile-nav-item <?= isActive('dashboard.php') ?>">
+            <a href="index.htmls" class="mobile-nav-item <?= isActive('index.php') ?>">
                 <i class="fa-solid fa-house"></i>
                 <span>Home</span>
             </a>
@@ -92,35 +96,39 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                 <i class="fa-solid fa-trophy"></i>
                 <span>Events</span>
             </a>
-            <?php if ($user && $user['role'] === 'coordinator'): ?>
-                <a href="coordinator.php" class="mobile-nav-item <?= isActive('coordinator.php') ?>">
-                    <i class="fa-solid fa-camera"></i>
-                    <span>Scanner</span>
-                </a>
-            <?php elseif ($user && $user['role'] === 'admin'): ?>
-                <a href="admin.php" class="mobile-nav-item <?= isActive('admin.php') ?>">
-                    <i class="fa-solid fa-gauge"></i>
-                    <span>Admin</span>
-                </a>
-            <?php endif; ?>
+            <a href="dashboard.php" class="mobile-nav-item <?= isActive('dashboard.php') ?>">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
             <a href="leaderboard.php" class="mobile-nav-item <?= isActive('leaderboard.php') ?>">
                 <i class="fa-solid fa-ranking-star"></i>
                 <span>Ranks</span>
             </a>
+            <?php if ($user && ($user['role'] === 'coordinator' || $user['role'] === 'admin')): ?>
+                <a href="<?= $user['role'] === 'admin' ? 'admin.php' : 'coordinator.php' ?>"
+                    class="mobile-nav-item <?= isActive('admin.php') || isActive('coordinator.php') ?>">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Staff</span>
+                </a>
+            <?php endif; ?>
         </div>
 
-        <!-- Mobile Top Bar -->
-        <div class="mobile-top-bar" style="display: flex; align-items: center; justify-content: space-between; z-index: 1002;">
+        <!-- Mobile Top Bar - HAMBURGER REMOVED -->
+        <div class="mobile-top-bar"
+            style="display: flex; align-items: center; justify-content: space-between; z-index: 1002;">
             <div style="display: flex; align-items: center; gap: 5px;">
-                <button class="nav-toggle-dash" onclick="toggleSidebar()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 1.1rem; cursor: pointer; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: 0.2s;">
-                    <i class="fa-solid fa-bars-staggered"></i>
-                </button>
-                <a href="index.php" style="text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-left: 5px;">
-                    <div class="brand-icon-dash" style="width: 32px; height: 32px; font-size: 0.75rem; border-radius: 8px;">F</div>
+                <a href="index.php"
+                    style="text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-left: 5px;">
+                    <div class="brand-icon-dash" style="width: 32px; height: 32px; font-size: 0.75rem; border-radius: 8px;">
+                        F</div>
                     <span style="letter-spacing: -0.5px;">FUSIONVERSE</span>
                 </a>
             </div>
-            <a href="logout.php" style="color: var(--danger); font-size: 1.1rem; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(239, 68, 68, 0.05); border-radius: 10px;"><i class="fa-solid fa-right-from-bracket"></i></a>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="logout.php"
+                    style="color: var(--danger); font-size: 1.1rem; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(239, 68, 68, 0.05); border-radius: 10px;"
+                    title="Logout"><i class="fa-solid fa-right-from-bracket"></i></a>
+            </div>
         </div>
 
         <div class="app-wrapper">
@@ -129,8 +137,11 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                 <a href="index.php" class="sidebar-brand" style="text-decoration: none;">
                     <div class="brand-icon-dash">F</div>
                     <div class="brand-name" style="font-family: 'Space Grotesk', sans-serif;">
-                        <h2 style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; text-transform: none;">FUSIONVERSE</h2>
-                        <p style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px;">BCA IT FEST</p>
+                        <h2 style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; text-transform: none;">
+                            FUSIONVERSE</h2>
+                        <p
+                            style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px;">
+                            BCA IT FEST</p>
                     </div>
                 </a>
 
@@ -138,7 +149,7 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                     <!-- MAIN SECTION -->
                     <div class="menu-label-dash">MAIN</div>
                     <li class="menu-item">
-                        <a href="index.php" class="menu-link-dash">
+                        <a href="index.html" class="menu-link-dash">
                             <i class="fa-solid fa-house"></i>
                             <span>Home Page</span>
                         </a>
@@ -179,33 +190,38 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                             <!-- ADMINISTRATION -->
                             <div class="menu-label-dash">ADMINISTRATION</div>
                             <li class="menu-item">
-                                <a href="admin.php?tab=dashboard" class="menu-link-dash <?= isActive('admin.php') && (!isset($_GET['tab']) || $_GET['tab'] == 'dashboard') ? 'active' : '' ?>">
+                                <a href="admin.php?tab=dashboard"
+                                    class="menu-link-dash <?= isActive('admin.php') && (!isset($_GET['tab']) || $_GET['tab'] == 'dashboard') ? 'active' : '' ?>">
                                     <i class="fa-solid fa-chart-pie"></i>
                                     <span>Dashboard</span>
                                 </a>
                             </li>
                             <li class="menu-item">
-                                <a href="admin.php?tab=users" class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'users' ? 'active' : '' ?>">
+                                <a href="admin.php?tab=users"
+                                    class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'users' ? 'active' : '' ?>">
                                     <i class="fa-solid fa-users-gear"></i>
                                     <span>User Management</span>
                                 </a>
                             </li>
                             <li class="menu-item">
-                                <a href="admin.php?tab=events" class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'events' ? 'active' : '' ?>">
+                                <a href="admin.php?tab=events"
+                                    class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'events' ? 'active' : '' ?>">
                                     <i class="fa-solid fa-calendar-alt"></i>
                                     <span>Event Management</span>
                                 </a>
                             </li>
                             <li class="menu-item">
-                                <a href="admin.php?tab=regs" class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'regs' ? 'active' : '' ?>">
+                                <a href="admin.php?tab=regs"
+                                    class="menu-link-dash <?= isset($_GET['tab']) && $_GET['tab'] == 'regs' ? 'active' : '' ?>">
                                     <i class="fa-solid fa-clipboard-check"></i>
                                     <span>Registration Desk</span>
                                 </a>
                             </li>
-                            
+
                             <div class="menu-label-dash" style="margin-top: 20px;">QUICK LINKS</div>
                             <li class="menu-item">
-                                <a href="admin_explore_events.php" class="menu-link-dash <?= isActive('admin_explore_events.php') ?>">
+                                <a href="admin_explore_events.php"
+                                    class="menu-link-dash <?= isActive('admin_explore_events.php') ?>">
                                     <i class="fa-solid fa-compass"></i>
                                     <span>Explore Tracks</span>
                                 </a>
@@ -236,16 +252,18 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                     </li>
                 </ul>
             </aside>
-            
+
             <!-- Mobile Overlay -->
-            <div id="sidebar-overlay" onclick="toggleSidebar()" style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;"></div>
+            <div id="sidebar-overlay" onclick="toggleSidebar()"
+                style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+            </div>
 
             <script>
                 function toggleSidebar() {
                     const sidebar = document.querySelector('.sidebar');
                     const overlay = document.getElementById('sidebar-overlay');
                     const isOpen = sidebar.classList.contains('open');
-                    
+
                     if (isOpen) {
                         sidebar.classList.remove('open');
                         overlay.style.opacity = '0';
@@ -264,46 +282,50 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
             <main class="main-content-dash">
                 <header class="top-header-dash">
                     <div class="header-actions" style="display: flex; align-items: center; gap: 20px;">
-                        <a href="coordinator.php" class="btn-coord" style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.2); color: var(--accent-2); padding: 8px 16px; border-radius: 10px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-decoration: none;">COORD ACCESS</a>
-                        <div class="notification-bell" style="font-size: 1.2rem; color: var(--text-muted); cursor: pointer;">
+                        <a href="coordinator.php" class="btn-coord"
+                            style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.2); color: var(--accent-2); padding: 8px 16px; border-radius: 10px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-decoration: none;">COORD
+                            ACCESS</a>
+                        <div class="notification-bell"
+                            style="font-size: 1.2rem; color: var(--text-muted); cursor: pointer;">
                             <i class="fa-regular fa-bell"></i>
                         </div>
                     </div>
                 </header>
                 <div class="content-body" style="flex: 1;">
-    <?php else: ?>
-        <!-- ═══════════════════════════════════════════
+                <?php else: ?>
+                    <!-- ═══════════════════════════════════════════
              PUBLIC PAGES — BCA FUSIONVERSE THEME
              ═══════════════════════════════════════════ -->
-        <div class="cyber-grid"></div>
-        <div class="glow-bg"></div>
-        <div class="scanline"></div>
+                    <div class="cyber-grid"></div>
+                    <div class="glow-bg"></div>
+                    <div class="scanline"></div>
 
-        <nav>
-            <a href="index.php" class="logo neon-text-blue">FUSIONVERSE</a>
-            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <ul class="nav-links">
-                <li><a href="index.php" class="<?= isActive('index.php') ?>">Home</a></li>
-                <li><a href="events.php" class="<?= isActive('events.php') ?>">Events</a></li>
-                <li><a href="leaderboard.php" class="<?= isActive('leaderboard.php') ?>">Leaderboard</a></li>
-                <?php if ($user): ?>
-                    <li><a href="dashboard.php" class="<?= isActive('dashboard.php') ?>">Dashboard</a></li>
-                    <?php if ($user['role'] === 'coordinator'): ?>
-                        <li><a href="coordinator.php" class="neon-text-purple <?= isActive('coordinator.php') ?>">Coordinator</a></li>
+                    <nav>
+                        <a href="index.php" class="logo neon-text-blue">FUSIONVERSE</a>
+                        <button class="nav-hamburger"
+                            onclick="document.querySelector('.nav-links').classList.toggle('open')">
+                            <i class="fa-solid fa-bars"></i>
+                        </button>
+                        <ul class="nav-links">
+                            <li><a href="index.php" class="<?= isActive('index.php') ?>">Home</a></li>
+                            <li><a href="events.php" class="<?= isActive('events.php') ?>">Events</a></li>
+                            <li><a href="leaderboard.php" class="<?= isActive('leaderboard.php') ?>">Leaderboard</a></li>
+                            <?php if ($user): ?>
+                                <li><a href="dashboard.php" class="<?= isActive('dashboard.php') ?>">Dashboard</a></li>
+                                <?php if ($user['role'] === 'coordinator'): ?>
+                                    <li><a href="coordinator.php"
+                                            class="neon-text-purple <?= isActive('coordinator.php') ?>">Coordinator</a></li>
+                                <?php endif; ?>
+                                <?php if ($user['role'] === 'admin'): ?>
+                                    <li><a href="admin.php" class="neon-text-pink <?= isActive('admin.php') ?>">Admin</a></li>
+                                <?php endif; ?>
+                                <li><a href="logout.php" style="color: var(--danger)">Logout</a></li>
+                            <?php else: ?>
+                                <li><a href="login.php" class="<?= isActive('login.php') ?>">Login</a></li>
+                                <li><a href="register.php" class="btn-neon"
+                                        style="padding: 10px 24px; font-size: 0.75rem">Register</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </nav>
+                    <div class="container">
                     <?php endif; ?>
-                    <?php if ($user['role'] === 'admin'): ?>
-                        <li><a href="admin.php" class="neon-text-pink <?= isActive('admin.php') ?>">Admin</a></li>
-                    <?php endif; ?>
-                    <li><a href="logout.php" style="color: var(--danger)">Logout</a></li>
-                <?php else: ?>
-                    <li><a href="login.php" class="<?= isActive('login.php') ?>">Login</a></li>
-                    <li><a href="register.php" class="btn-neon" style="padding: 10px 24px; font-size: 0.75rem">Register</a></li>
-                <?php endif; ?>
-            </ul>
-        </nav>
-        <div class="container">
-    <?php endif; ?>
-
-

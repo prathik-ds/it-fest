@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `phone` varchar(20) NOT NULL,
-  `college` varchar(255) NOT NULL,
   `course` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` enum('student','coordinator', 'admin') DEFAULT 'student',
@@ -104,8 +103,8 @@ CREATE TABLE IF NOT EXISTS `announcements` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 7. Seed Data: Default Admin User (Password: admin123)
-INSERT IGNORE INTO `users` (`user_id`, `name`, `email`, `phone`, `college`, `course`, `password`, `role`) VALUES
-('ADMIN001', 'Super Admin', 'admin@fusionverse.com', '1234567890', 'FUSIONVERSE HQ', 'Management', '$2y$10$eEHOyBwVqB2L4H7sWXX4yOWmDIfT3uFjE6E3qf4P2H4H1R3gT2fG6', 'admin');
+INSERT IGNORE INTO `users` (`user_id`, `name`, `email`, `phone`, `course`, `password`, `role`) VALUES
+('ADMIN001', 'Super Admin', 'admin@fusionverse.com', '1234567890', 'Management', '$2y$10$eEHOyBwVqB2L4H7sWXX4yOWmDIfT3uFjE6E3qf4P2H4H1R3gT2fG6', 'admin');
 
 -- 8. Seed Data: Default Events
 INSERT IGNORE INTO `events` (`id`, `name`, `category`, `eligibility_stream`, `description`, `rules`, `date`, `time`, `venue`, `max_participants`, `is_team_event`, `min_team_size`, `max_team_size`) VALUES
