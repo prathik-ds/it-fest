@@ -6,7 +6,17 @@ if (!in_array('ob_gzhandler', ob_list_handlers()) && !ini_get('zlib.output_compr
     ob_start();
 }
 
+// Session Security Configuration
 if (session_status() === PHP_SESSION_NONE) {
+    // Only set params before session starts
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => $_SERVER['HTTP_HOST'],
+        'secure' => isset($_SERVER['HTTPS']), // Enable if HTTPS is on
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
     session_start();
 }
 require_once __DIR__ . '/../config/db.php';

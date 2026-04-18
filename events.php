@@ -9,8 +9,11 @@ $events = $stmt->fetchAll();
 
 // Get user's team memberships for team events
 $myTeams = [];
+$myRegistrations = []; // Individual registrations
 if ($user) {
     $uid = $user['user_id'];
+    
+    // Fetch Teams
     $stmt2 = $pdo->prepare("
         SELECT t.event_id, t.id as team_id, t.name as team_name, t.invite_code, t.leader_user_id
         FROM teams t
@@ -21,6 +24,11 @@ if ($user) {
     foreach ($stmt2->fetchAll() as $row) {
         $myTeams[$row['event_id']] = $row;
     }
+
+    // Fetch Individual Registrations
+    $stmt3 = $pdo->prepare("SELECT event_id FROM registrations WHERE user_id = ?");
+    $stmt3->execute([$uid]);
+    $myRegistrations = $stmt3->fetchAll(PDO::FETCH_COLUMN);
 }
 ?>
 
@@ -784,6 +792,7 @@ if ($user) {
                     <i class="fa-solid fa-graduation-cap"></i>
                     <?= $el_stream == 'ALL' ? 'OPEN TO ALL' : strtoupper($el_stream) . ' ONLY' ?>
                 </div>
+
             </div>
 
             <!-- Card Body -->
@@ -849,16 +858,25 @@ if ($user) {
                             </button>
                         <?php endif; ?>
                     <?php else: ?>
-                        <form action="register_event.php" method="POST">
-                            <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
-                            <button type="submit" class="ev-register-btn" <?= $is_full ? 'disabled' : '' ?>>
-                                <?php if ($is_full): ?>
-                                    <i class="fa-solid fa-ban"></i> Full House
-                                <?php else: ?>
-                                    <i class="fa-solid fa-bolt"></i> Register Now
-                                <?php endif; ?>
+                        <?php if (in_array($event['id'], $myRegistrations)): ?>
+                            <!-- Already Registered Individually -->
+                            <button type="button" class="ev-register-btn" 
+                                onclick="doUnregister(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>')"
+                                style="border-color: #f43f5e; color: #f43f5e; background: rgba(244, 63, 94, 0.05);">
+                                <i class="fa-solid fa-user-minus"></i> Unregister
                             </button>
-                        </form>
+                        <?php else: ?>
+                            <form action="register_event.php" method="POST">
+                                <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
+                                <button type="submit" class="ev-register-btn" <?= $is_full ? 'disabled' : '' ?>>
+                                    <?php if ($is_full): ?>
+                                        <i class="fa-solid fa-ban"></i> Full House
+                                    <?php else: ?>
+                                        <i class="fa-solid fa-bolt"></i> Register Now
+                                    <?php endif; ?>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                     <?php endif; ?>
                 <?php else: ?>
                     <a href="login.php" class="ev-register-btn">
@@ -1187,6 +1205,26 @@ if ($user) {
             el.textContent = 'Copied!';
             setTimeout(() => el.textContent = old, 1200);
         });
+    }
+
+    async function doUnregister(eventId, eventName) {
+        if (!confirm('Are you sure you want to unregister from ' + eventName + '?')) return;
+        
+        const fd = new FormData();
+        fd.append('event_id', eventId);
+        fd.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
+
+        try {
+            const res = await fetch('ajax_unregister.php', { method: 'POST', body: fd }).then(r => r.json());
+            if (res.success) {
+                // Reload same page to update UI without redirecting to dashboard
+                location.reload(); 
+            } else {
+                alert(res.message);
+            }
+        } catch (e) {
+            alert('An error occurred. Please try again.');
+        }
     }
 
     // Close modal on backdrop click

@@ -161,13 +161,9 @@ $announcements = $stmt->fetchAll();
                                             </button>
                                         <?php endif; ?>
 
-                                        <form action="unregister_event.php" method="POST" style="display:inline;" onsubmit="return confirm(<?= htmlspecialchars(json_encode('UNREGISTER FROM ' . strtoupper($ev['name']) . '?'), ENT_QUOTES, 'UTF-8') ?>);">
-                                            <input type="hidden" name="event_id" value="<?= $ev['id'] ?>">
-                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                            <button type="submit" class="btn-coord" style="padding: 6px 10px; font-size: 0.65rem; background: rgba(244, 63, 94, 0.05); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.2); margin-left:8px;" title="Unregister">
-                                                <i class="fa-solid fa-circle-xmark"></i> CANCEL
-                                            </button>
-                                        </form>
+                                        <button type="button" onclick="doUnregister(<?= $ev['id'] ?>, '<?= htmlspecialchars(addslashes($ev['name'])) ?>')" class="btn-coord" style="padding: 6px 10px; font-size: 0.65rem; background: rgba(244, 63, 94, 0.05); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.2); margin-left:8px;" title="Unregister">
+                                            <i class="fa-solid fa-circle-xmark"></i> CANCEL
+                                        </button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -426,6 +422,25 @@ $announcements = $stmt->fetchAll();
                 location.reload();
             } else alert(data.message);
         });
+    }
+
+    async function doUnregister(eventId, eventName) {
+        if (!confirm('CANCEL REGISTRATION FOR ' + eventName.toUpperCase() + '?')) return;
+        
+        const fd = new FormData();
+        fd.append('event_id', eventId);
+        fd.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
+
+        try {
+            const res = await fetch('ajax_unregister.php', { method: 'POST', body: fd }).then(r => r.json());
+            if (res.success) {
+                location.reload(); 
+            } else {
+                alert(res.message);
+            }
+        } catch (e) {
+            alert('An error occurred. Please try again.');
+        }
     }
 </script>
 
