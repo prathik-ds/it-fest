@@ -167,15 +167,17 @@ if ($active_event_id) {
             </div>
 
             <?php $view = $_GET['view'] ?? 'manage'; ?>
-            <!-- Tab Navigation (Segmented Radio Bar) -->
-            <div class="coord-tabs-bar">
-                <a href="coordinator.php?manage_event=<?= $active_event_id ?>&view=manage"
-                    class="coord-tab <?= $view !== 'results' ? 'active' : '' ?>">
-                    <i class="fa-solid fa-users-check"></i> ATTENDANCE
+            <!-- Tab Navigation (High-Performance Segmented Bar) -->
+            <div class="coord-tabs-bar" style="display: flex; gap: 8px; margin-bottom: 25px;">
+                <a href="coordinator.php?manage_event=<?= $active_event_id ?>&view=manage" 
+                   class="coord-tab <?= $view !== 'results' ? 'active' : '' ?>"
+                   style="flex: 1; height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; text-decoration: none; font-size: 0.75rem; font-weight: 800; border: 1px solid <?= $view !== 'results' ? 'var(--accent-1)' : 'rgba(255,255,255,0.05)' ?>; background: <?= $view !== 'results' ? 'rgba(0, 212, 255, 0.05)' : 'transparent' ?>; color: <?= $view !== 'results' ? 'var(--accent-1)' : 'var(--text-dim)' ?>;">
+                    <i class="fa-solid fa-users-viewfinder"></i> ATTENDANCE
                 </a>
-                <a href="coordinator.php?manage_event=<?= $active_event_id ?>&view=results"
-                    class="coord-tab <?= $view === 'results' ? 'active' : '' ?>">
-                    <i class="fa-solid fa-ranking-star"></i> RESULTS
+                <a href="coordinator.php?manage_event=<?= $active_event_id ?>&view=results" 
+                   class="coord-tab <?= $view === 'results' ? 'active' : '' ?>"
+                   style="flex: 1; height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; text-decoration: none; font-size: 0.75rem; font-weight: 800; border: 1px solid <?= $view === 'results' ? 'var(--accent-3)' : 'rgba(255,255,255,0.05)' ?>; background: <?= $view === 'results' ? 'rgba(16, 185, 129, 0.05)' : 'transparent' ?>; color: <?= $view === 'results' ? 'var(--accent-3)' : 'var(--text-dim)' ?>;">
+                    <i class="fa-solid fa-trophy"></i> EVENT RESULTS
                 </a>
             </div>
 
@@ -215,7 +217,13 @@ if ($active_event_id) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($participants as $p): ?>
+                        <?php 
+                        foreach ($participants as $p): 
+                            // If we are in results view, only show winners/runners
+                            if ($view === 'results' && !in_array($p['status'], ['winner', 'runner', 'participated'])) {
+                                continue;
+                            }
+                        ?>
                             <tr class="coord-tr" style="border-bottom: 1px solid var(--border);">
                                 <form class="coord-form" action="coordinator_actions.php" method="POST">
                                     <input type="hidden" name="reg_id" value="<?= $p['reg_id'] ?>">
