@@ -2153,6 +2153,97 @@ nav {
     }
 
     /* ── Coordinator Event Management Mobile Overhaul ── */
+    #content-coordinator { padding: 8px !important; }
+    
+    .dashboard-header {
+        padding: 5px 0 !important;
+        margin-bottom: 5px !important;
+    }
+    
+    .dashboard-header h1 { font-size: 1rem !important; margin-bottom: 2px !important; }
+    .dashboard-header p { display: none !important; } /* Hide description to save space */
+    .dashboard-header .search-box { margin-top: 5px !important; height: 34px !important; }
+
+    .events-grid-dash {
+        gap: 8px !important;
+        padding: 0 !important;
+    }
+
+    .event-card-dash {
+        padding: 10px !important;
+        border-radius: 10px !important;
+        margin-bottom: 0 !important;
+        text-align: center !important;
+    }
+
+    .event-card-dash h3 {
+        font-size: 0.95rem !important;
+        margin: 4px 0 !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        text-align: center !important;
+    }
+    
+    .event-card-dash .status-tag {
+        margin: 0 auto 8px !important;
+        display: inline-block !important;
+    }
+
+    .event-card-dash div[style*="display: flex; align-items: center; gap: 8px;"] {
+        justify-content: center !important;
+    }
+
+    .event-card-dash .stat-box-dash {
+        padding: 5px !important;
+        flex: 1 !important;
+        text-align: center !important;
+    }
+
+    .event-card-dash .status-tag {
+        font-size: 0.55rem !important;
+        padding: 3px 8px !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    .event-card-dash .stat-box-dash span:first-child {
+        font-size: 0.85rem !important;
+        display: block !important;
+        line-height: 1 !important;
+    }
+
+    .event-card-dash .stat-box-dash span:last-child {
+        font-size: 0.5rem !important;
+        display: block !important;
+        margin-top: 2px !important;
+    }
+    
+    .event-card-dash div[style*="margin-bottom: 20px"] { margin-bottom: 8px !important; }
+    .event-card-dash div[style*="margin-bottom: 25px"] { margin-bottom: 10px !important; }
+
+    .btn-start-dash {
+        padding: 12px 10px !important;
+        font-size: 0.8rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        margin-bottom: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .event-card-dash a[style*="font-size: 0.75rem"] {
+        padding: 10px !important;
+        font-size: 0.65rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
     .coord-manage-panel {
         padding: 10px !important;
         border-radius: 12px !important;
