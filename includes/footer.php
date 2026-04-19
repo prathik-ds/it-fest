@@ -7,11 +7,10 @@
 
     <?php if ($is_dashboard_page): ?>
                 </div> <!-- Close content-body -->
-                <footer style="margin-top: auto; padding: 30px 40px; text-align: center; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.78rem;">
-                    <p style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <span style="background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">FUSIONVERSE</span>
-                        &copy; 2026 BCA IT Fest — Where Code Meets Innovation
-                    </p>
+                <footer style="margin-top: auto; padding: 30px 40px; text-align: center; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.7rem; line-height: 1.6;">
+                    <p style="margin-bottom: 4px; font-weight: 500;">Created by <span style="color: var(--accent-1); font-weight: 700;">Team of CodeGeeks</span></p>
+                    <p style="margin-bottom: 12px; font-size: 0.65rem; opacity: 0.8;">Milagres College Kallianpur</p>
+                    <p style="letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: var(--text-muted);">&copy; 2026 FUSIONVERSE_PROTOCOLS. ALL RIGHTS RESERVED.</p>
                 </footer>
             </main> <!-- Close main-content-dash -->
         </div> <!-- Close app-wrapper -->
@@ -22,8 +21,9 @@
             <p style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;">
                 <span style="background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">FUSIONVERSE 2026</span>
             </p>
-            <p style="font-size: 0.8rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase;">BCA IT Fest — Innovation Through Code</p>
-            <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 16px;">Built with 💜 for BCA students everywhere</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 4px;">Created by Team of CodeGeeks</p>
+            <p style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 18px;">Milagres College Kallianpur</p>
+            <p style="font-size: 0.65rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase;">&copy; 2026 FUSIONVERSE_PROTOCOLS. ALL RIGHTS RESERVED.</p>
         </footer>
     <?php endif; ?>
 
