@@ -2151,6 +2151,272 @@ nav {
     #content-users>div {
         padding: 14px !important;
     }
+
+    /* ── Coordinator Event Management Mobile Overhaul ── */
+    .coord-manage-panel {
+        padding: 10px !important;
+        border-radius: 12px !important;
+    }
+
+    .coord-manage-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        margin-bottom: 15px !important;
+    }
+
+    .coord-manage-title {
+        font-size: 1.4rem !important;
+    }
+
+    .coord-header-actions {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+
+    .coord-header-actions button,
+    .coord-header-actions a {
+        width: 100% !important;
+        justify-content: center !important;
+        font-size: 0.65rem !important;
+        padding: 10px 4px !important;
+        min-height: 44px !important;
+        text-align: center !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    .coord-table {
+        display: block !important;
+    }
+
+    .coord-table thead {
+        display: none !important;
+    }
+
+    .coord-table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .coord-tr {
+        display: block !important;
+        background: rgba(15, 22, 41, 0.8) !important;
+        border: 1px solid rgba(124, 58, 237, 0.25) !important;
+        border-radius: 14px !important;
+        margin-bottom: 14px !important;
+        padding: 12px 14px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .coord-form {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    .coord-table td::before {
+        display: none !important;
+    }
+
+    .coord-td-info {
+        grid-column: span 2 !important;
+        padding: 0 0 10px 0 !important;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.1) !important;
+        display: block !important;
+        text-align: left !important;
+    }
+
+    .coord-td-attend,
+    .coord-td-status {
+        padding: 8px 0 0 0 !important;
+        text-align: left !important;
+        border: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        min-height: unset !important;
+    }
+
+    .coord-td-attend::before {
+        content: 'Attendance' !important;
+        display: block !important;
+        font-size: 0.6rem !important;
+        color: var(--text-dim) !important;
+        text-transform: uppercase !important;
+        margin-bottom: 4px !important;
+        font-weight: 700 !important;
+        position: static !important;
+        width: auto !important;
+        transform: none !important;
+        text-align: left !important;
+    }
+
+    .coord-td-status::before {
+        content: 'Status' !important;
+        display: block !important;
+        font-size: 0.6rem !important;
+        color: var(--text-dim) !important;
+        text-transform: uppercase !important;
+        margin-bottom: 4px !important;
+        font-weight: 700 !important;
+        position: static !important;
+        width: auto !important;
+        transform: none !important;
+        text-align: left !important;
+    }
+
+    .coord-td-actions {
+        grid-column: span 2 !important;
+        padding: 12px 0 0 0 !important;
+        border: none !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+        display: block !important;
+        min-height: unset !important;
+    }
+
+    .coord-td-actions>div {
+        display: flex !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .coord-td-actions button.btn-coord {
+        flex: 1 !important;
+        height: 38px !important;
+        font-size: 0.75rem !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+        background: transparent !important;
+        border: 1px solid var(--accent-3) !important;
+        color: var(--accent-3) !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.5px !important;
+        text-transform: uppercase !important;
+        transition: all 0.3s;
+    }
+
+    .coord-td-actions button.btn-coord:active {
+        background: rgba(16, 185, 129, 0.1) !important;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.3) !important;
+    }
+
+    .coord-td-actions button.btn-icon-danger {
+        width: 44px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+        background: rgba(239, 68, 68, 0.05) !important;
+        border: 1px solid rgba(239, 68, 68, 0.3) !important;
+        color: #ef4444 !important;
+    }
+
+    .coord-table select {
+        width: 40% !important;
+        height: 38px !important;
+        padding: 4px 10px !important;
+        font-size: 0.75rem !important;
+        border-radius: 8px !important;
+        box-sizing: border-box !important;
+        background: rgba(15, 22, 41, 0.6) !important;
+        color: white !important;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        transition: all 0.3s;
+    }
+
+    .coord-td-attend select {
+        border: 1px solid var(--accent-2) !important;
+        /* Violet for Attendance */
+    }
+
+    .coord-td-status select {
+        border: 1px solid var(--accent-1) !important;
+        /* Cyan for Status */
+    }
+
+    .coord-table select:focus {
+        outline: none;
+        box-shadow: 0 0 15px currentColor;
+    }
+
+    .coord-td-attend select:focus {
+        box-shadow: 0 0 15px rgba(139, 92, 246, 0.3) !important;
+    }
+
+    .coord-td-status select:focus {
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.3) !important;
+    }
+
+    /* Reduce global padding on mobile */
+    .dashboard-header,
+    .dashboard-header-dash,
+    .events-grid-dash {
+        padding: 12px !important;
+    }
+
+    div[style*="padding: 0 40px 40px"],
+    div[style*="padding: 20px"] {
+        padding: 10px !important;
+    }
+
+    /* Segmented Navigation Bar - Radio Style */
+    .coord-tabs-bar {
+        display: flex !important;
+        background: rgba(15, 22, 41, 0.4) !important;
+        padding: 5px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        gap: 5px !important;
+        margin-bottom: 20px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .coord-tab {
+        flex: 1 !important;
+        text-align: center !important;
+        padding: 10px 5px !important;
+        border-radius: 8px !important;
+        font-size: 0.7rem !important;
+        font-weight: 700 !important;
+        color: var(--text-dim) !important;
+        text-decoration: none !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        letter-spacing: 0.5px !important;
+        white-space: nowrap !important;
+    }
+
+    .coord-tab.active {
+        background: rgba(255, 255, 255, 0.06) !important;
+        color: var(--accent-1) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid rgba(0, 212, 255, 0.2) !important;
+    }
+
+    .coord-tab.active:nth-child(2) {
+        color: var(--accent-2) !important;
+        border-color: rgba(139, 92, 246, 0.2) !important;
+    }
+
+    .coord-tab i {
+        font-size: 0.85rem !important;
+    }
 }
 
 /* ==========================================================================

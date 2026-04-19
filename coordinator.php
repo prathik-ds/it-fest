@@ -142,25 +142,41 @@ if ($active_event_id) {
 <?php else: ?>
     <!-- Management View for Selection Event -->
     <div style="padding: 0 40px 40px;">
-        <div class="glass-panel" style="padding: 30px; margin-bottom: 30px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div class="glass-panel coord-manage-panel" style="padding: 30px; margin-bottom: 30px;">
+            <div class="coord-manage-header"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                 <div>
                     <a href="coordinator.php"
                         style="color: var(--primary); text-decoration: none; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                         <i class="fa-solid fa-arrow-left"></i> BACK TO EVENTS
                     </a>
-                    <h2 style="font-size: 2rem; font-family: 'Outfit', sans-serif;">
-                        <?= htmlspecialchars($active_event['name']) ?></h2>
+                    <h2 class="coord-manage-title" style="font-size: 2rem; font-family: 'Outfit', sans-serif;">
+                        <?= htmlspecialchars($active_event['name']) ?>
+                    </h2>
                     <p style="color: var(--text-dim)">Manage participant attendance and track event status.</p>
                 </div>
-                <div style="display: flex; gap: 12px;">
+                <div class="coord-header-actions" style="display: flex; gap: 12px;">
                     <button onclick="startScanner()" class="btn-coord" style="padding: 10px 20px;">
                         <i class="fa-solid fa-camera"></i> SCAN ATTENDANCE
                     </button>
-                    <a href="export_data.php?type=participation&event_id=<?= $active_event_id ?>" class="btn-coord" style="padding: 10px 20px; background: rgba(0, 212, 255, 0.08); border-color: rgba(0, 212, 255, 0.2); color: var(--accent-1);">
+                    <a href="export_data.php?type=participation&event_id=<?= $active_event_id ?>" class="btn-coord"
+                        style="padding: 10px 20px; background: rgba(0, 212, 255, 0.08); border-color: rgba(0, 212, 255, 0.2); color: var(--accent-1);">
                         <i class="fa-solid fa-file-csv"></i> EXPORT CSV
                     </a>
                 </div>
+            </div>
+
+            <?php $view = $_GET['view'] ?? 'manage'; ?>
+            <!-- Tab Navigation (Segmented Radio Bar) -->
+            <div class="coord-tabs-bar">
+                <a href="coordinator.php?manage_event=<?= $active_event_id ?>&view=manage"
+                    class="coord-tab <?= $view !== 'results' ? 'active' : '' ?>">
+                    <i class="fa-solid fa-users-check"></i> ATTENDANCE
+                </a>
+                <a href="coordinator.php?manage_event=<?= $active_event_id ?>&view=results"
+                    class="coord-tab <?= $view === 'results' ? 'active' : '' ?>">
+                    <i class="fa-solid fa-ranking-star"></i> RESULTS
+                </a>
             </div>
 
             <!-- QR Scanner Modal -->
@@ -181,22 +197,30 @@ if ($active_event_id) {
 
             <!-- Participant Table -->
             <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse;">
+                <table class="coord-table" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr style="border-bottom: 1px solid var(--border);">
-                            <th style="padding: 16px; text-align: left; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Participant</th>
-                            <th style="padding: 16px; text-align: center; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Attendance</th>
-                            <th style="padding: 16px; text-align: center; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Status</th>
-                            <th style="padding: 16px; text-align: right; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">Actions</th>
+                            <th
+                                style="padding: 16px; text-align: left; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">
+                                Participant</th>
+                            <th
+                                style="padding: 16px; text-align: center; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">
+                                Attendance</th>
+                            <th
+                                style="padding: 16px; text-align: center; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">
+                                Status</th>
+                            <th
+                                style="padding: 16px; text-align: right; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;">
+                                Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($participants as $p): ?>
-                            <tr style="border-bottom: 1px solid var(--border);">
-                                <form action="coordinator_actions.php" method="POST">
+                            <tr class="coord-tr" style="border-bottom: 1px solid var(--border);">
+                                <form class="coord-form" action="coordinator_actions.php" method="POST">
                                     <input type="hidden" name="reg_id" value="<?= $p['reg_id'] ?>">
                                     <input type="hidden" name="event_id" value="<?= $active_event_id ?>">
-                                    <td style="padding: 16px;">
+                                    <td class="coord-td-info" style="padding: 16px;">
                                         <div style="font-weight: 600;">
                                             <?= htmlspecialchars($p['name']) ?>
                                             <?php if ($p['team_name']): ?>
@@ -207,25 +231,32 @@ if ($active_event_id) {
                                             <?php endif; ?>
                                         </div>
                                         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-                                            <?= $p['user_id'] ?> • <?= $p['course'] ?> • <?= $p['year'] ?></div>
+                                            <?= $p['user_id'] ?> • <?= $p['course'] ?> • <?= $p['year'] ?>
+                                        </div>
                                         <div style="font-size: 0.65rem; color: var(--accent-1); margin-top: 2px;">Roll:
-                                            <?= $p['roll_no'] ?></div>
+                                            <?= $p['roll_no'] ?>
+                                        </div>
                                     </td>
-                                    <td style="padding: 16px; text-align: center;">
-                                        <select name="attendance" style="background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 8px;" onchange="if(this.value === 'present'){ this.closest('tr').querySelector('select[name=\'status\']').value = 'participated'; }">
-                                            <option value="absent" <?= $p['attendance'] == 'absent' ? 'selected' : '' ?>>Absent</option>
-                                            <option value="present" <?= $p['attendance'] == 'present' ? 'selected' : '' ?>>Present</option>
+                                    <td class="coord-td-attend">
+                                        <select name="attendance"
+                                            onchange="if(this.value === 'present'){ this.closest('tr').querySelector('select[name=\'status\']').value = 'participated'; }">
+                                            <option value="absent" <?= $p['attendance'] == 'absent' ? 'selected' : '' ?>>Abs
+                                            </option>
+                                            <option value="present" <?= $p['attendance'] == 'present' ? 'selected' : '' ?>>Pre
+                                            </option>
                                         </select>
                                     </td>
-                                    <td style="padding: 16px; text-align: center;">
-                                        <select name="status" style="background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 8px;">
-                                            <option value="registered" <?= $p['status'] == 'registered' ? 'selected' : '' ?>>Reg.</option>
-                                            <option value="participated" <?= $p['status'] == 'participated' ? 'selected' : '' ?>>Played</option>
-                                            <option value="winner" <?= $p['status'] == 'winner' ? 'selected' : '' ?>>Winner</option>
-                                            <option value="runner" <?= $p['status'] == 'runner' ? 'selected' : '' ?>>Runner</option>
+                                    <td class="coord-td-status">
+                                        <select name="status">
+                                            <option value="registered" <?= $p['status'] == 'registered' ? 'selected' : '' ?>>Reg
+                                            </option>
+                                            <option value="participated" <?= $p['status'] == 'participated' ? 'selected' : '' ?>>
+                                                Play</option>
+                                            <option value="winner" <?= $p['status'] == 'winner' ? 'selected' : '' ?>>Win</option>
+                                            <option value="runner" <?= $p['status'] == 'runner' ? 'selected' : '' ?>>Run</option>
                                         </select>
                                     </td>
-                                    <td style="padding: 16px; text-align: right;">
+                                    <td class="coord-td-actions" style="padding: 16px; text-align: right;">
                                         <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center;">
                                             <button type="submit" class="btn-coord"
                                                 style="padding: 6px 16px; font-size: 0.7rem;">UPDATE</button>
