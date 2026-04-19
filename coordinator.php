@@ -237,24 +237,30 @@ if ($active_event_id) {
                                             <?= $p['roll_no'] ?>
                                         </div>
                                     </td>
-                                    <td class="coord-td-attend">
-                                        <select name="attendance"
-                                            onchange="if(this.value === 'present'){ this.closest('tr').querySelector('select[name=\'status\']').value = 'participated'; }">
-                                            <option value="absent" <?= $p['attendance'] == 'absent' ? 'selected' : '' ?>>Abs
-                                            </option>
-                                            <option value="present" <?= $p['attendance'] == 'present' ? 'selected' : '' ?>>Pre
-                                            </option>
-                                        </select>
-                                    </td>
-                                    <td class="coord-td-status">
-                                        <select name="status">
-                                            <option value="registered" <?= $p['status'] == 'registered' ? 'selected' : '' ?>>Reg
-                                            </option>
-                                            <option value="participated" <?= $p['status'] == 'participated' ? 'selected' : '' ?>>
-                                                Play</option>
-                                            <option value="winner" <?= $p['status'] == 'winner' ? 'selected' : '' ?>>Win</option>
-                                            <option value="runner" <?= $p['status'] == 'runner' ? 'selected' : '' ?>>Run</option>
-                                        </select>
+                                    <td class="coord-td-controls" style="grid-column: span 2; padding: 10px 0;">
+                                        <div style="display: flex; gap: 8px; width: 100%; align-items: center;">
+                                            <!-- Attendance Dropdown [Violet] -->
+                                            <div style="flex: 1; position: relative;">
+                                                <select name="attendance" onchange="this.form.submit()" 
+                                                    style="width: 100%; height: 38px; background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.3); color: var(--accent-2); border-radius: 8px; padding: 0 10px; font-size: 0.7rem; font-weight: 700; appearance: none; cursor: pointer;">
+                                                    <option value="absent" <?= $p['attendance'] == 'absent' ? 'selected' : '' ?>>ABSENT</option>
+                                                    <option value="present" <?= $p['attendance'] == 'present' ? 'selected' : '' ?>>PRESENT</option>
+                                                </select>
+                                                <i class="fa-solid fa-chevron-down" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 0.6rem; color: var(--accent-2); pointer-events: none;"></i>
+                                            </div>
+
+                                            <!-- Status Dropdown [Cyan] -->
+                                            <div style="flex: 1.5; position: relative;">
+                                                <select name="status" onchange="this.form.submit()" 
+                                                    style="width: 100%; height: 38px; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); color: var(--accent-1); border-radius: 8px; padding: 0 10px; font-size: 0.7rem; font-weight: 700; appearance: none; cursor: pointer;">
+                                                    <option value="registered" <?= $p['status'] == 'registered' ? 'selected' : '' ?>>REGISTERED</option>
+                                                    <option value="participated" <?= $p['status'] == 'participated' ? 'selected' : '' ?>>PARTICIPATED</option>
+                                                    <option value="winner" <?= $p['status'] == 'winner' ? 'selected' : '' ?>>WINNER</option>
+                                                    <option value="runner" <?= $p['status'] == 'runner' ? 'selected' : '' ?>>RUNNER</option>
+                                                </select>
+                                                <i class="fa-solid fa-chevron-down" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 0.6rem; color: var(--accent-1); pointer-events: none;"></i>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td class="coord-td-actions" style="padding: 16px; text-align: right;">
                                         <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center;">
