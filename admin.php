@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header('Location: index.php');
+    header('Location: index.html');
     exit;
 }
 include 'includes/header.php';
@@ -130,7 +130,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // 3. Registration Management Functions
     elseif ($action === 'update_reg_status') {
-        $pdo->prepare("UPDATE registrations SET status = ? WHERE id = ?")->execute([$_POST['status'], $_POST['reg_id']]);
+        $reg_id = $_POST['reg_id'];
+        $status = $_POST['status'];
+        
+        $stmt = $pdo->prepare("SELECT event_id, team_id FROM registrations WHERE id = ?");
+        $stmt->execute([$reg_id]);
+        $r_info = $stmt->fetch();
+        
+        if ($r_info && $r_info['team_id']) {
+            $t_stmt = $pdo->prepare("SELECT name FROM teams WHERE id = ?");
+            $t_stmt->execute([$r_info['team_id']]);
+            $team_name = $t_stmt->fetchColumn();
+            
+            if ($team_name) {
+                $pdo->prepare("
+                    UPDATE registrations r 
+                    JOIN teams t ON r.team_id = t.id 
+                    SET r.status = ? 
+                    WHERE t.name = ? AND r.event_id = ?
+                ")->execute([$status, $team_name, $r_info['event_id']]);
+            } else {
+                $pdo->prepare("UPDATE registrations SET status = ? WHERE team_id = ? AND event_id = ?")->execute([$status, $r_info['team_id'], $r_info['event_id']]);
+            }
+        } else {
+            $pdo->prepare("UPDATE registrations SET status = ? WHERE id = ?")->execute([$status, $reg_id]);
+        }
         $msg = "PARTICIPANT STATUS UPDATED.";
     }
 }
@@ -597,7 +621,29 @@ foreach ($all_regs_raw as $reg) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($registrations as $r): ?>
+                                <?php 
+                                $display_regs = $registrations;
+                                // Determine if this event is team-based (check any reg)
+                                $first_reg = reset($registrations);
+                                if ($first_reg && $first_reg['is_team_event']) {
+                                    $grouped_adm = [];
+                                    foreach ($registrations as $reg_adm) {
+                                        $t_key_adm = $reg_adm['team_name'] ?: ($reg_adm['t_id'] ?: 'indiv_' . $reg_adm['id']);
+                                        if ($reg_adm['team_name'] || $reg_adm['t_id']) {
+                                            if (!isset($grouped_adm[$t_key_adm])) {
+                                                $grouped_adm[$t_key_adm] = $reg_adm;
+                                                $grouped_adm[$t_key_adm]['member_names'] = [];
+                                            }
+                                            $grouped_adm[$t_key_adm]['member_names'][] = $reg_adm['user_name'];
+                                        } else {
+                                            $reg_adm['member_names'] = [$reg_adm['user_name']];
+                                            $grouped_adm['indiv_' . $reg_adm['id']] = $reg_adm;
+                                        }
+                                    }
+                                    $display_regs = array_values($grouped_adm);
+                                }
+
+                                foreach ($display_regs as $r): ?>
                                     <tr>
                                         <td data-label="Participant" style="padding-left: 24px;">
                                             <?php if ($r['is_team_event'] && $r['team_name']): ?>
@@ -605,12 +651,7 @@ foreach ($all_regs_raw as $reg) {
                                                     <i class="fa-solid fa-users"></i> <?= htmlspecialchars($r['team_name']) ?>
                                                 </div>
                                                 <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 4px;">
-                                                    Members: <?php
-                                                    $mst = $pdo->prepare("SELECT u.name FROM users u JOIN registrations r2 ON u.user_id = r2.user_id WHERE r2.team_id = ?");
-                                                    $mst->execute([$r['t_id']]);
-                                                    $mems = $mst->fetchAll(PDO::FETCH_COLUMN);
-                                                    echo htmlspecialchars(implode(', ', $mems));
-                                                    ?>
+                                                    Members: <?= htmlspecialchars(implode(', ', $r['member_names'])) ?>
                                                 </div>
                                             <?php else: ?>
                                                 <div style="font-weight: 600; font-size: 0.95rem;">
@@ -727,69 +768,93 @@ foreach ($all_regs_raw as $reg) {
     /* Stats Grid Overhaul */
     .stats-grid-modern {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 20px;
+        margin-bottom: 30px;
     }
 
     .stat-card-modern {
-        background: var(--bg-glass);
-        border: 1px solid var(--border);
-        border-radius: 20px;
+        background: rgba(15, 22, 41, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         padding: 24px;
+        border-radius: 20px;
         display: flex;
         align-items: center;
         gap: 20px;
-        transition: transform 0.3s ease, border-color 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .stat-card-modern::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+        pointer-events: none;
     }
 
     .stat-card-modern:hover {
         transform: translateY(-5px);
-        border-color: rgba(255, 255, 255, 0.15);
+        background: rgba(15, 22, 41, 0.6);
+        border-color: rgba(255, 255, 255, 0.1);
     }
 
     .stat-icon {
-        width: 56px;
-        height: 56px;
+        width: 60px;
+        height: 60px;
         border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.6rem;
+        position: relative;
+        z-index: 2;
     }
 
     .stat-card-modern.purple .stat-icon {
-        background: rgba(124, 58, 237, 0.1);
+        background: rgba(124, 58, 237, 0.15);
         color: #a855f7;
+        box-shadow: 0 0 20px rgba(124, 58, 237, 0.1);
     }
 
     .stat-card-modern.cyan .stat-icon {
-        background: rgba(0, 212, 255, 0.1);
+        background: rgba(0, 212, 255, 0.15);
         color: #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
     }
 
     .stat-card-modern.emerald .stat-icon {
-        background: rgba(16, 185, 129, 0.1);
+        background: rgba(16, 185, 129, 0.15);
         color: #10b981;
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
     }
 
     .stat-info {
         display: flex;
         flex-direction: column;
+        z-index: 2;
     }
 
     .stat-label {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         color: var(--text-dim);
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 2px;
+        letter-spacing: 1.5px;
+        margin-bottom: 4px;
     }
 
     .stat-value {
-        font-size: 1.8rem;
+        font-size: 2.2rem;
         font-weight: 800;
         color: white;
         line-height: 1;
+        font-family: 'Space Grotesk', sans-serif;
     }
 
     /* Admin Grid Layouts */

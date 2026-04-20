@@ -4,7 +4,7 @@ require_once 'config/db.php';
 
 // Check if logged in and has appropriate role
 if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'coordinator')) {
-    header('Location: index.php');
+    header('Location: index.html');
     exit;
 }
 

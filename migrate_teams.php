@@ -55,7 +55,7 @@ try {
     echo "<b>&#10003; team_members table created.</b><br><br>";
 
     echo "<b style='color: green;'>&#10003; MIGRATION COMPLETE. You may now delete this file.</b>";
-    echo "<br><br><a href='index.php' style='display:inline-block;padding:10px 20px;background:#7c3aed;color:#fff;border-radius:5px;text-decoration:none;'>Go to Home</a>";
+    echo "<br><br><a href='index.html' style='display:inline-block;padding:10px 20px;background:#7c3aed;color:#fff;border-radius:5px;text-decoration:none;'>Go to Home</a>";
 
 } catch (PDOException $e) {
     die("<br><b style='color:red;'>MIGRATION ERROR: " . $e->getMessage() . "</b>");

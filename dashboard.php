@@ -64,7 +64,7 @@ $announcements = $stmt->fetchAll();
                 <span style="font-size: 1.5rem;">👋</span>
                 Welcome, <?= htmlspecialchars($userinfo['name']) ?>
             </h1>
-            <p>Track your registrations, scores, and access your digital entry passes.</p>
+            <p>Track your registrations and access your digital entry passes.</p>
         </div>
         <div class="header-actions">
             <span class="status-tag"

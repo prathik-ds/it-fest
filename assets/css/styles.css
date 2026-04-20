@@ -2583,3 +2583,216 @@ nav {
         padding: 32px 24px !important;
     }
 }
+/* ==========================================================================
+   ADMIN DASHBOARD OVERHAUL & RESPONSIVENESS
+   ========================================================================== */
+
+.admin-main-wrapper {
+    padding: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.dashboard-header-modern {
+    background: linear-gradient(135deg, rgba(15, 22, 41, 0.4), rgba(4, 6, 14, 0.6));
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 32px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-icon-glow {
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-1);
+    font-size: 1.2rem;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+.header-status-badge {
+    background: rgba(124, 58, 237, 0.1);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    color: #a855f7;
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stats-grid-modern {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.stat-card-modern {
+    background: var(--bg-glass);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.stat-card-modern:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.stat-card-modern.purple .stat-icon { background: rgba(124, 58, 237, 0.1); color: #a855f7; }
+.stat-card-modern.cyan .stat-icon { background: rgba(0, 212, 255, 0.1); color: #00d4ff; }
+.stat-card-modern.emerald .stat-icon { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+.stat-info { display: flex; flex-direction: column; }
+.stat-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+.stat-value { font-size: 1.8rem; font-weight: 800; color: white; line-height: 1; }
+
+.admin-grid-layout { display: grid; gap: 30px; }
+.user-grid { grid-template-columns: 1fr 350px; }
+.event-grid { grid-template-columns: 1fr 380px; }
+
+.modern-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.modern-input, .modern-select, .modern-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    color: white;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.modern-input:focus, .modern-select:focus, .modern-textarea:focus {
+    border-color: var(--accent-1);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.modern-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.modern-table th {
+    padding: 16px;
+    text-align: left;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.modern-table td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+
+.btn-icon-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-icon-danger:hover { background: var(--danger); color: white; }
+
+.status-select {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1px solid var(--border);
+    background-color: rgba(15, 22, 41, 0.5);
+    color: white;
+}
+
+@media (max-width: 992px) {
+    .admin-main-wrapper { padding: 12px; }
+    .dashboard-header-modern { flex-direction: column; align-items: flex-start; padding: 20px; border-radius: 16px; }
+    .stats-grid-modern { grid-template-columns: 1fr; gap: 12px; }
+    .admin-grid-layout { grid-template-columns: 1fr !important; gap: 20px; }
+}
+
+@media (max-width: 768px) {
+    .modern-table, .modern-table tbody, .modern-table tr, .modern-table td { display: block; width: 100%; box-sizing: border-box; }
+    .modern-table thead { display: none; }
+    .modern-table tr {
+        margin-bottom: 20px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .modern-table td {
+        text-align: right !important;
+        padding: 12px 0 12px 110px !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
+        min-height: 48px;
+        word-break: break-word;
+    }
+    .modern-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        top: 14px;
+        width: 100px;
+        text-align: left !important;
+        font-size: 0.65rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+    }
+    .modern-table td[data-label="Participant"],
+    .modern-table td[data-label="User"],
+    .modern-table td[data-label="Event"] {
+        padding-left: 0 !important;
+        text-align: left !important;
+    }
+    .modern-table td[data-label="Participant"]::before,
+    .modern-table td[data-label="User"]::before,
+    .modern-table td[data-label="Event"]::before {
+        display: none;
+    }
+}

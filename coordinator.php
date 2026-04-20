@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'coordinator' && $_SESSION['user']['role'] !== 'admin')) {
-    header('Location: index.php');
+    header('Location: index.html');
     exit;
 }
 include 'includes/header.php';
@@ -17,7 +17,7 @@ if ($_SESSION['user']['role'] === 'admin') {
     $stmt = $pdo->prepare("SELECT * FROM events ORDER BY date, time");
     $stmt->execute();
 } else {
-    $stmt = $pdo->prepare("SELECT * FROM events WHERE coordinator_id = ? ORDER BY date, time");
+    $stmt = $pdo->prepare("SELECT * FROM events WHERE FIND_IN_SET(?, coordinator_id) ORDER BY date, time");
     $stmt->execute([$c_id]);
 }
 $assignedEvents = $stmt->fetchAll();
@@ -33,7 +33,7 @@ if ($active_event_id) {
         $stmt = $pdo->prepare("SELECT * FROM events WHERE id = ?");
         $stmt->execute([$active_event_id]);
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM events WHERE id = ? AND coordinator_id = ?");
+        $stmt = $pdo->prepare("SELECT * FROM events WHERE id = ? AND FIND_IN_SET(?, coordinator_id)");
         $stmt->execute([$active_event_id, $c_id]);
     }
     $active_event = $stmt->fetch();
@@ -46,7 +46,87 @@ if ($active_event_id) {
 }
 ?>
 
-<div style="padding: 30px 40px;">
+<style>
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 20px;
+            padding: 20px !important;
+        }
+
+        .search-box {
+            width: 100% !important;
+        }
+
+        .events-grid-dash {
+            grid-template-columns: 1fr !important;
+            padding: 0 16px !important;
+        }
+
+        .coord-manage-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 20px;
+        }
+
+        .coord-header-actions {
+            width: 100%;
+            flex-direction: column !important;
+        }
+
+        .coord-header-actions button,
+        .coord-header-actions a {
+            width: 100%;
+            text-align: center;
+        }
+
+        .coord-manage-title {
+            font-size: 1.5rem !important;
+        }
+
+        /* Table to Card Stack */
+        .coord-table thead {
+            display: none;
+        }
+
+        .coord-tr {
+            display: block !important;
+            padding: 16px !important;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .coord-tr form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .coord-td-info,
+        .coord-td-controls,
+        .coord-td-status,
+        .coord-td-action {
+            display: block !important;
+            padding: 0 !important;
+            width: 100% !important;
+            text-align: left !important;
+            border: none !important;
+        }
+        
+        .coord-td-controls select {
+            font-size: 0.85rem !important;
+        }
+    }
+</style>
+
+<?php if (empty($active_event_id)): ?>
+    <div style="padding: 20px;">
+<?php else: ?>
+    <div style="padding: 15px;">
+<?php endif; ?>
     <div class="dashboard-header">
         <div class="header-content">
             <h1>
@@ -141,7 +221,7 @@ if ($active_event_id) {
     </div>
 <?php else: ?>
     <!-- Management View for Selection Event -->
-    <div style="padding: 0 40px 40px;">
+    <div class="manage-view-container" style="padding: 0 20px 40px;">
         <div class="glass-panel coord-manage-panel" style="padding: 30px; margin-bottom: 30px;">
             <div class="coord-manage-header"
                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
@@ -181,20 +261,32 @@ if ($active_event_id) {
                 </a>
             </div>
 
-            <!-- QR Scanner Modal -->
-            <div id="scanner-container" class="glass-panel"
-                style="display: none; padding: 30px; margin-bottom: 30px; text-align: center; border-color: var(--primary);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="font-size: 1rem; color: var(--primary);">Scanner Active</h3>
-                    <button onclick="stopScanner()"
-                        style="background: rgba(244, 63, 94, 0.1); border: 1px solid var(--danger); color: var(--danger); cursor: pointer; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-circle-xmark"></i> CLOSE SCANNER
-                    </button>
+            <!-- QR Scanner Fullscreen Modal -->
+            <div id="scanner-container" 
+                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(10px); padding: 20px; flex-direction: column; justify-content: center; align-items: center;">
+                
+                <div style="width: 100%; max-width: 500px; padding: 20px; text-align: center;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <div style="text-align: left;">
+                            <h3 style="font-size: 1.4rem; color: var(--primary); font-family: 'Outfit'; margin: 0;">Vortex Scanner</h3>
+                            <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 4px;">Point camera at Event QR</p>
+                        </div>
+                        <button onclick="stopScanner()"
+                            style="background: rgba(244, 63, 94, 0.1); border: 1px solid var(--danger); color: var(--danger); cursor: pointer; padding: 12px 18px; border-radius: 12px; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
+                            <i class="fa-solid fa-xmark"></i> EXIT
+                        </button>
+                    </div>
+
+                    <div style="position: relative; width: 100%; aspect-ratio: 1/1; max-width: 400px; margin: 0 auto; border-radius: 30px; overflow: hidden; border: 2px solid var(--primary); box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);">
+                        <div id="reader" style="width: 100% !important; border: none !important;"></div>
+                        <!-- Scanner Overlay Box -->
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; height: 70%; border: 2px dashed rgba(255,255,255,0.4); border-radius: 20px; pointer-events: none;"></div>
+                    </div>
+
+                    <div id="scanner-msg" style="margin-top: 30px; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; color: var(--text-main); font-size: 0.9rem; font-weight: 600;">
+                        Initializing Optical Sensor...
+                    </div>
                 </div>
-                <div id="reader"
-                    style="width: 100%; max-width: 500px; margin: 0 auto; border-radius: 16px; overflow: hidden;"></div>
-                <p id="scanner-msg" style="margin-top: 20px; color: var(--text-muted);">Frame the QR code to mark attendance
-                </p>
             </div>
 
             <!-- Participant Table -->
@@ -218,9 +310,31 @@ if ($active_event_id) {
                     </thead>
                     <tbody>
                         <?php 
-                        foreach ($participants as $p): 
-                            // If we are in results view, only show winners/runners
-                            if ($view === 'results' && !in_array($p['status'], ['winner', 'runner', 'participated'])) {
+                        $display_participants = $participants;
+                        if ($active_event && $active_event['is_team_event'] && $view === 'results') {
+                            $grouped = [];
+                            foreach ($participants as $p) {
+                                // For results, only consider present members as part of the team
+                                if ($p['attendance'] !== 'present') continue;
+
+                                $t_key = $p['team_name'] ?: ($p['team_id'] ?: 'indiv_' . $p['reg_id']);
+                                if ($p['team_name'] || $p['team_id']) {
+                                    if (!isset($grouped[$t_key])) {
+                                        $grouped[$t_key] = $p;
+                                        $grouped[$t_key]['member_names'] = [];
+                                    }
+                                    $grouped[$t_key]['member_names'][] = $p['name'];
+                                } else {
+                                    $p['member_names'] = [$p['name']];
+                                    $grouped['indiv_' . $p['reg_id']] = $p;
+                                }
+                            }
+                            $display_participants = array_values($grouped);
+                        }
+
+                        foreach ($display_participants as $p): 
+                            // If we are in results view, only show winners/runners or those marked as participated
+                            if ($view === 'results' && !in_array($p['status'], ['winner', 'runner', 'participated', 'third'])) {
                                 continue;
                             }
                         ?>
@@ -230,20 +344,35 @@ if ($active_event_id) {
                                     <input type="hidden" name="event_id" value="<?= $active_event_id ?>">
                                     <td class="coord-td-info" style="padding: 16px;">
                                         <div style="font-weight: 600;">
-                                            <?= htmlspecialchars($p['name']) ?>
-                                            <?php if ($p['team_name']): ?>
-                                                <span
-                                                    style="background: rgba(124, 58, 237, 0.15); color: var(--accent-2); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; margin-left: 6px;"><i
-                                                        class="fa-solid fa-users"></i>
-                                                    <?= htmlspecialchars($p['team_name']) ?></span>
+                                            <?php if ($view === 'results' && !empty($p['team_name'])): ?>
+                                                <div style="color: var(--accent-1); font-size: 1.1rem; margin-bottom: 4px;">
+                                                    <i class="fa-solid fa-users-gear"></i> <?= htmlspecialchars($p['team_name']) ?>
+                                                </div>
+                                                <div style="font-size: 0.85rem; color: var(--text-secondary); opacity: 0.8;">
+                                                    <i class="fa-solid fa-id-card-clip"></i> <?= implode(' • ', array_map('htmlspecialchars', $p['member_names'])) ?>
+                                                </div>
+                                            <?php else: ?>
+                                                <?= htmlspecialchars($p['name']) ?>
+                                                <?php if ($p['team_name']): ?>
+                                                    <span
+                                                        style="background: rgba(124, 58, 237, 0.15); color: var(--accent-2); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; margin-left: 6px;"><i
+                                                            class="fa-solid fa-users"></i>
+                                                        <?= htmlspecialchars($p['team_name']) ?></span>
+                                                <?php endif; ?>
                                             <?php endif; ?>
                                         </div>
                                         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-                                            <?= $p['user_id'] ?> • <?= $p['course'] ?> • <?= $p['year'] ?>
+                                            <?php if ($view !== 'results' || empty($p['team_name'])): ?>
+                                                <?= $p['user_id'] ?> • <?= $p['course'] ?> • <?= $p['year'] ?>
+                                            <?php else: ?>
+                                                Multi-Participant Team Record
+                                            <?php endif; ?>
                                         </div>
-                                        <div style="font-size: 0.65rem; color: var(--accent-1); margin-top: 2px;">Roll:
-                                            <?= $p['roll_no'] ?>
-                                        </div>
+                                        <?php if ($view !== 'results' || empty($p['team_name'])): ?>
+                                            <div style="font-size: 0.65rem; color: var(--accent-1); margin-top: 2px;">Roll:
+                                                <?= $p['roll_no'] ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </td>
                                     <td class="coord-td-controls" style="grid-column: span 2; padding: 10px 0;">
                                         <div style="display: flex; gap: 8px; width: 100%; align-items: center;">
@@ -325,7 +454,7 @@ if ($active_event_id) {
     let html5QrcodeScanner = null;
 
     function startScanner() {
-        document.getElementById('scanner-container').style.display = 'block';
+        document.getElementById('scanner-container').style.display = 'flex';
         document.getElementById('scanner-msg').innerText = "Initializing camera...";
 
         if (!html5QrcodeScanner) {

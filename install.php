@@ -131,7 +131,7 @@ try {
     echo "<b style='color: #10b981;'>ALL SYSTEMS NOMINAL.</b><br>";
     echo "The database is ready. For security, please delete this file before going public.";
     echo "</div>";
-    echo "<br><a href='index.php' style='display: inline-block; padding: 12px 30px; background: #00d4ff; color: #000; font-weight: bold; border-radius: 8px; text-decoration: none;'>ENTER FUSIONVERSE</a>";
+    echo "<br><a href='index.html' style='display: inline-block; padding: 12px 30px; background: #00d4ff; color: #000; font-weight: bold; border-radius: 8px; text-decoration: none;'>ENTER FUSIONVERSE</a>";
 
 } catch (PDOException $e) {
     echo "<br><div style='background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 15px; border-radius: 8px;'>";

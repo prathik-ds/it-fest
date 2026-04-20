@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['action'] == 'qr_attendance')
             $is_owner = true;
         } else {
             $c_id = $_SESSION['user']['user_id'];
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM events WHERE id = ? AND coordinator_id = ?");
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM events WHERE id = ? AND FIND_IN_SET(?, coordinator_id)");
             $stmt->execute([$event_id, $c_id]);
             $is_owner = $stmt->fetchColumn() > 0;
         }
@@ -30,14 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['action'] == 'qr_attendance')
         }
 
         // 2. Check if student is registered for this event
-        $stmt = $pdo->prepare("SELECT r.id, u.name FROM registrations r JOIN users u ON r.user_id = u.user_id WHERE r.user_id = ? AND r.event_id = ?");
+        $stmt = $pdo->prepare("SELECT r.id, u.name, r.status FROM registrations r JOIN users u ON r.user_id = u.user_id WHERE r.user_id = ? AND r.event_id = ?");
         $stmt->execute([$scanned_user_id, $event_id]);
         $registration = $stmt->fetch();
 
         if ($registration) {
-            // 3. Mark Attendance
-            $stmt = $pdo->prepare("UPDATE registrations SET attendance = 'present' WHERE id = ?");
-            $stmt->execute([$registration['id']]);
+            // 3. Mark Attendance and Auto-Promote if applicable
+            $newStatus = ($registration['status'] === 'registered' || empty($registration['status'])) ? 'participated' : $registration['status'];
+            
+            $stmt = $pdo->prepare("UPDATE registrations SET attendance = 'present', status = ? WHERE id = ?");
+            $stmt->execute([$newStatus, $registration['id']]);
             
             echo json_encode([
                 'success' => true, 

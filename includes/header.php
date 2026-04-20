@@ -49,7 +49,7 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
     <meta name="description"
         content="FUSIONVERSE 2026 — The premier BCA IT Fest celebrating innovation, code, and technology. Register today!">
     <link rel="stylesheet" href="assets/css/styles.css">
-    <?php if ($current_page == 'index.php'): ?>
+    <?php if ($current_page == 'index.html'): ?>
         <link rel="stylesheet" href="assets/css/splash.css">
         <script src="assets/js/splash.js" defer></script>
     <?php endif; ?>
@@ -59,7 +59,7 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
 
 <body>
 
-    <?php if ($current_page == 'index.php'): ?>
+    <?php if ($current_page == 'index.html'): ?>
         <!-- ═══════════════════════════════════════════
          FUSIONVERSE SPLASH SCREEN
          ═══════════════════════════════════════════ -->
@@ -88,7 +88,7 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
 
         <!-- Mobile Bottom Nav - REPLACED HAMBURGER PER REQUEST -->
         <div class="mobile-nav-bar">
-            <a href="index.htmls" class="mobile-nav-item <?= isActive('index.php') ?>">
+            <a href="index.html" class="mobile-nav-item <?= isActive('index.html') ?>">
                 <i class="fa-solid fa-house"></i>
                 <span>Home</span>
             </a>
@@ -114,10 +114,9 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
         </div>
 
         <!-- Mobile Top Bar - HAMBURGER REMOVED -->
-        <div class="mobile-top-bar"
-            style="display: flex; align-items: center; justify-content: space-between; z-index: 1002;">
+        <div class="mobile-top-bar" style="z-index: 1002;">
             <div style="display: flex; align-items: center; gap: 5px;">
-                <a href="index.php"
+                <a href="index.html"
                     style="text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-left: 5px;">
                     <img src="assets/img/loogo - Edited.png" alt="Logo" style="width: 32px; height: 32px; object-fit: contain; border-radius: 8px;">
                     <span style="letter-spacing: -0.5px;">FUSIONVERSE</span>
@@ -133,7 +132,7 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
         <div class="app-wrapper">
             <!-- Sidebar -->
             <aside class="sidebar">
-                <a href="index.php" class="sidebar-brand" style="text-decoration: none;">
+                <a href="index.html" class="sidebar-brand" style="text-decoration: none;">
                     <img src="assets/img/loogo - Edited.png" alt="Logo" style="width: 44px; height: 44px; object-fit: contain; border-radius: 12px; margin-right: 12px;">
                     <div class="brand-name" style="font-family: 'Space Grotesk', sans-serif;">
                         <h2 style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; text-transform: none;">
@@ -149,7 +148,7 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                     <?php if ($user && $user['role'] !== 'admin'): ?>
                         <div class="menu-label-dash">MAIN</div>
                         <li class="menu-item">
-                            <a href="index.php" class="menu-link-dash">
+                            <a href="index.html" class="menu-link-dash">
                                 <i class="fa-solid fa-house"></i>
                                 <span>Home Page</span>
                             </a>
@@ -291,17 +290,7 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
 
             <!-- Main Content Section -->
             <main class="main-content-dash">
-                <header class="top-header-dash">
-                    <div class="header-actions" style="display: flex; align-items: center; gap: 20px;">
-                        <a href="coordinator.php" class="btn-coord"
-                            style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.2); color: var(--accent-2); padding: 8px 16px; border-radius: 10px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-decoration: none;">COORD
-                            ACCESS</a>
-                        <div class="notification-bell"
-                            style="font-size: 1.2rem; color: var(--text-muted); cursor: pointer;">
-                            <i class="fa-regular fa-bell"></i>
-                        </div>
-                    </div>
-                </header>
+                <!-- Content injected here -->
                 <div class="content-body" style="flex: 1;">
                 <?php else: ?>
                     <!-- ═══════════════════════════════════════════
@@ -312,13 +301,13 @@ $is_dashboard_page = ($user !== null && in_array($current_page, $dashboard_pages
                     <div class="scanline"></div>
 
                     <nav>
-                        <a href="index.php" class="logo neon-text-blue">FUSIONVERSE</a>
+                        <a href="index.html" class="logo neon-text-blue">FUSIONVERSE</a>
                         <button class="nav-hamburger"
                             onclick="document.querySelector('.nav-links').classList.toggle('open')">
                             <i class="fa-solid fa-bars"></i>
                         </button>
                         <ul class="nav-links">
-                            <li><a href="index.php" class="<?= isActive('index.php') ?>">Home</a></li>
+                            <li><a href="index.html" class="<?= isActive('index.html') ?>">Home</a></li>
                             <li><a href="events.php" class="<?= isActive('events.php') ?>">Events</a></li>
                             <li><a href="leaderboard.php" class="<?= isActive('leaderboard.php') ?>">Leaderboard</a></li>
                             <?php if ($user): ?>

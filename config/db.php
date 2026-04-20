@@ -1,7 +1,7 @@
 <?php
 // Database connection configuration
 
-$host = 'localhost';
+$host = '127.0.0.1';
 $db = 'fusionverse_db';
 $user = 'root';
 $pass = ''; // Default XAMPP/Wamp password is empty

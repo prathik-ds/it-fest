@@ -1,8 +1,26 @@
 <?php 
 include 'includes/header.php'; 
 
-// Fetch Top Performers across all events where score > 0
-$stmt = $pdo->query("SELECT r.user_id, u.name as user_name, e.name as event_name, r.score, r.status, t.name as team_name FROM registrations r JOIN users u ON r.user_id = u.user_id JOIN events e ON r.event_id = e.id LEFT JOIN teams t ON r.team_id = t.id WHERE r.status IN ('winner', 'runner') ORDER BY e.name ASC, CASE WHEN LOWER(r.status) = 'winner' THEN 1 WHEN LOWER(r.status) = 'runner' THEN 2 ELSE 3 END ASC, t.name ASC, u.name ASC LIMIT 50");
+// Fetch Top Performers across all events - group by team if team event
+$stmt = $pdo->query("SELECT 
+                        GROUP_CONCAT(u.name SEPARATOR ' • ') as member_names, 
+                        e.name as event_name, 
+                        r.status, 
+                        t.name as team_name,
+                        e.id as e_id
+                     FROM registrations r 
+                     JOIN users u ON r.user_id = u.user_id 
+                     JOIN events e ON r.event_id = e.id 
+                     LEFT JOIN teams t ON r.team_id = t.id 
+                     WHERE r.status IN ('winner', 'runner', 'third') 
+                     GROUP BY e.id, CASE WHEN t.name IS NOT NULL THEN t.name ELSE r.user_id END
+                     ORDER BY e.name ASC, 
+                              CASE WHEN LOWER(r.status) = 'winner' THEN 1 
+                                   WHEN LOWER(r.status) = 'runner' THEN 2 
+                                   WHEN LOWER(r.status) = 'third' THEN 3 
+                                   ELSE 4 END ASC, 
+                              t.name ASC
+                     LIMIT 50");
 $topScores = $stmt->fetchAll();
 ?>
 
@@ -43,29 +61,44 @@ $topScores = $stmt->fetchAll();
         /* Transform table row into a 3-column Grid card */
         .hof-table tr {
             display: grid !important;
-            grid-template-columns: auto 1fr auto !important;
+            grid-template-columns: 60px 1fr auto !important;
             grid-template-areas: 
                 "medal participant badge"
                 "medal event event";
             align-items: center;
-            gap: 2px 14px !important;
-            padding: 16px 14px !important;
-            margin-bottom: 12px !important;
-            background: rgba(15, 22, 41, 0.7) !important;
-            border-radius: 16px !important;
-            border: 1px solid rgba(124, 58, 237, 0.2) !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+            gap: 4px 15px !important;
+            padding: 20px 18px !important;
+            margin-bottom: 16px !important;
+            background: rgba(15, 22, 41, 0.45) !important;
+            backdrop-filter: blur(10px);
+            border-radius: 20px !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
             position: relative;
             overflow: hidden;
+            transition: transform 0.3s ease;
         }
 
-        /* Add a subtle glow behind the cards */
+        .hof-table tr:active {
+            transform: scale(0.98);
+        }
+
+        /* Subtle Glow Overlay */
+        .hof-table tr::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Stand-out Border with Rank Color */
         .hof-table tr::before {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 4px; height: 100%;
             background: var(--grad-primary);
-            border-radius: 4px 0 0 4px;
+            box-shadow: 4px 0 15px rgba(124, 58, 237, 0.2);
         }
 
         /* Clean up standard table-card td overrides */
@@ -170,13 +203,15 @@ $topScores = $stmt->fetchAll();
                         <td data-label="Participant">
                             <div class="participant-cell" style="display: flex; align-items: center; gap: 12px;">
                                 <div style="width: 34px; height: 34px; border-radius: 10px; background: <?= strtolower($row['status']) == 'winner' ? 'var(--grad-primary)' : 'rgba(100, 130, 200, 0.1)' ?>; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: white; flex-shrink: 0;">
-                                    <?= strtoupper(substr($row['user_name'], 0, 1)) ?>
+                                    <?= strtoupper(substr($row['team_name'] ?: $row['member_names'], 0, 1)) ?>
                                 </div>
                                 <div>
                                     <?php if($row['team_name']): ?>
-                                        <div style="font-weight: 800; color: var(--accent-2); font-size: 0.85rem; margin-bottom: 2px;"><i class="fa-solid fa-users" style="font-size: 0.75rem;"></i> <?= htmlspecialchars($row['team_name']) ?></div>
+                                        <div style="font-weight: 800; color: var(--accent-2); font-size: 0.95rem; margin-bottom: 2px;"><i class="fa-solid fa-users" style="font-size: 0.8rem;"></i> <?= htmlspecialchars($row['team_name']) ?></div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.8;">Members: <?= htmlspecialchars($row['member_names']) ?></div>
+                                    <?php else: ?>
+                                        <div style="font-weight: 700; color: var(--text-primary); font-size: 1rem;"><?= htmlspecialchars($row['member_names']) ?></div>
                                     <?php endif; ?>
-                                    <div style="font-weight: 700; color: var(--text-primary); font-size: 0.9rem;"><?= htmlspecialchars($row['user_name']) ?></div>
                                 </div>
                             </div>
                         </td>
