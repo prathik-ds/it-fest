@@ -738,6 +738,182 @@ if ($user) {
             opacity: 1;
         }
     }
+
+    /* ── Confirmation Modal (Think Twice) ── */
+    #confirmRegisterModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(4, 6, 14, 0.9);
+        z-index: 5000;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+    }
+
+    .confirm-modal-box {
+        background: rgba(15, 22, 41, 0.98);
+        border: 1px solid rgba(255, 170, 0, 0.25);
+        border-radius: 24px;
+        padding: 40px 36px 32px;
+        max-width: 420px;
+        width: 92%;
+        position: relative;
+        animation: zoomIn 0.3s ease;
+        text-align: center;
+        box-shadow: 0 0 60px rgba(255, 170, 0, 0.06), 0 0 120px rgba(0, 0, 0, 0.4);
+    }
+
+    .confirm-modal-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: rgba(255, 170, 0, 0.08);
+        border: 2px solid rgba(255, 170, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        animation: confirmPulse 2s ease-in-out infinite;
+    }
+
+    .confirm-modal-icon i {
+        font-size: 2rem;
+        color: #ffaa00;
+    }
+
+    @keyframes confirmPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(255, 170, 0, 0.15); }
+        50% { box-shadow: 0 0 0 12px rgba(255, 170, 0, 0); }
+    }
+
+    .confirm-modal-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 8px;
+        letter-spacing: -0.01em;
+    }
+
+    .confirm-modal-subtitle {
+        font-size: 0.88rem;
+        color: #94a3c7;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    .confirm-modal-warning {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(244, 63, 94, 0.06);
+        border: 1px solid rgba(244, 63, 94, 0.18);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 28px;
+        text-align: left;
+    }
+
+    .confirm-modal-warning i {
+        color: #f43f5e;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .confirm-modal-warning span {
+        font-size: 0.78rem;
+        color: #f0a0b0;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    .confirm-event-name {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #00d4ff;
+        background: rgba(0, 212, 255, 0.06);
+        border: 1px solid rgba(0, 212, 255, 0.12);
+        border-radius: 10px;
+        padding: 10px 16px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .confirm-modal-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .confirm-btn-cancel {
+        flex: 1;
+        padding: 13px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: #94a3c7;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .confirm-btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #fff;
+    }
+
+    .confirm-btn-proceed {
+        flex: 1.3;
+        padding: 13px;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(124, 58, 237, 0.2));
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        color: #00d4ff;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .confirm-btn-proceed:hover {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(124, 58, 237, 0.3));
+        border-color: rgba(0, 212, 255, 0.5);
+        color: #fff;
+        box-shadow: 0 0 25px rgba(0, 212, 255, 0.15);
+    }
+
+    @media (max-width: 600px) {
+        .confirm-modal-box {
+            padding: 28px 20px 24px;
+            border-radius: 20px;
+        }
+
+        .confirm-modal-title {
+            font-size: 1.15rem;
+        }
+
+        .confirm-modal-actions {
+            flex-direction: column-reverse;
+            gap: 10px;
+        }
+    }
 </style>
 
 <!-- Page Header -->
@@ -884,7 +1060,7 @@ if ($user) {
                             </button>
                         <?php else: ?>
                             <button class="ev-register-btn team-btn"
-                                onclick="openTeamModal(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>', <?= (int) $event['min_team_size'] ?>, <?= (int) $event['max_team_size'] ?>)">
+                                onclick="showConfirmRegister(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>', true, <?= (int) $event['min_team_size'] ?>, <?= (int) $event['max_team_size'] ?>)">
                                 <i class="fa-solid fa-users"></i> Team Register
                             </button>
                         <?php endif; ?>
@@ -896,15 +1072,17 @@ if ($user) {
                                 <i class="fa-solid fa-check-circle"></i> Registered
                             </button>
                         <?php else: ?>
-                            <form action="register_event.php" method="POST">
+                            <form id="regForm-<?= $event['id'] ?>" action="register_event.php" method="POST">
                                 <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
-                                <button type="submit" class="ev-register-btn" <?= $is_full ? 'disabled' : '' ?>>
-                                    <?php if ($is_full): ?>
+                                <?php if ($is_full): ?>
+                                    <button type="button" class="ev-register-btn" disabled>
                                         <i class="fa-solid fa-ban"></i> Full House
-                                    <?php else: ?>
+                                    </button>
+                                <?php else: ?>
+                                    <button type="button" class="ev-register-btn" onclick="showConfirmRegister(<?= $event['id'] ?>, '<?= htmlspecialchars(addslashes($event['name'])) ?>')">
                                         <i class="fa-solid fa-bolt"></i> Register Now
-                                    <?php endif; ?>
-                                </button>
+                                    </button>
+                                <?php endif; ?>
                             </form>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -1050,6 +1228,34 @@ if ($user) {
         </div>
     </div>
 </div>
+
+<!-- ═══ CONFIRM REGISTRATION MODAL ═══ -->
+<div id="confirmRegisterModal">
+    <div class="confirm-modal-box">
+        <div class="confirm-modal-icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="confirm-modal-title">Think Twice!</div>
+        <div class="confirm-modal-subtitle">You are about to register for this event. Please make sure you are ready to commit.</div>
+        <div class="confirm-event-name">
+            <i class="fa-solid fa-bolt"></i>
+            <span id="confirm-event-label"></span>
+        </div>
+        <div class="confirm-modal-warning">
+            <i class="fa-solid fa-lock"></i>
+            <span>Once registered, you <strong>cannot unregister</strong>. This action is permanent and irreversible.</span>
+        </div>
+        <div class="confirm-modal-actions">
+            <button class="confirm-btn-cancel" onclick="closeConfirmModal()">
+                <i class="fa-solid fa-arrow-left"></i> Go Back
+            </button>
+            <button class="confirm-btn-proceed" id="confirm-proceed-btn" onclick="proceedRegistration()">
+                <i class="fa-solid fa-check-circle"></i> Yes, Register Me
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     let _activeEventId = null;
     let _activeTeamId = null;
@@ -1266,6 +1472,50 @@ if ($user) {
 
     document.getElementById('detailsModal').addEventListener('click', function (e) {
         if (e.target === this) closeDetailsModal();
+    });
+
+    // ── Confirm Registration Modal ──
+    let _confirmEventId = null;
+    let _confirmIsTeam = false;
+    let _confirmTeamMin = 0;
+    let _confirmTeamMax = 0;
+    let _confirmEventName = '';
+
+    function showConfirmRegister(eventId, eventName, isTeam, minSize, maxSize) {
+        _confirmEventId = eventId;
+        _confirmEventName = eventName;
+        _confirmIsTeam = isTeam || false;
+        _confirmTeamMin = minSize || 0;
+        _confirmTeamMax = maxSize || 0;
+        document.getElementById('confirm-event-label').textContent = eventName;
+        document.getElementById('confirmRegisterModal').style.display = 'flex';
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirmRegisterModal').style.display = 'none';
+        _confirmEventId = null;
+        _confirmIsTeam = false;
+    }
+
+    function proceedRegistration() {
+        if (_confirmEventId) {
+            if (_confirmIsTeam) {
+                // Close confirm modal, then open team modal
+                closeConfirmModal();
+                openTeamModal(_confirmEventId, _confirmEventName, _confirmTeamMin, _confirmTeamMax);
+                return;
+            } else {
+                const form = document.getElementById('regForm-' + _confirmEventId);
+                if (form) {
+                    form.submit();
+                }
+            }
+        }
+        closeConfirmModal();
+    }
+
+    document.getElementById('confirmRegisterModal').addEventListener('click', function (e) {
+        if (e.target === this) closeConfirmModal();
     });
 </script>
 

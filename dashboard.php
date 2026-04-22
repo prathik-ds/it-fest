@@ -23,9 +23,17 @@ $stmt = $pdo->prepare("
 $stmt->execute([$user_id]);
 $myEvents = $stmt->fetchAll();
 
-// Fetch public announcements
-$stmt = $pdo->query("SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5");
-$announcements = $stmt->fetchAll();
+// Fetch public announcements — cached in session for 2 minutes to reduce DB load
+// With 600 students on dashboard, this prevents 600 identical queries per 2-min window
+$announcements = [];
+$cache_key = 'announcements_cache';
+$cache_ttl = 120; // seconds
+if (!isset($_SESSION[$cache_key]) || (time() - $_SESSION[$cache_key . '_time']) > $cache_ttl) {
+    $stmt = $pdo->query("SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5");
+    $_SESSION[$cache_key] = $stmt->fetchAll();
+    $_SESSION[$cache_key . '_time'] = time();
+}
+$announcements = $_SESSION[$cache_key];
 ?>
 
 <style>
